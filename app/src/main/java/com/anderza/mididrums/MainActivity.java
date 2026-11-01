@@ -1,10 +1,12 @@
 package com.anderza.mididrums;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -137,8 +139,38 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        stopService(new Intent(this, PlaybackService.class));
+        super.onDestroy();
+    }
+
+    private boolean askedNotify;
+
+    /** While the player runs, a foreground service keeps the app (and its sound) going in the background. */
+    private void setPlayingService(boolean on) {
+        Intent svc = new Intent(this, PlaybackService.class);
+        if (!on) { stopService(svc); return; }
+        if (Build.VERSION.SDK_INT >= 33 && !askedNotify
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            askedNotify = true;
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(svc);
+            else startService(svc);
+        } catch (Exception ignored) {
+            // not allowed right now (e.g. already in background); playback still runs while the screen is on
+        }
+    }
+
     /** Called from the page as window.AndroidBridge. */
     private class Bridge {
+        @JavascriptInterface
+        public void setPlaying(boolean on) {
+            runOnUiThread(() -> setPlayingService(on));
+        }
+
         @JavascriptInterface
         public void setImmersive(boolean on) {
             runOnUiThread(() -> setFullScreen(on));

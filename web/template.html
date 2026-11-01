@@ -84,6 +84,23 @@ select{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;
 .track .rm{background:none;border:0;color:var(--muted);font-size:20px;width:32px;height:32px;flex:none}
 .note{font-size:13px;color:var(--warn)}
 footer{font-size:12px;color:var(--muted)}
+.about{font-size:12px;line-height:1.45;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:8px 10px;margin:0}
+.about b{color:var(--fg)}
+header h1{display:flex;align-items:center;gap:10px}
+.pad{flex-direction:column;gap:1px}
+.pad small{font-size:10px;font-weight:500;color:var(--brass);opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pad.pick small::after{content:' ▾'}
+.pad.on small{color:var(--brass-ink)}
+.ctl b{font:700 16px/1 var(--display);color:var(--hit)}
+.countbig{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:40;font:700 38vmin/1 var(--display);color:var(--hit);text-shadow:0 6px 30px rgba(0,0,0,.6)}
+.snds{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.snd{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:8px;text-align:left;font-size:13px;font-weight:600}
+.snd small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
+.snd[aria-pressed="true"]{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
+.eqp{display:flex;flex-wrap:wrap;gap:6px}
+.eqp button{padding:4px 8px;border-radius:3px;border:1px solid var(--line);background:var(--panel-2);font-size:12px}
+#eqStrips{grid-template-columns:repeat(9,minmax(30px,1fr))}
+#eqStrips .fwrap{height:150px}#eqStrips input.fader{height:150px;width:28px}
 
 /* track bar + editor */
 .trackbar{display:flex;gap:8px;align-items:center}
@@ -120,7 +137,6 @@ footer{font-size:12px;color:var(--muted)}
   .ed-top,.ed-tools{flex-wrap:nowrap;overflow-x:auto}
   .ed-top{gap:6px}.ed-top input{flex:0 1 220px}
   .ed-tools{gap:8px;padding-bottom:2px}.ed-tools>*{flex:none}
-  .ed-hint{display:none}
   .ed-lanes{width:84px}
   .ed-sel{flex-wrap:nowrap;overflow-x:auto;padding:3px 6px}.ed-sel>*{flex:none}
 }
@@ -150,8 +166,8 @@ footer{font-size:12px;color:var(--muted)}
 .strip{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--panel-2);border-radius:3px;padding:8px 2px;min-width:0}
 .mh{display:flex;flex-direction:column;gap:2px}
 .mh h2{display:flex;align-items:center;gap:8px}
-.mix-head .info{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--brass);background:transparent;color:var(--brass);font:700 12px/1 var(--body);padding:0;display:grid;place-items:center}
-.mix-head .info[aria-expanded="true"]{background:var(--brass);color:var(--brass-ink)}
+.info{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--brass);background:transparent;color:var(--brass);font:700 12px/1 var(--body);padding:0;display:grid;place-items:center}
+.info[aria-expanded="true"]{background:var(--brass);color:var(--brass-ink)}
 .hints{margin:0;padding:8px 10px 8px 26px;background:var(--panel-2);border:1px solid var(--line);border-radius:3px;font-size:12px;line-height:1.4;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 .hints b{color:var(--fg)}.mh small{font-size:12px;color:var(--muted)}
 .strip.unused .fwrap,.strip.unused .nm,.strip.unused .lv{opacity:.35}
@@ -177,9 +193,15 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 
 <div class="app">
   <header>
-    <h1>Барабаны <span>MIDI</span></h1>
+    <h1>Барабаны <span>MIDI</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
     <div class="status" id="status">Загрузка сэмплов…</div>
   </header>
+
+  <div class="about" id="about" hidden>
+    <b>Пэды</b>: нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука, остальные пэды просто играют.
+    <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
+    <b>EQ</b>: эквалайзер на весь звук. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 18.
+  </div>
 
   <section>
     <div class="kits" id="kits" role="group" aria-label="Установка"></div>
@@ -193,7 +215,8 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
     <span class="name" id="curName" hidden>—</span>
     <div class="row">
       <button class="play" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
-      <button class="ctl" id="stop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button>
+      <button class="ctl" id="count" aria-label="Отсчёт 5 секунд и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg></button>
+      <button class="ctl" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M4 18h2v-6H4zm4 0h2V6H8zm4 0h2v-9h-2zm4 0h2V9h-2zm4 0h2v-4h-2z"/></svg></button>
       <button class="ctl" id="loop" aria-label="Повтор" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
       <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Позиция">
       <span class="time" id="time">0:00 / 0:00</span>
@@ -232,6 +255,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
       <input id="edName" aria-label="Название дорожки" autocomplete="off">
       <button class="ed-b primary" id="edSave">Сохранить</button>
       <button class="ed-b" id="edClose">Закрыть</button>
+      <button class="info" id="edInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="edHint">i</button>
     </div>
     <div class="ed-tools">
       <button class="ctl sm" id="edPlay" aria-label="Играть"><svg viewBox="0 0 24 24" id="edPlayIcon"><path d="M8 5v14l11-7z"/></svg></button>
@@ -245,7 +269,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
       <button class="ed-b" id="edExport">Скачать MIDI</button>
       <button class="ed-b danger" id="edClear">Очистить</button>
     </div>
-    <div class="ed-hint" id="edHint">Нажмите на клетку, чтобы поставить удар, нажмите на удар, чтобы убрать. Нажатие на название инструмента даёт его послушать, удержание выделяет все его ноты, выделенные ноты можно перетащить на другой инструмент. Сведите или разведите два пальца, чтобы изменить масштаб сетки.</div>
+    <div class="ed-hint" id="edHint" hidden>Нажмите на клетку, чтобы поставить удар, нажмите на удар, чтобы убрать. Нажатие на название инструмента даёт его послушать, удержание выделяет все его ноты, выделенные ноты можно перетащить на другой инструмент. Сведите или разведите два пальца, чтобы изменить масштаб сетки.</div>
     <div class="ed-sel" id="edSelBar" hidden>
       <span>Выбрано: <b id="edSelInfo">0</b></span>
       <label class="ed-f">Сила <input id="edSelVel" type="range" min="1" max="127" value="100"><output id="edSelVelOut">100</output></label>
@@ -258,6 +282,23 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
     <div class="ed-grid">
       <div class="ed-lanes" id="edLanes"></div>
       <div class="ed-scroll" id="edScroll"><div id="edSpacer"></div><canvas id="edCanvas"></canvas></div>
+    </div>
+  </div>
+  <div class="mixer" id="sndSheet" role="dialog" aria-label="Выбор звука" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><div class="mh"><h2 id="sndTitle">Звук</h2><small>Нажмите, чтобы послушать и выбрать. Выбор работает во всех установках.</small></div><div class="acts"><button id="sndClose">Готово</button></div></div>
+      <div class="snds" id="snds"></div>
+    </div>
+  </div>
+  <div class="mixer" id="eqSheet" role="dialog" aria-label="Эквалайзер" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><div class="mh"><h2>Эквалайзер <button class="info" id="eqInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="eqHints">!</button></h2><small id="eqSum">Ровно</small></div><div class="acts"><button id="eqReset">Сбросить</button><button id="eqClose">Готово</button></div></div>
+      <div class="knobrow"><button class="play" id="eqPlay" aria-label="Играть"><svg viewBox="0 0 24 24" id="eqPlayIcon"><path d="M8 5v14l11-7z"/></svg></button><div class="eqp" id="eqPresets"></div></div>
+      <ul class="hints" id="eqHints" hidden>
+        <li>Каждый фейдер поднимает или опускает свою полосу частот на 12 дБ. Слева низ (бочка, бас), справа верх (тарелки, воздух).</li>
+        <li>Двойное нажатие на фейдер возвращает его в 0. Эквалайзер общий для всех установок и запоминается.</li>
+      </ul>
+      <div class="strips" id="eqStrips"></div>
     </div>
   </div>
   <div class="mixer" id="mixer" role="dialog" aria-label="Миксер" hidden>
@@ -278,19 +319,19 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
     </div>
   </div>
 
-  <footer>Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета. Версия 17.</footer>
+  <div class="countbig" id="countBig" hidden></div>
 </div>
 
 <script>
 const KITDATA = /*__KITDATA__*/;
 
 const KITS = [
-  {id:'std',    name:'Стандарт',   desc:'Базовая установка General MIDI, почти без обработки', v:'0', fx:{low:0, mid:0, high:0, rev:0.12, revLen:1.2, thr:-6, ratio:1.2, sat:0.6, gain:2}},
-  {id:'rock',   name:'Рок',        desc:'Мощная бочка, звонкий малый, живая комната', v:'16', fx:{low:4, mid:-1, high:2, rev:0.14, revLen:1.3, thr:-18, ratio:3, gain:4, sat:1.3}, faders:{verb:45}},
+  {id:'std',    name:'Стандарт',   desc:'Базовая установка General MIDI, почти без обработки', v:'0', fx:{low:0, mid:0, high:0, rev:0.12, revLen:1.2, thr:-12, ratio:1.8, sat:0.6, gain:11}},
+  {id:'rock',   name:'Рок',        desc:'Мощная бочка, звонкий малый, живая комната', v:'16', fx:{low:4, mid:-1, high:2, rev:0.14, revLen:1.3, thr:-18, ratio:3, gain:2, sat:1.3}, faders:{verb:45}},
   {id:'punk',   name:'Панк-рок',   desc:'Басовый и плотный, мягкий верх, без комнаты', v:'0', fx:{low:6, mid:-1, high:-1, rev:0.2, revLen:0.6, thr:-20, ratio:2.5, att:0.012, gain:5, sat:1.5}, faders:{amb:0, verb:40}},
   {id:'modern', name:'Модерн',     desc:'Плотный компрессированный звук, щелчок бочки', v:'11', fx:{low:5, mid:-4, high:5, rev:0.05, revLen:0.7, thr:-28, ratio:8, gain:7, sat:1.2}, faders:{verb:20}},
-  {id:'pop',    name:'Поп',        desc:'Чистая студийная установка, мягкий ревер',     v:'0',  fx:{low:1, mid:0,  high:3, rev:0.22, revLen:1.4, thr:-20, ratio:2.5, gain:2}, faders:{verb:85}},
-  {id:'electro',name:'Электро 808',desc:'Драм-машина: гулкая бочка и сухой малый',      v:'21', fx:{low:3, mid:-1, high:1, rev:0.12, revLen:1.0, thr:-20, ratio:3, gain:2}},
+  {id:'pop',    name:'Поп',        desc:'Чистая студийная установка, мягкий ревер',     v:'0',  fx:{low:1, mid:0,  high:3, rev:0.22, revLen:1.4, thr:-20, ratio:2.5, gain:8.5}, faders:{verb:85}},
+  {id:'electro',name:'Электро 808',desc:'Драм-машина: гулкая бочка и сухой малый',      v:'21', fx:{low:3, mid:-1, high:1, rev:0.12, revLen:1.0, thr:-20, ratio:3, gain:1.5}},
 ];
 
 const GROUPS = [
@@ -462,7 +503,7 @@ function makeExample(def){
 let chans=[], buses={}, noteChan={};   // current kit's channel list, id -> close bus, note -> channel id
 let mixAll = (()=>{ try{ return JSON.parse(store.get('mix5'))||{}; }catch(e){ return {}; } })();
 let mix;   // settings of the current kit: {lv:{id:%}, mute:{id:bool}, solo:{id:bool}}
-let sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
+let eqBands=[], sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
 const decoded = {};              // sample hash -> AudioBuffer
 let kit = KITS.find(k=>k.id===store.get('kit')) || KITS[0];   // KITS[0] is the default kit
 let roomSize = kit.fx.revLen;   // seconds of reverb tail
@@ -497,7 +538,10 @@ function initAudio(){
   makeup=ctx.createGain(); limiter=ctx.createDynamicsCompressor();
   limiter.threshold.value=-2; limiter.knee.value=0; limiter.ratio.value=20; limiter.attack.value=0.002; limiter.release.value=0.08;
   sat=ctx.createWaveShaper(); sat.oversample='2x';
-  eqLow.connect(eqMid).connect(eqHigh).connect(sat).connect(comp).connect(makeup).connect(master);
+  eqLow.connect(eqMid).connect(eqHigh).connect(sat).connect(comp).connect(makeup);
+  // user's graphic EQ over the whole mix
+  let prev=makeup; eqBands=EQ_F.map((f,i)=>{ const b=ctx.createBiquadFilter(); b.type=i===0?'lowshelf':i===EQ_F.length-1?'highshelf':'peaking'; b.frequency.value=f; b.Q.value=1.1; b.gain.value=eqGain[i]||0; prev.connect(b); prev=b; return b; });
+  prev.connect(master);
   restBus=ctx.createGain(); restBus.connect(eqLow);
   // overheads: the whole kit from above, thin on low end
   ohIn=ctx.createGain(); ohHp=ctx.createBiquadFilter(); ohHp.type='highpass'; ohHp.frequency.value=320; ohOut=ctx.createGain();
@@ -531,25 +575,78 @@ function drumTail(n){
   const base = n<=36 ? 0.09 : n<=40 ? 0.1 : (n>=41 && n<=50 && ![42,44,46,49].includes(n)) ? 0.16 : 0;
   return base ? base + Math.pow(v/100,1.6)*1.4 : 0;
 }
+// pick a different drum for a slot (any kit); tune is in semitones
+const SOUNDS = {
+  kick:{title:'Бочка', notes:[35,36], test:36, opts:[
+    {id:'std', name:'Стандартная', d:'Круглая, универсальная', v:'0', src:36},
+    {id:'tight', name:'Плотная', d:'Короткая, с атакой', v:'11', src:36},
+    {id:'power', name:'Пауэр', d:'Большая роковая', v:'16', src:36},
+    {id:'deep', name:'Глубокая', d:'Мягкая, много низа', v:'16', src:35},
+    {id:'low', name:'Низкая', d:'Стандартная, настроена ниже', v:'0', src:36, tune:-3},
+    {id:'el', name:'Электро', d:'Драм-машина', v:'21', src:35},
+    {id:'808', name:'808', d:'Гудящая электронная', v:'21', src:36}]},
+  snare:{title:'Малый барабан', notes:[38,40], test:38, opts:[
+    {id:'std', name:'Стандартный', d:'Сбалансированный', v:'0', src:38},
+    {id:'bright', name:'Звонкий', d:'Больше струн', v:'0', src:40},
+    {id:'tight', name:'Плотный', d:'Сухой, с щелчком', v:'11', src:38},
+    {id:'crack', name:'Хлёсткий', d:'Резкая атака', v:'11', src:40},
+    {id:'power', name:'Пауэр', d:'Большой, с комнатой', v:'16', src:38},
+    {id:'power2', name:'Пауэр 2', d:'Толще и длиннее', v:'16', src:40},
+    {id:'piccolo', name:'Пикколо', d:'Высокий и тугой', v:'0', src:38, tune:3},
+    {id:'deep', name:'Глубокий', d:'Низко настроенный', v:'16', src:38, tune:-2},
+    {id:'el', name:'Электро', d:'Драм-машина', v:'21', src:38},
+    {id:'808', name:'808', d:'Хлопок 808', v:'21', src:40}]},
+  toms:{title:'Томы', notes:[41,43,45,47,48,50], test:45, opts:[
+    {id:'std', name:'Стандартные', d:'Обычный набор', v:'0'},
+    {id:'high', name:'Высокие', d:'Настроены выше', v:'0', tune:2},
+    {id:'power', name:'Пауэр', d:'Большие роковые', v:'16'},
+    {id:'low', name:'Низкие', d:'Пауэр, настроены ниже', v:'16', tune:-2},
+    {id:'el', name:'Электро', d:'Драм-машина', v:'21'}]},
+  crash:{title:'Крэш', notes:[49,57], test:49, opts:[
+    {id:'c1', name:'Крэш 1', d:'Средний', v:'0', src:49},
+    {id:'c2', name:'Крэш 2', d:'Другой оттенок', v:'0', src:57},
+    {id:'bright', name:'Яркий', d:'Тоньше и выше', v:'0', src:49, tune:2},
+    {id:'dark', name:'Тёмный', d:'Толще и ниже', v:'0', src:57, tune:-2},
+    {id:'splash', name:'Сплэш', d:'Маленький и короткий', v:'0', src:55},
+    {id:'china', name:'Чайна', d:'Грязный, хлёсткий', v:'0', src:52}]},
+  ride:{title:'Райд', notes:[51,59], test:51, opts:[
+    {id:'r1', name:'Райд 1', d:'Чистый', v:'0', src:51},
+    {id:'r2', name:'Райд 2', d:'Больше звона', v:'0', src:59},
+    {id:'bell', name:'Колокол', d:'Купол райда', v:'11', src:53},
+    {id:'dark', name:'Тёмный', d:'Ниже и мягче', v:'0', src:51, tune:-2}]},
+};
+const PAD_SLOT={0:'kick',1:'snare',3:'toms',4:'crash',5:'ride'};
+const SLOT_OF={}; Object.entries(SOUNDS).forEach(([k,sl])=>sl.notes.forEach(n=>SLOT_OF[n]=k));
+let sndSel = (()=>{ try{ return JSON.parse(store.get('snd1'))||{}; }catch(e){ return {}; } })();
+const sndOpt = slot => SOUNDS[slot].opts.find(o=>o.id===sndSel[slot]);
+// -> [zone, the note whose natural pitch to play]
+function soundFor(n){
+  const sl=SLOT_OF[n], o=sl && sndOpt(sl);
+  if(o){ const src=o.src!=null?o.src:n, z=KITDATA.k[o.v][src]||KITDATA.k['0'][src]; if(z) return [z, src+(o.tune||0)]; }
+  return [zoneFor(n), n];
+}
+function decodeAll(hashes){
+  return Promise.all([...new Set(hashes)].filter(h=>h && !decoded[h]).map(h=>new Promise(res=>{
+    ctx.decodeAudioData(b64ToBuf(KITDATA.s[h]), b=>{decoded[h]=b; res();}, ()=>res());
+  })));
+}
 function zoneFor(n){ return (kit.over && kit.over[n] && KITDATA.k[kit.over[n]][n]) || KITDATA.k[kit.v][n] || KITDATA.k['0'][n] || null; }
 async function loadKit(){
   initAudio();
   const notes = new Set([...Object.keys(KITDATA.k[kit.v]), ...Object.keys(KITDATA.k['0'])]);
-  const todo=[...notes].map(n=>zoneFor(n)[0]).filter(h=>!decoded[h]);
+  const todo=[...notes].map(n=>{ const z=soundFor(+n)[0]; return z&&z[0]; }).filter(h=>h && !decoded[h]);
   if(todo.length) setStatus('Загрузка «'+kit.name+'»…');
-  await Promise.all([...new Set(todo)].map(h=>new Promise(res=>{
-    ctx.decodeAudioData(b64ToBuf(KITDATA.s[h]), b=>{decoded[h]=b; res();}, ()=>res());
-  })));
+  await decodeAll(todo);
   setStatus('Установка: '+kit.name);
 }
-let openHat=null;
+let openHat=null, queued=[];
 function hit(n,vel,when,cut){
   if(n<0) return false;
-  const z=zoneFor(n); if(!z) return false; const buf=decoded[z[0]]; if(!buf) return false;
+  const [z,pn]=soundFor(n); if(!z) return false; const buf=decoded[z[0]]; if(!buf) return false;
   const [,orig,coarse,fine,anchor]=z;
   const src=ctx.createBufferSource(); src.buffer=buf;
   // no two hits alike: a few cents of pitch and a little level drift, like alternating samples
-  src.playbackRate.value=Math.pow(2,(n*100-(orig-coarse*100-fine)+(Math.random()-0.5)*14)/1200);
+  src.playbackRate.value=Math.pow(2,(pn*100-(orig-coarse*100-fine)+(Math.random()-0.5)*14)/1200);
   const g=ctx.createGain(); const v=vel/127; g.gain.value=(v*v*0.95+0.05*v)*(0.95+Math.random()*0.1);
   // a soft hit is darker than a hard one
   const tone=ctx.createBiquadFilter(); tone.type='lowpass'; tone.Q.value=0.5; tone.frequency.value=Math.min(20000, 1600*Math.pow(2,v*3.6));
@@ -562,9 +659,22 @@ function hit(n,vel,when,cut){
   else if(n===42||n===44){ g.gain.setTargetAtTime(0, when+0.045, 0.022); }   // the sample's tail is loose; damp it so the hat sounds shut
   else { const tail=drumTail(n); if(tail) g.gain.setTargetAtTime(0, when+tail, tail*0.25); }
   src.start(when, Math.min(anchor||0, buf.duration/2));
+  if(when>ctx.currentTime+0.02) queued.push({src,when});
   return true;
 }
 
+const EQ_F=[60,125,250,500,1000,2000,4000,8000,14000];
+const EQ_PRESETS=[['Ровно',[0,0,0,0,0,0,0,0,0]],['Больше низа',[5,4,1,-1,0,0,0,0,0]],['Атака',[2,0,-2,-2,0,2,4,3,1]],['Мягче',[1,1,0,0,-1,-2,-3,-4,-5]],['Ярче',[0,0,-1,0,0,1,3,4,5]],['Без бубнежа',[0,0,-3,-4,-1,0,1,0,0]]];
+let eqGain=(()=>{ try{ const a=JSON.parse(store.get('eq1')); return Array.isArray(a)&&a.length===EQ_F.length?a:EQ_F.map(()=>0); }catch(e){ return EQ_F.map(()=>0); } })();
+const eqLabel=f=>f>=1000?(f/1000)+'к':String(f);
+function setEq(i,v){ eqGain[i]=Math.max(-12,Math.min(12,v)); if(eqBands[i]) eqBands[i].gain.setTargetAtTime(eqGain[i],ctx.currentTime,0.02);
+  const l=document.getElementById('eqlv-'+i); if(l) l.textContent=(eqGain[i]>0?'+':'')+eqGain[i]; store.set('eq1',JSON.stringify(eqGain)); eqSummary(); }
+function eqSummary(){ const p=EQ_PRESETS.find(([,a])=>a.every((v,i)=>v===eqGain[i])); $('eqSum').textContent=p?p[0]:'Свои настройки'; document.querySelectorAll('#eqPresets button').forEach(b=>b.setAttribute('aria-pressed',!!p&&b.textContent===p[0])); }
+function renderEq(){
+  $('eqPresets').innerHTML=EQ_PRESETS.map(([n],i)=>`<button data-p="${i}">${n}</button>`).join('');
+  $('eqStrips').innerHTML=EQ_F.map((f,i)=>`<div class="strip"><span class="lv" id="eqlv-${i}">${(eqGain[i]>0?'+':'')+eqGain[i]}</span><div class="fwrap"><input class="fader" type="range" min="-12" max="12" step="0.5" value="${eqGain[i]}" data-i="${i}" aria-label="${eqLabel(f)} Гц"></div><span class="nm">${eqLabel(f)}</span></div>`).join('');
+  eqSummary();
+}
 /* ---------- player ---------- */
 const tracks=[demoTrack(), ...EXAMPLES.map(makeExample), ...loadLibrary()]; let cur=0, chan=9;
 let playing=false, startCtx=0, startPos=0, speed=1, idx=0, timer=null, loop=false, flashes=[];
@@ -584,7 +694,7 @@ function findIdx(t){ let lo=0,hi=list.length; while(lo<hi){ const m=(lo+hi)>>1; 
 function tick(){
   const now=ctx.currentTime, D=duration();
   for(let pass=0; pass<4; pass++){
-    const horizon=startPos+(now+0.15-startCtx)*speed;
+    const horizon=startPos+(now+(document.hidden?2.5:0.15)-startCtx)*speed;
     while(idx<list.length && list[idx].t<=horizon && list[idx].t<D){
       const e=list[idx++]; const when=Math.max(now, startCtx+(e.t-startPos)/speed);
       if(e.cut) hit(42, Math.round(e.v*0.7), when);
@@ -595,6 +705,7 @@ function tick(){
     startCtx += (D-startPos)/speed; startPos=0; idx=0; wrapLen=D;
   }
   if(!loop && pos()>=D) stop();
+  if(queued.length>64) queued=queued.filter(q=>q.when>now);
 }
 async function play(){
   initAudio(); if(ctx.state!=='running') await ctx.resume();
@@ -603,7 +714,9 @@ async function play(){
   startCtx=ctx.currentTime+0.05; idx=findIdx(startPos); wrapLen=0; playing=true;
   timer=setInterval(tick,25); tick(); setPlayIcon();
 }
-function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer); setPlayIcon(); }
+function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer);
+  const t=ctx.currentTime; queued.forEach(q=>{ if(q.when>t+0.005) try{ q.src.stop(); }catch(_){} }); queued=[]; setPlayIcon(); }
+document.addEventListener('visibilitychange',()=>{ if(playing){ clearInterval(timer); timer=setInterval(tick,25); tick(); } });
 function stop(){ pause(); startPos=0; idx=0; render(); }
 function seekTo(t){ const was=playing; if(was) pause(); startPos=Math.max(0,Math.min(t,duration())); idx=findIdx(startPos); if(was) play(); render(); }
 function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx=findIdx(startPos); wrapLen=0; } speed=s; }
@@ -612,7 +725,9 @@ function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx
 function setStatus(t){ $('status').textContent=t; }
 function showNote(t){ $('note').textContent=t; $('note').hidden=!t; }
 const fmt = s => { s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
-function setPlayIcon(){ $('edPlayIcon').innerHTML = $('mixPlayIcon').innerHTML = playing ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; $('mixPlay').setAttribute('aria-label', playing?'Пауза':'Играть'); $('playIcon').innerHTML = playing ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; $('play').setAttribute('aria-label', playing?'Пауза':'Играть'); }
+function setPlayIcon(){
+  try{ if(window.AndroidBridge && AndroidBridge.setPlaying) AndroidBridge.setPlaying(playing); }catch(_){}   // keeps the app playing in the background
+  $('eqPlayIcon').innerHTML = $('edPlayIcon').innerHTML = $('mixPlayIcon').innerHTML = playing ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; $('mixPlay').setAttribute('aria-label', playing?'Пауза':'Играть'); $('playIcon').innerHTML = playing ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; $('play').setAttribute('aria-label', playing?'Пауза':'Играть'); }
 
 function renderKits(){
   $('kits').innerHTML = KITS.map(k=>`<button class="kit" data-id="${k.id}" aria-pressed="${k===kit}" title="${k.desc}">${k.name}</button>`).join('');
@@ -627,10 +742,28 @@ $('kits').addEventListener('click', async e=>{
   if(!playing){ hit(36,110,ctx.currentTime+0.01); hit(42,90,ctx.currentTime+0.01); hit(38,110,ctx.currentTime+0.3); hit(42,80,ctx.currentTime+0.3); }
 });
 
-$('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}</button>`).join('');
+$('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}<small></small></button>`).join('');
+padLabels();
 const PAD_NOTE=[36,38,42,45,49,51,63,56];
+function padLabels(){ document.querySelectorAll('.pad').forEach(p=>{ const sl=PAD_SLOT[p.dataset.g]; if(!sl) return; p.classList.add('pick'); const o=sndOpt(sl); p.querySelector('small').textContent=o?o.name:'как в пресете'; }); }
+let sndSlot=null;
+function renderSnds(){
+  const sl=SOUNDS[sndSlot], cur=sndSel[sndSlot]||'';
+  $('sndTitle').textContent=sl.title;
+  $('snds').innerHTML=[{id:'', name:'Как в пресете', d:'Звук выбранной установки'}, ...sl.opts].map(o=>`<button class="snd" data-id="${o.id}" aria-pressed="${o.id===cur}">${o.name}<small>${o.d}</small></button>`).join('');
+}
+$('snds').addEventListener('click', async e=>{
+  const b=e.target.closest('.snd'); if(!b) return;
+  if(b.dataset.id) sndSel[sndSlot]=b.dataset.id; else delete sndSel[sndSlot];
+  store.set('snd1',JSON.stringify(sndSel)); renderSnds(); padLabels();
+  const sl=SOUNDS[sndSlot]; await decodeAll(sl.notes.map(n=>{ const z=soundFor(n)[0]; return z&&z[0]; }));
+  if(ctx.state!=='running') await ctx.resume(); hit(sl.test,112,ctx.currentTime+0.01);
+});
+$('sndClose').addEventListener('click',()=>sheet('sndSheet',false));
+$('pads').addEventListener('click',e=>{ const p=e.target.closest('.pad'); if(!p||!PAD_SLOT[p.dataset.g]) return; sndSlot=PAD_SLOT[p.dataset.g]; renderSnds(); sheet('sndSheet',true); $('sndClose').focus(); });
 $('pads').addEventListener('pointerdown', async e=>{
   const p=e.target.closest('.pad'); if(!p) return; initAudio(); if(ctx.state!=='running') await ctx.resume();
+  if(PAD_SLOT[p.dataset.g]) return;   // these open the sound chooser on click
   const g=+p.dataset.g; hit(PAD_NOTE[g],112,ctx.currentTime); flashes.push({when:ctx.currentTime,g,n:PAD_NOTE[g]});
 });
 
@@ -716,7 +849,17 @@ $('file').addEventListener('change', async e=>{
 });
 
 $('play').addEventListener('click',()=> playing?pause():play());
-$('stop').addEventListener('click',stop);
+// count 1..5 (a second each, with a stick click), then play
+let countT=null;
+function showCount(n){ const b=$('count'); b.setAttribute('aria-pressed',!!n);
+  if(n){ b.dataset.svg=b.dataset.svg||b.innerHTML; b.innerHTML='<b>'+n+'</b>'; $('countBig').textContent=n; $('countBig').hidden=false; }
+  else { if(b.dataset.svg) b.innerHTML=b.dataset.svg; $('countBig').hidden=true; } }
+$('count').addEventListener('click', async ()=>{
+  if(countT){ clearInterval(countT); countT=null; showCount(0); return; }
+  initAudio(); if(ctx.state!=='running') await ctx.resume(); if(playing) pause();
+  let n=1; showCount(n); hit(37,100,ctx.currentTime+0.01);
+  countT=setInterval(()=>{ n++; if(n>5){ clearInterval(countT); countT=null; showCount(0); play(); return; } showCount(n); hit(37,n===5?124:100,ctx.currentTime+0.01); },1000);
+});
 $('loop').addEventListener('click',()=>{ loop=!loop; $('loop').setAttribute('aria-pressed',loop); });
 let seeking=false;
 $('seek').addEventListener('input',()=>{ seeking=true; $('time').textContent=fmt($('seek').value/1000*duration())+' / '+fmt(duration()); });
@@ -1037,7 +1180,7 @@ $('edSave').addEventListener('click',()=>{
 });
 $('edClose').addEventListener('click',closeEditor);
 $('edit').addEventListener('click',openEditor);
-$('mixInfo').addEventListener('click',()=>{ const h=$('mixHints'); h.hidden=!h.hidden; $('mixInfo').setAttribute('aria-expanded',!h.hidden); });
+[['mixInfo','mixHints'],['aboutInfo','about'],['edInfo','edHint'],['eqInfo','eqHints']].forEach(([b,h])=>$(b).addEventListener('click',()=>{ $(h).hidden=!$(h).hidden; $(b).setAttribute('aria-expanded',!$(h).hidden); if(b==='edInfo') setTimeout(edDraw); }));
 $('mixPlay').addEventListener('click',()=> playing?pause():play());
 $('edPlay').addEventListener('click',()=> playing?pause():play());
 // first press stops where it is, a second press goes back to the start
@@ -1082,6 +1225,14 @@ function frame(){
   requestAnimationFrame(frame);
 }
 // Android back button: close the open panel first; returns false when there is nothing to close
+$('eqOpen').addEventListener('click',()=>{ initAudio(); renderEq(); sheet('eqSheet',true);
+  const f=$('eqStrips').querySelector('.fader'); if(f && f.offsetHeight < f.offsetWidth) $('eqSheet').classList.add('rotfb'); $('eqClose').focus(); });
+$('eqClose').addEventListener('click',()=>{ sheet('eqSheet',false); $('eqOpen').focus(); });
+$('eqReset').addEventListener('click',()=>{ EQ_F.forEach((_,i)=>setEq(i,0)); renderEq(); });
+$('eqPresets').addEventListener('click',e=>{ const b=e.target.closest('[data-p]'); if(!b) return; EQ_PRESETS[+b.dataset.p][1].forEach((v,i)=>setEq(i,v)); renderEq(); });
+$('eqStrips').addEventListener('input',e=>{ const f=e.target.closest('.fader'); if(f) setEq(+f.dataset.i,+f.value); });
+$('eqStrips').addEventListener('dblclick',e=>{ const f=e.target.closest('.fader'); if(f){ f.value=0; setEq(+f.dataset.i,0); } });
+$('eqPlay').addEventListener('click',()=> playing?pause():play());
 window.onAndroidBack = () => { if(ed.open){ closeEditor(); return true; } if(openSheet){ sheet(openSheet,false); return true; } return false; };
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && ctx && playing && ctx.state!=='running') ctx.resume(); });
 
