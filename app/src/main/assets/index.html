@@ -249,7 +249,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 27.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 28.
   </div>
 
   <section>
@@ -499,7 +499,7 @@ function demoTrack(){
    g is steps per bar: 16 = sixteenths, 12 = eighth-note triplets. Each example is 8 bars:
    the groove, a fill in bar 8, then a closing crash. */
 const LANE_KEY = {k:36, s:38, h:42, o:46, p:44, r:51, b:53, c:49, d:57, n:52, t:48, m:45, f:43, g:41, l:39, e:37, w:54, y:56};
-const STYLE_NAME = {rock:'Рок', metal:'Металл', doom:'Doom metal', industrial:'Industrial metal', punk:'Панк-рок', pop:'Поп', ballad:'Баллады'};
+const STYLE_NAME = {rock:'Рок', metal:'Металл', doom:'Doom metal', industrial:'Industrial metal', punk:'Панк-рок', emo:'Эмо', pop:'Поп', ballad:'Баллады'};
 const FILLS = {
   16: [
     {s:'xxxx------------', t:'----xxxx--------', m:'--------xxxx----', f:'------------xxxx', k:'x---x---x---x---'},
@@ -570,6 +570,17 @@ const EXAMPLES = [
   {st:'punk', n:'Бочка на четыре', bpm:150, g:16, v:{k:'x---x---x---x---', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
   {st:'punk', n:'Куплет шестнадцатыми', bpm:120, g:16, v:{k:'x--x--x-x-------', s:'----X-------X---', h:'XoxoXoxoXoxoXoxo'}, fill:1},
   {st:'punk', n:'Мелодик-панк на райде', bpm:190, g:16, v:{k:'x-x-----x-x-----', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, fill:0},
+  // emo (in the spirit of 2000s emo / post-hardcore: fast punk eighths, half-time choruses, marching snare, 6/8 anthems)
+  {st:'emo', n:'Быстрый куплет', bpm:172, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:1},
+  {st:'emo', n:'Припев на райде', bpm:168, g:16, v:{k:'x-x-----x-x-----', s:'----X-------X---', r:'X-x-X-x-X-x-X-x-'}, fill:0},
+  {st:'emo', n:'Халфтайм-припев', bpm:150, g:16, v:{k:'x-----x---x-----', s:'--------X-------', c:'x-------x-------', r:'----x-------x---'}, fill:2},
+  {st:'emo', n:'Маршевый малый', bpm:120, g:16, v:{k:'x-------x-------', s:'X-xxX-x-X-xxX-xx', d:'x---------------'}, fill:1},
+  {st:'emo', n:'Гимн в 6/8', bpm:68, g:12, v:{k:'x-----x-x---', s:'---X-----X--', r:'x-xx-xx-xx-x'}, fill:1},
+  {st:'emo', n:'Томы в куплете', bpm:145, g:16, v:{k:'x-------x-x-----', f:'x-x-x-x-x-x-x-x-', s:'----X-------X---', m:'--------------x-'}, fill:2},
+  {st:'emo', n:'Пост-хардкор синкопы', bpm:160, g:16, v:{k:'x--x--x---x-x---', s:'----X-------X---', o:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'emo', n:'Скейт-бит', bpm:190, g:16, v:{k:'x---x---x---x---', s:'--X---X---X---X-', h:'x-x-x-x-x-x-x-x-'}, fill:1},
+  {st:'emo', n:'Тихий бридж', bpm:84, g:16, v:{k:'x-------x-x-----', e:'----x-------x---', h:'o-x-o-x-o-x-o-x-'}, fill:5},
+  {st:'emo', n:'Большой финал', bpm:132, g:16, v:{k:'x-x-x-x-x-x-x-x-', s:'----X-------X---', c:'x---x---x---x---'}, fill:4},
   // pop
   {st:'pop', n:'Поп на четыре', bpm:120, g:16, v:{k:'x---x---x---x---', l:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:4},
   {st:'pop', n:'Поп-рок', bpm:118, g:16, v:{k:'x-----x-x-x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
@@ -610,7 +621,7 @@ function makeExample(def){
 let chans=[], buses={}, noteChan={};   // current kit's channel list, id -> close bus, note -> channel id
 let mixAll = (()=>{ try{ return JSON.parse(store.get('mix5'))||{}; }catch(e){ return {}; } })();
 let mix;   // settings of the current kit: {lv:{id:%}, mute:{id:bool}, solo:{id:bool}}
-let eqBands=[], sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
+let clipOut=null, eqBands=[], sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
 const decoded = {};              // sample hash -> AudioBuffer
 let kit = KITS.find(k=>k.id===store.get('kit')) || KITS[0];   // KITS[0] is the default kit
 let roomSize = kit.fx.revLen;   // seconds of reverb tail
@@ -656,7 +667,11 @@ function initAudio(){
   // ambience: room mics through the reverb, after the bus compressor
   ambIn=ctx.createGain(); conv=ctx.createConvolver(); ambOut=ctx.createGain();
   ambIn.connect(conv).connect(ambOut).connect(master);
-  master.connect(limiter).connect(ctx.destination);
+  // the limiter lets the first milliseconds of a hit through; a soft clipper after it catches those peaks smoothly instead of hard digital clipping
+  const clip=ctx.createWaveShaper(); clip.oversample='4x';
+  clip.curve=(()=>{ const n=4096, c=new Float32Array(n), k=0.85; for(let i=0;i<n;i++){ const x=(i/(n-1)*2-1)*2, a=Math.abs(x); c[i]=Math.sign(x)*(a<=k ? a : k+(1-k)*Math.tanh((a-k)/(1-k))); } return c; })();
+  const pre=ctx.createGain(); pre.gain.value=0.5;   // the curve covers ±2 (input is halved, curve doubles it back)
+  clipOut=clip; master.connect(limiter).connect(pre).connect(clip).connect(ctx.destination);
   buildBuses(); applyFx();
 }
 function buildBuses(){
@@ -668,7 +683,7 @@ function applyFx(){
   if(!ctx) return; const f=kit.fx;
   eqLow.gain.value=f.low; eqMid.gain.value=f.mid; eqHigh.gain.value=f.high;
   comp.threshold.value=f.thr; comp.ratio.value=f.ratio; comp.attack.value=f.att||0.006;
-  makeup.gain.value=Math.pow(10,(f.gain||0)/20);   // brings compressed presets back up to the others' loudness
+  makeup.gain.value=KIT_BOOST*Math.pow(10,(f.gain||0)/20);   // brings compressed presets back up to the others' loudness
   sat.curve=satCurve(f.sat||0.8);
   conv.buffer=impulse(roomSize);
 }
@@ -748,6 +763,9 @@ async function loadKit(){
 }
 // all cymbals (hats, crashes, rides, china, splash) sit a third lower than the drums by default
 const CYMBAL=new Set([42,44,46,49,51,52,53,55,57,59]), CYMBAL_GAIN=2/3;
+// crash, ride and open hat ring the longest and cover the rest: 30% lower again on every kit
+const WASH=new Set([46,49,51,53,57,59]), WASH_GAIN=0.7;
+const KIT_BOOST=1.5;   // every kit 20% louder
 let openHat=null, queued=[];
 // Voice limit: a drum hit again lets its older rings fade instead of piling up. Dense parts (blast beats, double bass)
 // otherwise stack dozens of sounding voices, which overloads phones (stutter) and muddies the sound.
@@ -767,7 +785,7 @@ function hit(n,vel,when,cut){
   const src=ctx.createBufferSource(); src.buffer=buf;
   // no two hits alike: a few cents of pitch and a little level drift, like alternating samples
   src.playbackRate.value=Math.pow(2,(pn*100-(orig-coarse*100-fine)+(Math.random()-0.5)*14)/1200);
-  const g=ctx.createGain(); const v=vel/127; g.gain.value=(v*v*0.95+0.05*v)*(0.95+Math.random()*0.1)*(CYMBAL.has(n)?CYMBAL_GAIN:1);
+  const g=ctx.createGain(); const v=vel/127; g.gain.value=(v*v*0.95+0.05*v)*(0.95+Math.random()*0.1)*(CYMBAL.has(n)?CYMBAL_GAIN:1)*(WASH.has(n)?WASH_GAIN:1);
   // a soft hit is darker than a hard one
   const tone=ctx.createBiquadFilter(); tone.type='lowpass'; tone.Q.value=0.5; tone.frequency.value=Math.min(20000, 1600*Math.pow(2,v*3.6));
   const pan=ctx.createStereoPanner(); pan.pan.value=PAN[n]||0;
