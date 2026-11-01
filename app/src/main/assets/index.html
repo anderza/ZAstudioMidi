@@ -19,7 +19,7 @@ html,body{background:var(--bg);color:var(--fg)}
 [hidden]{display:none!important}
 body{margin:0;font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 .app{max-width:560px;margin:0 auto;padding-block:calc(18px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;box-sizing:border-box;min-height:100vh;min-height:100dvh}
-.padsec{flex:1;display:flex;min-height:120px}
+.padsec{flex:1 1 0;display:flex;align-items:flex-start;justify-content:center;min-height:130px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:.02em;margin:0;text-transform:uppercase;text-wrap:balance}
 h1 span{color:var(--brass)}
@@ -49,12 +49,18 @@ button{cursor:pointer}
 .kit[aria-pressed="true"]{border-color:var(--brass);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
 
 /* pads */
-.pads{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(48px,1fr);gap:6px;flex:1}
+.pads{display:grid;grid-template-columns:repeat(4,var(--ps,80px));grid-auto-rows:var(--ps,80px);gap:6px}
 .pad{max-width:100%;-webkit-touch-callout:none;-webkit-user-select:none;touch-action:manipulation;border-radius:3px;background:linear-gradient(#2e323b,#23262e);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px;transition:background .12s,border-color .12s,color .12s,transform .08s;user-select:none}
 .pad.on{background:linear-gradient(var(--hit),var(--brass));border-color:var(--hit);color:var(--brass-ink);transform:scale(.95);transition:none}
 
 /* transport */
-.transport{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:7px}
+.transport{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.transport .play{width:46px;height:46px}.transport .play svg{width:24px;height:24px}
+.transport .row>.ctl{width:42px;height:42px}.transport .row>.ctl svg{width:22px;height:22px}
+.transport .field input[type=range]{height:18px}
+#rec svg{fill:#e5484d}
+#rec[aria-pressed="true"]{border-color:#e5484d;background:rgba(229,72,77,.18);animation:recblink 1s steps(2,start) infinite}
+@keyframes recblink{50%{background:transparent}}
 .now{display:flex;justify-content:space-between;gap:10px;align-items:baseline;min-width:0}
 .now .name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;flex:none}
@@ -100,9 +106,19 @@ header h1{display:flex;align-items:center;gap:10px}
 .snd small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
 .snd[aria-pressed="true"]{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
 .eqp{display:flex;flex-wrap:wrap;gap:6px}
-.eqp button{padding:4px 8px;border-radius:3px;border:1px solid var(--line);background:var(--panel-2);font-size:12px}
-#eqStrips{grid-template-columns:repeat(9,minmax(30px,1fr))}
-#eqStrips .fwrap{height:150px}#eqStrips input.fader{height:150px;width:28px}
+.eqp{gap:4px}.eqp button{padding:3px 6px;border-radius:3px;border:1px solid var(--line);background:var(--panel-2);font-size:11px}
+#eqSheet .knobrow .play{width:30px;height:30px}#eqSheet .knobrow .play svg{width:16px;height:16px}
+#eqStrips{grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;overflow:hidden}
+#eqStrips .strip{padding:6px 0;gap:4px}
+#eqStrips .fwrap{height:clamp(90px,30vh,150px);width:100%}#eqStrips input.fader{height:clamp(90px,30vh,150px);width:24px}
+#eqStrips .nm{min-height:0;font-size:10px}#eqStrips .lv{font-size:10px}
+/* narrow phones: shrink controls instead of overflowing */
+@media (max-width:370px){
+  .transport .play{width:40px;height:40px}.transport .row>.ctl{width:36px;height:36px}
+  .kit{font-size:11px;padding:6px 2px}.mixbtn{font-size:12px;letter-spacing:.06em}
+  .mix-head h2{font-size:14px}.mix-head button{padding:2px 6px;font-size:11px}
+  .ed-b{padding:2px 5px;font-size:10px}
+}
 
 /* track bar + editor */
 .trackbar{display:flex;gap:8px;align-items:center}
@@ -163,7 +179,8 @@ header h1{display:flex;align-items:center;gap:10px}
 .mix-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mix-head h2{margin:0;color:var(--fg);font-size:16px}
 .mix-head .acts{display:flex;gap:8px}
-.mix-head button{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:5px 10px;font-size:13px}
+.mix-head button{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:3px 8px;font-size:12px}
+.mix-head .acts{gap:6px}
 .strips{display:grid;grid-template-columns:repeat(8,minmax(40px,1fr));gap:4px;overflow-x:auto;padding-bottom:4px}
 .strip{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--panel-2);border-radius:3px;padding:8px 2px;min-width:0}
 .mh{display:flex;flex-direction:column;gap:2px}
@@ -204,7 +221,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 19.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов в реальном времени, второе нажатие сохраняет новую дорожку (можно записывать поверх играющего трека). Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 20.
   </div>
 
   <section>
@@ -220,8 +237,11 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
     <div class="row">
       <button class="play" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
       <button class="ctl" id="count" aria-label="Отсчёт 5 секунд и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg></button>
-      <button class="ctl" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M4 18h2v-6H4zm4 0h2V6H8zm4 0h2v-9h-2zm4 0h2V9h-2zm4 0h2v-4h-2z"/></svg></button>
       <button class="ctl" id="loop" aria-label="Повтор" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+      <button class="ctl" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M4 18h2v-6H4zm4 0h2V6H8zm4 0h2v-9h-2zm4 0h2V9h-2zm4 0h2v-4h-2z"/></svg></button>
+      <button class="ctl" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button>
+    </div>
+    <div class="row">
       <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Позиция">
       <span class="time" id="time">0:00 / 0:00</span>
     </div>
@@ -238,7 +258,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 
   <section>
     <div class="trackbar">
-      <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="kl">Дорожка</span><span class="tn" id="trkName">—</span><span class="tc" id="trkCount"></span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
+      <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="tn" id="trkName">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
       <button class="ctl" id="edit" aria-label="Редактировать дорожку"><svg viewBox="0 0 24 24"><path d="M4 17.2V20h2.8l8.3-8.3-2.8-2.8zM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.3 1.3 2.8 2.8z"/></svg></button>
       <button class="ctl" id="add" aria-label="Добавить MIDI-дорожку"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
     </div>
@@ -747,6 +767,10 @@ $('kits').addEventListener('click', async e=>{
 });
 
 $('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}</button>`).join('');
+// square pads, as big as the free space allows
+function fitPads(){ const sec=document.querySelector('.padsec'), W=sec.clientWidth, H=sec.clientHeight;
+  $('pads').style.setProperty('--ps', Math.max(52, Math.floor(Math.min((W-18)/4, (H-6)/2)))+'px'); }
+window.addEventListener('resize', fitPads); requestAnimationFrame(fitPads); setTimeout(fitPads,300);
 
 const PAD_NOTE=[36,38,42,45,49,51,63,56];
 let sndSlot=null;
@@ -772,7 +796,7 @@ $('pads').addEventListener('touchend',e=>{ if(padHeld) e.preventDefault(); },{pa
 $('pads').addEventListener('contextmenu',e=>e.preventDefault());
 $('pads').addEventListener('pointerdown', async e=>{
   const p=e.target.closest('.pad'); if(!p) return; initAudio(); if(ctx.state!=='running') await ctx.resume();
-  const g=+p.dataset.g; hit(PAD_NOTE[g],112,ctx.currentTime); flashes.push({when:ctx.currentTime,g,n:PAD_NOTE[g]});
+  const g=+p.dataset.g; hit(PAD_NOTE[g],112,ctx.currentTime); if(rec) rec.ev.push({t:+(ctx.currentTime-rec.t0).toFixed(4), ch:9, n:PAD_NOTE[g], raw:PAD_NOTE[g], v:112}); flashes.push({when:ctx.currentTime,g,n:PAD_NOTE[g]});
 });
 
 // Finds the drum part when it is not on channel 10: most notes sit on the drum keys and kick or snare is present.
@@ -821,7 +845,7 @@ function renderTracks(){
   let last='';
   $('tracks').innerHTML = idx.map(i=>{ const t=tracks[i], g=group(t), head = g!==last ? `<li class="tgroup">${g}</li>` : ''; last=g; return head+trackRow(t,i); }).join('');
   idx.forEach(i=>{ const el=$('tracks').querySelector(`.pick[data-i="${i}"] .t1`); if(el) el.textContent=tracks[i].style ? tracks[i].def.n : tracks[i].name; });
-  $('trkName').textContent=track().name+(track().dirty?' •':''); $('trkCount').textContent=tracks.length>1?(cur+1)+'/'+tracks.length:'';
+  $('trkName').textContent=track().name+(track().dirty?' •':''); 
 }
 function trackRow(t,i){
     if(t.chan===undefined){ const d=findDrumChannel(t); t.chan=d.ch; t.autoChan=d.auto; } const n=t.events.filter(e=>e.ch===t.chan && e.n>=0).length; const d=t.events.length?t.events[t.events.length-1].t:0;
@@ -857,6 +881,20 @@ $('file').addEventListener('change', async e=>{
 });
 
 $('play').addEventListener('click',()=> playing?pause():play());
+// record what is played on the pads into a new track; the current track can play along as a backing
+let rec=null;
+$('rec').addEventListener('click', async ()=>{
+  initAudio(); if(ctx.state!=='running') await ctx.resume();
+  if(!rec){ rec={t0:ctx.currentTime, ev:[]}; $('rec').setAttribute('aria-pressed','true'); setStatus('Запись: играйте на пэдах'); return; }
+  const r=rec; rec=null; $('rec').setAttribute('aria-pressed','false'); setStatus('Установка: '+kit.name);
+  if(!r.ev.length){ showNote('Запись пустая: во время записи нажимайте на пэды.'); return; }
+  const first=r.ev[0].t; r.ev.forEach(e=>e.t=+(e.t-first).toFixed(4));   // start on the first hit
+  const bpm=track().bpm||120, bars=Math.max(1, Math.ceil((r.ev[r.ev.length-1].t+0.05)/(240/bpm)));
+  const n=tracks.filter(t=>/^Запись \d+$/.test(t.name)).length+1;
+  tracks.push({name:'Запись '+n, bpm, chan:9, events:r.ev, saved:true, bars}); saveLibrary();
+  if(playing) pause(); select(tracks.length-1);
+  showNote('Сохранено как «Запись '+n+'»: '+r.ev.length+' ударов. Нажмите карандаш, чтобы поправить.');
+});
 // count 1..5 (a second each, with a stick click), then play
 let countT=null;
 function showCount(n){ const b=$('count'); b.setAttribute('aria-pressed',!!n);
