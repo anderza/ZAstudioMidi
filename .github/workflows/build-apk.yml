@@ -26,7 +26,15 @@ jobs:
       - name: Build player page
         run: python3 web/build.py
 
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then echo "$KEYSTORE_B64" | base64 -d > app/release.jks; echo "fixed key"; else echo "no KEYSTORE_B64 secret: debug key, updates will not install over older builds"; fi
+
       - name: Build APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease

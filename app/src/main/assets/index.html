@@ -100,6 +100,7 @@ footer{font-size:12px;color:var(--muted)}
 header h1{display:flex;align-items:center;gap:10px}
 .pad{flex-direction:column;gap:1px}
 .ctl b{font:700 16px/1 var(--display);color:var(--hit)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px);background:var(--panel-2);border:1px solid var(--brass);border-radius:4px;padding:8px 12px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .countbig{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:40;font:700 38vmin/1 var(--display);color:var(--hit);text-shadow:0 6px 30px rgba(0,0,0,.6)}
 .snds{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .snd{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:8px;text-align:left;font-size:13px;font-weight:600}
@@ -221,7 +222,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов в реальном времени, второе нажатие сохраняет новую дорожку (можно записывать поверх играющего трека). Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 20.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов в реальном времени, второе нажатие сохраняет новую дорожку (можно записывать поверх играющего трека). Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 21.
   </div>
 
   <section>
@@ -344,6 +345,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   </div>
 
   <div class="countbig" id="countBig" hidden></div>
+  <div class="toast" id="toast" role="status" hidden></div>
 </div>
 
 <script>
@@ -831,11 +833,11 @@ $('chan').addEventListener('change',()=>{ const was=playing; pause(); chan=track
 
 /* ---------- saved tracks (kept in this browser / app) ---------- */
 function loadLibrary(){
-  try{ return (JSON.parse(store.get('tracks1'))||[]).map(t=>({name:t.name, bpm:t.bpm, chan:t.chan, saved:true,
+  try{ return (JSON.parse(store.get('tracks1'))||[]).map(t=>({name:t.name, bpm:t.bpm, chan:t.chan, saved:true, bars:t.bars, uri:t.uri,
     events:t.ev.map(([t0,ch,n,v,raw])=>({t:t0,ch,n,v,raw:raw??n,cut:HAT_OPEN[raw]})) })); }catch(e){ return []; }
 }
 function saveLibrary(){
-  const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({name:t.name,bpm:t.bpm,chan:t.chan,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw])}));
+  const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({name:t.name,bpm:t.bpm,chan:t.chan,bars:t.bars,uri:t.uri,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw])}));
   try{ localStorage.setItem('tracks1',JSON.stringify(data)); return true; }catch(e){ return false; }
 }
 function renderTracks(){
@@ -868,8 +870,11 @@ $('newTrack').addEventListener('click',()=>{
 });
 $('file').addEventListener('change', async e=>{
   let last=-1, bad=[];
+  let fi=0;
   for(const f of e.target.files){
-    try{ const m=parseMidi(await f.arrayBuffer()); tracks.push({saved:true, name:f.name.replace(/\.(mid|midi|kar|rmi)$/i,''), title:m.title, events:m.events.map(e=>({...e, raw:e.n, n:gmNote(e.n), cut:HAT_OPEN[e.n]})), bpm:m.bpm, end:m.end}); last=tracks.length-1; }
+    // in the app, remember where the file lives on the phone so «Сохранить» can overwrite it
+    let uri; try{ if(window.AndroidBridge && AndroidBridge.pickedUri) uri=AndroidBridge.pickedUri(f.name, fi)||undefined; }catch(_){} fi++;
+    try{ const m=parseMidi(await f.arrayBuffer()); tracks.push({saved:true, uri, name:f.name.replace(/\.(mid|midi|kar|rmi)$/i,''), title:m.title, events:m.events.map(e=>({...e, raw:e.n, n:gmNote(e.n), cut:HAT_OPEN[e.n]})), bpm:m.bpm, end:m.end}); last=tracks.length-1; }
     catch(err){ bad.push(f.name); }
   }
   e.target.value=''; saveLibrary();
@@ -1222,6 +1227,9 @@ $('edSave').addEventListener('click',()=>{
   }
   t.saved=true; t.dirty=false; t.bars=ed.bars;
   const ok=saveLibrary(); edSaved(ok); if(!ok){ $('edSave').textContent='Нет места'; }
+  if(t.uri && window.AndroidBridge && AndroidBridge.writeUri){   // a file from the phone: replace it with the edited version
+    toast(AndroidBridge.writeUri(t.uri, midiB64(t)) ? 'Файл на устройстве заменён: '+fileName(t) : 'Не удалось заменить файл на устройстве (нет прав на запись). Дорожка сохранена в приложении, используйте «Скачать MIDI».');
+  }
   $('curName').textContent=t.name; renderTracks();
 });
 $('edClose').addEventListener('click',closeEditor);
@@ -1243,14 +1251,17 @@ function toMidi(t){
   const hdr=[0x4D,0x54,0x68,0x64,0,0,0,6,0,0,0,1,(ppq>>8)&255,ppq&255], len=out.length;
   return new Uint8Array([...hdr,0x4D,0x54,0x72,0x6B,(len>>>24)&255,(len>>16)&255,(len>>8)&255,len&255,...out]);
 }
+const fileName = t => (t.name||'drums').replace(/[\\/:*?"<>|]/g,'_')+'.mid';
+function midiB64(t){ const bytes=toMidi(t); let bin=''; for(const b of bytes) bin+=String.fromCharCode(b); return btoa(bin); }
+let toastT=null;
+function toast(msg){ const el=$('toast'); el.textContent=msg; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true, 4000); }
 $('edExport').addEventListener('click',()=>{
-  if(window.AndroidBridge){   // Android app: the native side writes the file to Downloads
-    const bytes=toMidi(track()); let bin=''; for(const b of bytes) bin+=String.fromCharCode(b);
-    const name=(track().name||'drums').replace(/[\\/:*?"<>|]/g,'_')+'.mid';
-    $('edHint').textContent = AndroidBridge.saveFile(name, btoa(bin)) ? 'Сохранено в «Загрузки»: '+name : 'Не удалось сохранить файл.';
+  if(window.AndroidBridge){   // Android app: the native side writes the file to Downloads, replacing the earlier copy
+    const t=track(), r=AndroidBridge.saveFile(fileName(t), midiB64(t));
+    if(r){ if(typeof r==='string' && !t.uri){ t.uri=r; saveLibrary(); } toast('Сохранено в «Загрузки»: '+fileName(t)); } else toast('Не удалось сохранить файл.');
     return;
   }
-  if(window.claude && window.claude.use){ $('edHint').textContent='В онлайн-просмотре скачивание файлов закрыто. «Скачать MIDI» работает, когда плеер открыт как HTML-файл или в приложении.'; return; }
+  if(window.claude && window.claude.use){ toast('В онлайн-просмотре скачивание файлов закрыто. «Скачать MIDI» работает, когда плеер открыт как HTML-файл или в приложении.'); return; }
   const t=track(), url=URL.createObjectURL(new Blob([toMidi(t)],{type:'audio/midi'}));
   const a=document.createElement('a'); a.href=url; a.download=(t.name||'drums').replace(/[\\/:*?"<>|]/g,'_')+'.mid'; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);

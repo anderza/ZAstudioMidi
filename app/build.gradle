@@ -10,15 +10,30 @@ android {
         applicationId 'com.anderza.mididrums'
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName '1.0'
+        // every CI build gets a higher number so Android installs it as an update
+        versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger() + 100
+        versionName '1.' + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
+    }
+
+    // One fixed key for every build: Android only accepts an update signed with the same key as the installed app.
+    // CI writes it to app/release.jks from the KEYSTORE_B64 secret; without it the build falls back to the debug key.
+    def ksPass = System.getenv('KEYSTORE_PASSWORD')
+    def hasKey = file('release.jks').exists() && ksPass
+    signingConfigs {
+        release {
+            if (hasKey) {
+                storeFile file('release.jks')
+                storePassword ksPass
+                keyAlias 'mididrums'
+                keyPassword ksPass
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            // signed with the debug key so the APK installs without extra setup
-            signingConfig signingConfigs.debug
+            signingConfig hasKey ? signingConfigs.release : signingConfigs.debug
         }
     }
 

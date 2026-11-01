@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.provider.OpenableColumns;
 import android.net.Uri;
 import android.os.Build;
 import android.content.pm.PackageManager;
@@ -25,6 +27,8 @@ import android.webkit.WebViewClient;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Hosts the drum player page (assets/index.html) in a full-screen WebView. */
 public class MainActivity extends Activity {
@@ -32,6 +36,8 @@ public class MainActivity extends Activity {
 
     private WebView web;
     private ValueCallback<Uri[]> pendingPick;
+    private final List<Uri> picked = new ArrayList<>();      // files from the last pick, so edits can be written back
+    private final List<String> pickedNames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +62,8 @@ public class MainActivity extends Activity {
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 i.setType("*/*");                         // many file managers don't tag .mid as audio/midi
                 i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
                 try {
                     startActivityForResult(i, PICK_FILES);
                 } catch (Exception e) {
@@ -85,6 +93,20 @@ public class MainActivity extends Activity {
                 for (int k = 0; k < n; k++) result[k] = data.getClipData().getItemAt(k).getUri();
             } else if (data.getData() != null) {
                 result = new Uri[]{data.getData()};
+            }
+        }
+        picked.clear();
+        pickedNames.clear();
+        if (result != null) {
+            for (Uri u : result) {
+                try {   // keep the right to overwrite the file after the app restarts
+                    getContentResolver().takePersistableUriPermission(u,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                } catch (Exception e) {
+                    try { getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) { }
+                }
+                picked.add(u);
+                pickedNames.add(displayName(u));
             }
         }
         pendingPick.onReceiveValue(result);
@@ -164,6 +186,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    private String displayName(Uri u) {
+        try (Cursor c = getContentResolver().query(u, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (c != null && c.moveToFirst()) return c.getString(0);
+        } catch (Exception ignored) { }
+        return "";
+    }
+
     /** Called from the page as window.AndroidBridge. */
     private class Bridge {
         @JavascriptInterface
@@ -176,31 +205,63 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> setFullScreen(on));
         }
 
-        /** Writes a file the page built (base64) to the Downloads folder; true on success. */
+        /** Device address of a file from the last pick (matched by name, else by position), or "". */
         @JavascriptInterface
-        public boolean saveFile(String name, String base64) {
-            try {
-                byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    ContentValues v = new ContentValues();
-                    v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-                    v.put(MediaStore.MediaColumns.MIME_TYPE, "audio/midi");
-                    v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-                    Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
-                    if (uri == null) return false;
-                    try (OutputStream os = getContentResolver().openOutputStream(uri)) {
-                        os.write(bytes);
-                    }
-                } else {
-                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    if (!dir.exists() && !dir.mkdirs()) return false;
-                    try (FileOutputStream os = new FileOutputStream(new File(dir, name))) {
-                        os.write(bytes);
-                    }
-                }
+        public String pickedUri(String name, int index) {
+            int i = pickedNames.indexOf(name);
+            if (i < 0) i = index;
+            return i >= 0 && i < picked.size() ? picked.get(i).toString() : "";
+        }
+
+        /** Overwrites a file on the device (one the user opened or one saved before); true on success. */
+        @JavascriptInterface
+        public boolean writeUri(String uri, String base64) {
+            try (OutputStream os = getContentResolver().openOutputStream(Uri.parse(uri), "wt")) {
+                if (os == null) return false;
+                os.write(Base64.decode(base64, Base64.DEFAULT));
                 return true;
             } catch (Exception e) {
                 return false;
+            }
+        }
+
+        /** Writes a file the page built (base64) to Downloads, replacing a file of the same name
+         *  this app saved before. Returns the file's address, or "" on failure. */
+        @JavascriptInterface
+        public String saveFile(String name, String base64) {
+            try {
+                byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Uri uri = null;
+                    try (Cursor c = getContentResolver().query(MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                            new String[]{MediaStore.MediaColumns._ID},
+                            MediaStore.MediaColumns.DISPLAY_NAME + "=?", new String[]{name}, null)) {
+                        if (c != null && c.moveToFirst())
+                            uri = Uri.withAppendedPath(MediaStore.Downloads.EXTERNAL_CONTENT_URI, String.valueOf(c.getLong(0)));
+                    }
+                    if (uri == null) {
+                        ContentValues v = new ContentValues();
+                        v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                        v.put(MediaStore.MediaColumns.MIME_TYPE, "audio/midi");
+                        v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                        uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                    }
+                    if (uri == null) return "";
+                    try (OutputStream os = getContentResolver().openOutputStream(uri, "wt")) {
+                        os.write(bytes);
+                    }
+                    return uri.toString();
+                } else {
+                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists() && !dir.mkdirs()) return "";
+                    File f = new File(dir, name);
+                    try (FileOutputStream os = new FileOutputStream(f, false)) {
+                        os.write(bytes);
+                    }
+                    return Uri.fromFile(f).toString();
+                }
+            } catch (Exception e) {
+                return "";
             }
         }
     }
