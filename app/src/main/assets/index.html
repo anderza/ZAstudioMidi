@@ -222,7 +222,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов в реальном времени, второе нажатие сохраняет новую дорожку (можно записывать поверх играющего трека). Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 21.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 22.
   </div>
 
   <section>
@@ -798,7 +798,7 @@ $('pads').addEventListener('touchend',e=>{ if(padHeld) e.preventDefault(); },{pa
 $('pads').addEventListener('contextmenu',e=>e.preventDefault());
 $('pads').addEventListener('pointerdown', async e=>{
   const p=e.target.closest('.pad'); if(!p) return; initAudio(); if(ctx.state!=='running') await ctx.resume();
-  const g=+p.dataset.g; hit(PAD_NOTE[g],112,ctx.currentTime); if(rec) rec.ev.push({t:+(ctx.currentTime-rec.t0).toFixed(4), ch:9, n:PAD_NOTE[g], raw:PAD_NOTE[g], v:112}); flashes.push({when:ctx.currentTime,g,n:PAD_NOTE[g]});
+  const g=+p.dataset.g; hit(PAD_NOTE[g],112,ctx.currentTime); if(rec) recHit(PAD_NOTE[g]); flashes.push({when:ctx.currentTime,g,n:PAD_NOTE[g]});
 });
 
 // Finds the drum part when it is not on channel 10: most notes sit on the drum keys and kick or snare is present.
@@ -887,12 +887,31 @@ $('file').addEventListener('change', async e=>{
 
 $('play').addEventListener('click',()=> playing?pause():play());
 // record what is played on the pads into a new track; the current track can play along as a backing
+// while a track plays, hits land on top of it at the playing position (overdub); otherwise they start a new track
 let rec=null;
+function recHit(n){
+  if(playing){
+    const t=track(), e={t:+pos().toFixed(4), ch:chan, n, raw:n, v:112};
+    t.events.push(e); t.events.sort((a,b)=>a.t-b.t); t.dirty=true; rec.over++;
+    list=evs(); idx=findIdx(Math.max(0, startPos+(ctx.currentTime+(document.hidden?2.5:0.15)-startCtx)*speed));   // already heard, don't replay it now
+  } else rec.ev.push({t:+(ctx.currentTime-rec.t0).toFixed(4), ch:9, n, raw:n, v:112});
+}
+function keepOverdub(){
+  let t=track();
+  if(t.demo){   // the shipped example stays as it was; the take becomes the user's own copy
+    const copy={...t, demo:false, style:undefined, def:undefined, name:'Мой бит '+tracks.length, events:t.events.map(e=>({...e}))};
+    tracks[cur]=t.def ? makeExample(t.def) : demoTrack(); tracks.push(copy); const was=playing, p=pos(); cur=tracks.length-1; t=copy;
+    list=evs(); idx=findIdx(p); if(was){ startPos=p; startCtx=ctx.currentTime; }
+  }
+  t.saved=true; t.dirty=false; saveLibrary(); renderTracks(); render();
+  return t;
+}
 $('rec').addEventListener('click', async ()=>{
   initAudio(); if(ctx.state!=='running') await ctx.resume();
-  if(!rec){ rec={t0:ctx.currentTime, ev:[]}; $('rec').setAttribute('aria-pressed','true'); setStatus('Запись: играйте на пэдах'); return; }
+  if(!rec){ rec={t0:ctx.currentTime, ev:[], over:0}; $('rec').setAttribute('aria-pressed','true'); setStatus(playing?'Запись поверх трека: играйте на пэдах':'Запись: играйте на пэдах'); return; }
   const r=rec; rec=null; $('rec').setAttribute('aria-pressed','false'); setStatus('Установка: '+kit.name);
-  if(!r.ev.length){ showNote('Запись пустая: во время записи нажимайте на пэды.'); return; }
+  if(r.over){ const t=keepOverdub(); const k=r.over%10, kk=r.over%100, w=(k===1&&kk!==11)?'удар':(k>=2&&k<=4&&(kk<12||kk>14))?'удара':'ударов'; showNote('Добавлено '+r.over+' '+w+' в «'+t.name+'».'); }
+  if(!r.ev.length){ if(!r.over) showNote('Запись пустая: во время записи нажимайте на пэды.'); return; }
   const first=r.ev[0].t; r.ev.forEach(e=>e.t=+(e.t-first).toFixed(4));   // start on the first hit
   const bpm=track().bpm||120, bars=Math.max(1, Math.ceil((r.ev[r.ev.length-1].t+0.05)/(240/bpm)));
   const n=tracks.filter(t=>/^Запись \d+$/.test(t.name)).length+1;
