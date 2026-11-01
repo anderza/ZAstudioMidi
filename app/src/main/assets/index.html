@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ZA Drums MIDI</title>
+<title>ZaDrumsMidi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Manrope:wght@400;600;700&display=swap">
 <style>
@@ -256,14 +256,14 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 <body>
 <div class="app">
   <header>
-    <h1>ZA Drums <span>MIDI</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
+    <h1>ZaDrums<span>Midi</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
     <div class="status" id="status">Загрузка сэмплов…</div>
   </header>
 
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
-    <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 30. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
+    <b>Часы</b>: отсчёт 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 31. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
   </div>
 
   <section>
@@ -289,7 +289,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
     <span class="name" id="curName" hidden>—</span>
     <div class="row">
       <button class="play" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
-      <button class="ctl" id="count" aria-label="Отсчёт 5 секунд и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg></button>
+      <button class="ctl" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg></button>
       <button class="ctl" id="loop" aria-label="Повтор" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
       <button class="ctl eqb" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog">EQ</button>
       <button class="ctl" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button>
@@ -861,11 +861,11 @@ function tick(){
   if(!loop && pos()>=D) stop();
   if(queued.length>64) queued=queued.filter(q=>q.when>now);
 }
-async function play(){
+async function play(at){
   initAudio(); if(ctx.state!=='running') await ctx.resume();
   if(!list.length){ showNote('В этой дорожке нет нот на выбранном канале. Выберите другой канал ударных.'); return; }
   if(startPos>=duration()) startPos=0;
-  startCtx=ctx.currentTime+0.05; idx=findIdx(startPos); wrapLen=0; playing=true;
+  startCtx=Math.max(ctx.currentTime+0.02, at||ctx.currentTime+0.05); idx=findIdx(startPos); wrapLen=0; playing=true;
   timer=setInterval(tick,25); tick(); setPlayIcon();
 }
 function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer);
@@ -1072,16 +1072,19 @@ $('rec').addEventListener('click', async ()=>{
   if(playing) pause(); select(tracks.length-1);
   showNote('Сохранено как «Запись '+n+'»: '+r.ev.length+' ударов. Нажмите карандаш, чтобы поправить.');
 });
-// count 1..5 (a second each, with a stick click), then play
-let countT=null;
+// count 1, 2, 3 in the tempo of the selected track (one stick click per beat), the track comes in on the next beat
+let countT=null, countTimers=[];
 function showCount(n){ const b=$('count'); b.setAttribute('aria-pressed',!!n);
   if(n){ b.dataset.svg=b.dataset.svg||b.innerHTML; b.innerHTML='<b>'+n+'</b>'; $('countBig').textContent=n; $('countBig').hidden=false; }
   else { if(b.dataset.svg) b.innerHTML=b.dataset.svg; $('countBig').hidden=true; } }
+function cancelCount(){ countTimers.forEach(clearTimeout); countTimers=[]; countT=null; queued.forEach(q=>{ try{ q.src.stop(); }catch(_){} }); queued=[]; showCount(0); }
 $('count').addEventListener('click', async ()=>{
-  if(countT){ clearInterval(countT); countT=null; showCount(0); return; }
+  if(countT){ cancelCount(); return; }
   initAudio(); if(ctx.state!=='running') await ctx.resume(); if(playing) pause();
-  let n=1; showCount(n); hit(37,100,ctx.currentTime+0.01);
-  countT=setInterval(()=>{ n++; if(n>5){ clearInterval(countT); countT=null; showCount(0); play(); return; } showCount(n); hit(37,n===5?124:100,ctx.currentTime+0.01); },1000);
+  const beat=60/(track().bpm||120)/speed, t0=ctx.currentTime+0.08, N=3; countT=true;
+  for(let i=0;i<N;i++){ const at=t0+i*beat; hit(37,i===N-1?124:100,at);
+    countTimers.push(setTimeout(()=>{ if(countT) showCount(i+1); }, Math.max(0,(at-ctx.currentTime)*1000))); }
+  countTimers.push(setTimeout(()=>{ if(!countT) return; countTimers=[]; countT=null; showCount(0); play(t0+N*beat); }, Math.max(0,(t0+N*beat-ctx.currentTime)*1000-120)));
 });
 $('loop').addEventListener('click',()=>{ loop=!loop; $('loop').setAttribute('aria-pressed',loop); });
 let seeking=false;
