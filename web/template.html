@@ -232,6 +232,12 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   .row2{gap:5px}.row2 select{padding:3px;font-size:11px}.row2 .mixbtn{padding:2px 8px;font-size:11px}.row2 .mixbtn svg{width:14px;height:14px}
   .pad{font-size:13px}
 }
+.eqb{font:700 14px/1 var(--display);letter-spacing:.04em}
+.bal{display:flex;align-items:center;gap:4px;flex:none;margin-left:auto}
+#balKnob{width:38px;height:38px;cursor:ew-resize;background:conic-gradient(from 225deg,var(--line) 0 135deg,var(--brass) 135deg 137deg,var(--line) 137deg 270deg,transparent 0)}
+#balKnob .knob-cap{width:28px;height:28px}
+#balOut{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);min-width:3ch;text-align:center}
+@media (orientation:landscape) and (max-height:560px){ .eqb{font-size:11px} #balKnob{width:30px;height:30px} #balKnob .knob-cap{width:22px;height:22px} #balOut{font-size:10px} }
 </style>
 
 <div class="app">
@@ -243,7 +249,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 28.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 29. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
   </div>
 
   <section>
@@ -271,8 +277,9 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
       <button class="play" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
       <button class="ctl" id="count" aria-label="Отсчёт 5 секунд и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg></button>
       <button class="ctl" id="loop" aria-label="Повтор" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
-      <button class="ctl" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M4 18h2v-6H4zm4 0h2V6H8zm4 0h2v-9h-2zm4 0h2V9h-2zm4 0h2v-4h-2z"/></svg></button>
+      <button class="ctl eqb" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog">EQ</button>
       <button class="ctl" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button>
+      <div class="bal"><div class="knob" id="balKnob" role="slider" tabindex="0" aria-label="Баланс лево-право" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="knob-cap"><span class="knob-ind"></span></div></div><output id="balOut">Ц</output></div>
     </div>
     <div class="row">
       <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Позиция">
@@ -615,7 +622,7 @@ function makeExample(def){
 let chans=[], buses={}, noteChan={};   // current kit's channel list, id -> close bus, note -> channel id
 let mixAll = (()=>{ try{ return JSON.parse(store.get('mix5'))||{}; }catch(e){ return {}; } })();
 let mix;   // settings of the current kit: {lv:{id:%}, mute:{id:bool}, solo:{id:bool}}
-let clipOut=null, eqBands=[], sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
+let balNode=null, clipOut=null, eqBands=[], sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
 const decoded = {};              // sample hash -> AudioBuffer
 let kit = KITS.find(k=>k.id===store.get('kit')) || KITS[0];   // KITS[0] is the default kit
 let roomSize = kit.fx.revLen;   // seconds of reverb tail
@@ -665,7 +672,7 @@ function initAudio(){
   const clip=ctx.createWaveShaper(); clip.oversample='4x';
   clip.curve=(()=>{ const n=4096, c=new Float32Array(n), k=0.85; for(let i=0;i<n;i++){ const x=(i/(n-1)*2-1)*2, a=Math.abs(x); c[i]=Math.sign(x)*(a<=k ? a : k+(1-k)*Math.tanh((a-k)/(1-k))); } return c; })();
   const pre=ctx.createGain(); pre.gain.value=0.5;   // the curve covers ±2 (input is halved, curve doubles it back)
-  clipOut=clip; master.connect(limiter).connect(pre).connect(clip).connect(ctx.destination);
+  clipOut=clip; balNode=ctx.createStereoPanner(); balNode.pan.value=bal; master.connect(balNode).connect(limiter).connect(pre).connect(clip).connect(ctx.destination);
   buildBuses(); applyFx();
 }
 function buildBuses(){
@@ -1161,6 +1168,21 @@ const setRoomPct = v => setRoom(ROOM_MIN+Math.max(0,Math.min(100,v))/100*(ROOM_M
   k.addEventListener('keydown',e=>{ const d={ArrowUp:5,ArrowRight:5,ArrowDown:-5,ArrowLeft:-5}[e.key]; if(d){ e.preventDefault(); setRoomPct(roomPct()+d); } });
   k.addEventListener('dblclick',()=>setRoom(kit.fx.revLen));
 })();
+
+/* ---------- balance: whole mix left/right, starts in the middle ---------- */
+let bal=0;
+function setBal(v){ bal=Math.max(-1,Math.min(1,Math.round(v*20)/20)); if(Math.abs(bal)<0.05) bal=0;
+  const k=$('balKnob'); k.style.setProperty('--a',(bal+1)/2); k.setAttribute('aria-valuenow',Math.round(bal*100));
+  const t=bal===0?'Ц':(bal<0?'Л':'П')+Math.round(Math.abs(bal)*100); $('balOut').textContent=t; k.setAttribute('aria-valuetext',bal===0?'по центру':(bal<0?'влево ':'вправо ')+Math.round(Math.abs(bal)*100)+'%');
+  if(balNode) balNode.pan.setTargetAtTime(bal,ctx.currentTime,0.02); }
+(()=>{ const k=$('balKnob'); let x0=null,y0=0,v0=0,lastTap=0;
+  k.addEventListener('pointerdown',e=>{ const now=Date.now(); if(now-lastTap<300){ setBal(0); lastTap=0; return; } lastTap=now; x0=e.clientX; y0=e.clientY; v0=bal; k.setPointerCapture(e.pointerId); e.preventDefault(); });
+  k.addEventListener('pointermove',e=>{ if(x0!==null) setBal(v0+((e.clientX-x0)+(y0-e.clientY))/120); });
+  k.addEventListener('pointerup',()=>{ x0=null; }); k.addEventListener('pointercancel',()=>{ x0=null; });
+  k.addEventListener('wheel',e=>{ e.preventDefault(); setBal(bal-Math.sign(e.deltaY)*0.1); },{passive:false});
+  k.addEventListener('keydown',e=>{ const d={ArrowUp:.1,ArrowRight:.1,ArrowDown:-.1,ArrowLeft:-.1}[e.key]; if(d){ e.preventDefault(); setBal(bal+d); } });
+})();
+setBal(0);
 
 /* ---------- track editor: a drum-machine grid over the drum channel ---------- */
 const DRUM_NAMES = {35:'Бочка 2',36:'Бочка',37:'Римшот',38:'Малый',39:'Хлопок',40:'Малый 2',41:'Флор низ',42:'Хэт закр.',43:'Флор',44:'Хэт педаль',45:'Том низ',46:'Хэт откр.',47:'Том сред.',48:'Том 1',49:'Крэш',50:'Том выс.',51:'Райд',52:'Чайна',53:'Райд бел.',54:'Бубен',55:'Сплэш',56:'Ковбелл',57:'Крэш 2',58:'Вибраслэп',59:'Райд 2',60:'Бонго выс.',61:'Бонго низ',62:'Конга глух.',63:'Конга выс.',64:'Конга низ',65:'Тимбал выс.',66:'Тимбал низ',67:'Агого выс.',68:'Агого низ',69:'Кабаса',70:'Маракас',71:'Свисток кор.',72:'Свисток дл.',73:'Гуиро кор.',74:'Гуиро дл.',75:'Клавес',76:'Вуд-блок выс.',77:'Вуд-блок низ',78:'Куика глух.',79:'Куика откр.',80:'Треугольник глух.',81:'Треугольник'};
