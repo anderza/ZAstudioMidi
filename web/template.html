@@ -216,7 +216,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 23.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 24.
   </div>
 
   <section>
@@ -848,9 +848,11 @@ function trackRow(t,i){
     if(t.chan===undefined){ const d=findDrumChannel(t); t.chan=d.ch; t.autoChan=d.auto; } const n=t.events.filter(e=>e.ch===t.chan && e.n>=0).length; const d=t.events.length?t.events[t.events.length-1].t:0;
     return `<li class="track${i===cur?' sel':''}"><button class="pick" data-i="${i}"><span class="t1"></span><span class="t2">${fmt(d)} · ${t.bpm} BPM · ${n} ударов${t.dirty?' <span class="unsaved">· не сохранено</span>':''}</span></button>${t.demo?'':`<button class="rm" data-rm="${i}" aria-label="Убрать">×</button>`}</li>`;
 }
-function select(i){ stop(); cur=i; $('curName').textContent=track().name; renderChannels(); renderTracks(); render(); }
+function select(i){ cur=Math.max(0,Math.min(i,tracks.length-1)); stop(); $('curName').textContent=track().name; renderChannels(); renderTracks(); render(); }
 $('tracks').addEventListener('click',e=>{
-  const rm=e.target.closest('[data-rm]'); if(rm){ const i=+rm.dataset.rm; tracks.splice(i,1); saveLibrary(); select(i===cur?0:(cur>i?cur-1:cur)); return; }
+  const rm=e.target.closest('[data-rm]'); if(rm){ const i=+rm.dataset.rm;
+    stop(); if(rec){ rec=null; $('rec').setAttribute('aria-pressed','false'); setStatus('Установка: '+kit.name); }   // stop while the track still exists
+    const nc=i===cur?0:(cur>i?cur-1:cur); tracks.splice(i,1); cur=Math.max(0,Math.min(nc,tracks.length-1)); saveLibrary(); select(cur); return; }
   const p=e.target.closest('.pick'); if(p){ const i=+p.dataset.i, t=tracks[i]; select(i); sheet('trkSheet',false);
   }
 });
