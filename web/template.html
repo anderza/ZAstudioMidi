@@ -14,7 +14,8 @@
 html,body{background:var(--bg);color:var(--fg)}
 [hidden]{display:none!important}
 body{margin:0;font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
-.app{max-width:560px;margin:0 auto;padding-block:18px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+.app{max-width:560px;margin:0 auto;padding-block:18px 16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;box-sizing:border-box;min-height:100vh;min-height:100dvh}
+.padsec{flex:1;display:flex;min-height:120px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:.02em;margin:0;text-transform:uppercase;text-wrap:balance}
 h1 span{color:var(--brass)}
@@ -44,8 +45,8 @@ button{cursor:pointer}
 .kit[aria-pressed="true"]{border-color:var(--brass);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
 
 /* pads */
-.pads{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.pad{aspect-ratio:1.7;max-width:100%;border-radius:3px;background:linear-gradient(#2e323b,#23262e);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px;transition:background .12s,border-color .12s,color .12s,transform .08s;user-select:none}
+.pads{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(48px,1fr);gap:6px;flex:1}
+.pad{max-width:100%;-webkit-touch-callout:none;-webkit-user-select:none;touch-action:manipulation;border-radius:3px;background:linear-gradient(#2e323b,#23262e);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px;transition:background .12s,border-color .12s,color .12s,transform .08s;user-select:none}
 .pad.on{background:linear-gradient(var(--hit),var(--brass));border-color:var(--hit);color:var(--brass-ink);transform:scale(.95);transition:none}
 
 /* transport */
@@ -88,9 +89,6 @@ footer{font-size:12px;color:var(--muted)}
 .about b{color:var(--fg)}
 header h1{display:flex;align-items:center;gap:10px}
 .pad{flex-direction:column;gap:1px}
-.pad small{font-size:10px;font-weight:500;color:var(--brass);opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pad.pick small::after{content:' ▾'}
-.pad.on small{color:var(--brass-ink)}
 .ctl b{font:700 16px/1 var(--display);color:var(--hit)}
 .countbig{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:40;font:700 38vmin/1 var(--display);color:var(--hit);text-shadow:0 6px 30px rgba(0,0,0,.6)}
 .snds{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
@@ -198,16 +196,16 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   </header>
 
   <div class="about" id="about" hidden>
-    <b>Пэды</b>: нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука, остальные пэды просто играют.
+    <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 18.
+    <b>EQ</b>: эквалайзер на весь звук. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 19.
   </div>
 
   <section>
     <div class="kits" id="kits" role="group" aria-label="Установка"></div>
   </section>
 
-  <section>
+  <section class="padsec">
     <div class="pads" id="pads"></div>
   </section>
 
@@ -742,10 +740,9 @@ $('kits').addEventListener('click', async e=>{
   if(!playing){ hit(36,110,ctx.currentTime+0.01); hit(42,90,ctx.currentTime+0.01); hit(38,110,ctx.currentTime+0.3); hit(42,80,ctx.currentTime+0.3); }
 });
 
-$('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}<small></small></button>`).join('');
-padLabels();
+$('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}</button>`).join('');
+
 const PAD_NOTE=[36,38,42,45,49,51,63,56];
-function padLabels(){ document.querySelectorAll('.pad').forEach(p=>{ const sl=PAD_SLOT[p.dataset.g]; if(!sl) return; p.classList.add('pick'); const o=sndOpt(sl); p.querySelector('small').textContent=o?o.name:'как в пресете'; }); }
 let sndSlot=null;
 function renderSnds(){
   const sl=SOUNDS[sndSlot], cur=sndSel[sndSlot]||'';
@@ -755,15 +752,20 @@ function renderSnds(){
 $('snds').addEventListener('click', async e=>{
   const b=e.target.closest('.snd'); if(!b) return;
   if(b.dataset.id) sndSel[sndSlot]=b.dataset.id; else delete sndSel[sndSlot];
-  store.set('snd1',JSON.stringify(sndSel)); renderSnds(); padLabels();
+  store.set('snd1',JSON.stringify(sndSel)); renderSnds(); 
   const sl=SOUNDS[sndSlot]; await decodeAll(sl.notes.map(n=>{ const z=soundFor(n)[0]; return z&&z[0]; }));
   if(ctx.state!=='running') await ctx.resume(); hit(sl.test,112,ctx.currentTime+0.01);
 });
 $('sndClose').addEventListener('click',()=>sheet('sndSheet',false));
-$('pads').addEventListener('click',e=>{ const p=e.target.closest('.pad'); if(!p||!PAD_SLOT[p.dataset.g]) return; sndSlot=PAD_SLOT[p.dataset.g]; renderSnds(); sheet('sndSheet',true); $('sndClose').focus(); });
+// press and hold a pad to choose its sound; a tap just plays it
+let padHold=null, padHeld=false;
+$('pads').addEventListener('pointerdown',e=>{ const p=e.target.closest('.pad'); clearTimeout(padHold); padHeld=false; if(!p||!PAD_SLOT[p.dataset.g]) return;
+  padHold=setTimeout(()=>{ padHeld=true; sndSlot=PAD_SLOT[p.dataset.g]; renderSnds(); sheet('sndSheet',true); if(navigator.vibrate) try{ navigator.vibrate(15); }catch(_){} }, 500); });
+['pointerup','pointercancel','pointerleave'].forEach(t=>$('pads').addEventListener(t,()=>clearTimeout(padHold)));
+$('pads').addEventListener('touchend',e=>{ if(padHeld) e.preventDefault(); },{passive:false});   // the lifted finger must not land on the opened list
+$('pads').addEventListener('contextmenu',e=>e.preventDefault());
 $('pads').addEventListener('pointerdown', async e=>{
   const p=e.target.closest('.pad'); if(!p) return; initAudio(); if(ctx.state!=='running') await ctx.resume();
-  if(PAD_SLOT[p.dataset.g]) return;   // these open the sound chooser on click
   const g=+p.dataset.g; hit(PAD_NOTE[g],112,ctx.currentTime); flashes.push({when:ctx.currentTime,g,n:PAD_NOTE[g]});
 });
 
