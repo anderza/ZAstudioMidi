@@ -1,4 +1,4 @@
-<title>Барабаны MIDI</title>
+<title>ZA Drums MIDI</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Manrope:wght@400;600;700&display=swap">
@@ -238,18 +238,26 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 #balKnob .knob-cap{width:28px;height:28px}
 #balOut{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);min-width:3ch;text-align:center}
 @media (orientation:landscape) and (max-height:560px){ .eqb{font-size:11px} #balKnob{width:30px;height:30px} #balKnob .knob-cap{width:22px;height:22px} #balOut{font-size:10px} }
+@media not ((orientation:landscape) and (max-height:560px)){
+  .transport .row{gap:6px}
+  .transport .play{width:min(40px,10.5vw);height:min(40px,10.5vw)}.transport .play svg{width:20px;height:20px}
+  .transport .row>.ctl{width:min(36px,9.5vw);height:min(36px,9.5vw)}.transport .row>.ctl svg{width:18px;height:18px}
+  .eqb{font-size:12px}
+  #balKnob{width:min(36px,9.5vw);height:min(36px,9.5vw)} #balKnob .knob-cap{width:72%;height:72%}
+  .bal{gap:3px}
+}
 </style>
 
 <div class="app">
   <header>
-    <h1>Барабаны <span>MIDI</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
+    <h1>ZA Drums <span>MIDI</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
     <div class="status" id="status">Загрузка сэмплов…</div>
   </header>
 
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 29. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 30. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
   </div>
 
   <section>
@@ -1020,7 +1028,11 @@ $('file').addEventListener('change', async e=>{
   if(last>=0) play();
 });
 
-$('play').addEventListener('click',()=> playing?pause():play());
+// one tap plays or pauses; a second tap within 350 ms takes the track back to the start (playing again if it was playing)
+let playTap=0, playWas=false;
+$('play').addEventListener('click',()=>{ const now=Date.now();
+  if(now-playTap<350){ playTap=0; if(playing) pause(); startPos=0; idx=0; render(); if(playWas) play(); return; }
+  playTap=now; playWas=playing; playing?pause():play(); });
 // record what is played on the pads into a new track; the current track can play along as a backing
 // while a track plays, hits land on top of it at the playing position (overdub); otherwise they start a new track
 let rec=null;

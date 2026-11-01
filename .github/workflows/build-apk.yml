@@ -51,6 +51,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Барабаны MIDI, сборка ${{ github.run_number }}
+          name: ZA Drums MIDI, сборка ${{ github.run_number }}
           files: out/MidiDrums.apk
           make_latest: true
