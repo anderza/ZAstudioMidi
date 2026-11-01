@@ -249,7 +249,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 26.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 27.
   </div>
 
   <section>
@@ -939,7 +939,7 @@ function saveLibrary(){
   try{ localStorage.setItem('tracks1',JSON.stringify(data)); return true; }catch(e){ return false; }
 }
 function trackFolder(t){ return t.style ? STYLE_NAME[t.style] : t.demo ? STYLE_NAME.rock : 'Мои дорожки'; }
-const openFolders = new Set(['Мои дорожки']);
+const openFolders = new Set();
 function renderTracks(){
   const order = ['Мои дорожки', ...Object.values(STYLE_NAME)];
   const idx = tracks.map((t,i)=>i).sort((a,b)=>order.indexOf(trackFolder(tracks[a]))-order.indexOf(trackFolder(tracks[b])) || a-b);
@@ -967,7 +967,8 @@ $('tracks').addEventListener('click',e=>{
 
 $('add').addEventListener('click',()=>{ initAudio(); $('file').click(); });
 $('add2').addEventListener('click',()=>{ initAudio(); sheet('trkSheet',false); $('file').click(); });
-$('trkOpen').addEventListener('click',()=>{ openFolders.clear(); openFolders.add(trackFolder(track())); renderTracks(); sheet('trkSheet',true); $('trkClose').focus(); });
+let trkOpened=false;   // the first time after launch every folder starts closed
+$('trkOpen').addEventListener('click',()=>{ openFolders.clear(); if(trkOpened) openFolders.add(trackFolder(track())); trkOpened=true; renderTracks(); sheet('trkSheet',true); $('trkClose').focus(); });
 // step through the ready-made tracks in the order of the folders; keeps playing if it was playing
 function stepDemo(d){
   const order=['Мои дорожки', ...Object.values(STYLE_NAME)];
