@@ -130,7 +130,13 @@ header h1{display:flex;align-items:center;gap:10px}
 .trk svg{width:22px;height:22px;fill:var(--fg);flex:none}
 .trackbar .ctl{width:38px;height:38px;border-radius:3px}
 .add.ghost{border-style:solid;border-color:var(--line);color:var(--fg);font-weight:600;font-size:13px;padding:8px}
-.tgroup{list-style:none;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 2px 0}
+.tgroup{list-style:none;padding:2px 0 0}
+.fold{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:10px 12px;color:inherit;font-family:var(--display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;text-align:left}
+.fold svg{width:20px;height:20px;fill:var(--brass);flex:none}
+.fold span:nth-child(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold .cnt{font-size:12px;color:var(--muted)}
+.fold .chev{color:var(--muted);width:14px;text-align:center}
+.tgroup ~ .track{margin-left:14px;border-left:3px solid var(--brass)}
 .tracks{max-height:52vh;overflow-y:auto}
 .track .unsaved{color:var(--hit);font-size:12px}
 .editor{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;gap:8px;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
@@ -222,7 +228,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 24.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 25.
   </div>
 
   <section>
@@ -468,28 +474,23 @@ function demoTrack(){
    One string per instrument, one character per step of a bar: X accent, x hit, o ghost, - rest.
    g is steps per bar: 16 = sixteenths, 12 = eighth-note triplets. Each example is 8 bars:
    the groove, a fill in bar 8, then a closing crash. */
-const LANE_KEY = {k:36, s:38, h:42, o:46, p:44, r:51, b:53, c:49, d:57, n:52, t:48, m:45, f:43, g:41};
-const STYLE_NAME = {metal:'Метал', rock:'Рок', punk:'Панк-рок'};
+const LANE_KEY = {k:36, s:38, h:42, o:46, p:44, r:51, b:53, c:49, d:57, n:52, t:48, m:45, f:43, g:41, l:39, e:37, w:54, y:56};
+const STYLE_NAME = {rock:'Рок', metal:'Металл', doom:'Doom metal', industrial:'Industrial metal', punk:'Панк-рок', pop:'Поп', ballad:'Баллады'};
 const FILLS = {
   16: [
     {s:'xxxx------------', t:'----xxxx--------', m:'--------xxxx----', f:'------------xxxx', k:'x---x---x---x---'},
     {s:'x-x-x-x-xxxxXXXX', k:'x---x---x---x---'},
     {t:'x-x-------------', m:'----x-x---------', f:'--------x-x-x-x-', s:'------------X-XX', k:'x---x---x---x---'},
+    {t:'X---X-----------', m:'--------X-------', f:'------------X-X-', k:'x-------x-------'},          // slow, heavy tom fill
+    {s:'----x-x-x-xxXXXX', k:'x---x---x---x---', o:'x---------------'},                          // pop snare build
+    {e:'x---x---', s:'--------xx-xX-X-', k:'x-------x-------'},                                    // soft ballad lift
   ],
-  12: [{s:'xxx---------', t:'---xxx------', m:'------xxx---', f:'---------xxx', k:'x--x--x--x--'}],
+  12: [
+    {s:'xxx---------', t:'---xxx------', m:'------xxx---', f:'---------xxx', k:'x--x--x--x--'},
+    {t:'X-----------', m:'---X--X-----', f:'---------X-X', k:'x-----x-----'},
+  ],
 };
 const EXAMPLES = [
-  // metal
-  {st:'metal', n:'Даблбас шестнадцатыми', bpm:110, g:16, v:{k:'xxxxxxxxxxxxxxxx', s:'----X-------X---', r:'x---x---x---x---'}, fill:1},
-  {st:'metal', n:'Бластбит', bpm:190, g:16, v:{k:'x-x-x-x-x-x-x-x-', s:'-x-x-x-x-x-x-x-x', n:'x---x---x---x---'}, fill:1},
-  {st:'metal', n:'Галоп', bpm:150, g:16, v:{k:'x-xxx-xxx-xxx-xx', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
-  {st:'metal', n:'Трэш скан-бит', bpm:200, g:16, v:{k:'x---x---x---x---', s:'--X---X---X---X-', h:'x-x-x-x-x-x-x-x-'}, fill:0},
-  {st:'metal', n:'Халфтайм-грув', bpm:75, g:16, v:{k:'x-x---x-xx---x--', s:'--------X-------', n:'x---x---x---x---'}, fill:2},
-  {st:'metal', n:'Брейкдаун', bpm:120, g:16, v:{k:'x--x--x--x--x-x-', s:'--------X-------', c:'x---x---x---x---'}, fill:2},
-  {st:'metal', n:'Дум', bpm:62, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, fill:0},
-  {st:'metal', n:'Д-бит', bpm:165, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', d:'x-x-x-x-x-x-x-x-'}, fill:1},
-  {st:'metal', n:'Даблбас триолями', bpm:120, g:12, v:{k:'xxxxxxxxxxxx', s:'---X-----X--', r:'x--x--x--x--'}, fill:0},
-  {st:'metal', n:'Джент синкопы', bpm:110, g:16, v:{k:'x--x-x--x-x--x--', s:'----X-------X---', n:'x---x---x---x---'}, fill:2},
   // rock
   {st:'rock', n:'Классический рок', bpm:110, g:16, v:{k:'x-------x-x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
   {st:'rock', n:'Рок на райде', bpm:120, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, fill:2},
@@ -499,9 +500,42 @@ const EXAMPLES = [
   {st:'rock', n:'Халфтайм', bpm:80, g:16, v:{k:'x-----x---x-----', s:'--------X-------', h:'x-x-x-x-x-x-x-x-'}, fill:2},
   {st:'rock', n:'Бочка на четыре', bpm:124, g:16, v:{k:'x---x---x---x---', s:'----X-------X---', o:'--x---x---x---x-', p:'x---x---x---x---'}, fill:1},
   {st:'rock', n:'Томовый грув', bpm:112, g:16, v:{k:'x-------x-------', s:'----X-------X---', f:'x-x-x-x-x-x-x-x-'}, fill:2},
-  {st:'rock', n:'Пауэр-баллада', bpm:68, g:16, v:{k:'x-------x-x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'rock', n:'Альтернативный рок', bpm:100, g:16, v:{k:'x--x--x---x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
   {st:'rock', n:'Стадионный', bpm:118, g:16, v:{k:'x-x-----x-x-----', s:'----X-------X---', h:'x---x---x---x---'}, fill:1},
-  // punk
+  // metal
+  {st:'metal', n:'Даблбас шестнадцатыми', bpm:110, g:16, v:{k:'xxxxxxxxxxxxxxxx', s:'----X-------X---', r:'x---x---x---x---'}, fill:1},
+  {st:'metal', n:'Бластбит', bpm:190, g:16, v:{k:'x-x-x-x-x-x-x-x-', s:'-x-x-x-x-x-x-x-x', n:'x---x---x---x---'}, fill:1},
+  {st:'metal', n:'Галоп', bpm:150, g:16, v:{k:'x-xxx-xxx-xxx-xx', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'metal', n:'Трэш скан-бит', bpm:200, g:16, v:{k:'x---x---x---x---', s:'--X---X---X---X-', h:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'metal', n:'Халфтайм-грув', bpm:75, g:16, v:{k:'x-x---x-xx---x--', s:'--------X-------', n:'x---x---x---x---'}, fill:2},
+  {st:'metal', n:'Брейкдаун', bpm:120, g:16, v:{k:'x--x--x--x--x-x-', s:'--------X-------', c:'x---x---x---x---'}, fill:2},
+  {st:'metal', n:'Мелодик-дэт', bpm:180, g:16, v:{k:'x-x-x-x-x-x-x-x-', s:'----X-------X---', r:'x---x---x---x---'}, fill:1},
+  {st:'metal', n:'Д-бит', bpm:165, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', d:'x-x-x-x-x-x-x-x-'}, fill:1},
+  {st:'metal', n:'Даблбас триолями', bpm:120, g:12, v:{k:'xxxxxxxxxxxx', s:'---X-----X--', r:'x--x--x--x--'}, fill:0},
+  {st:'metal', n:'Джент синкопы', bpm:110, g:16, v:{k:'x--x-x--x-x--x--', s:'----X-------X---', n:'x---x---x---x---'}, fill:2},
+  // doom metal
+  {st:'doom', n:'Тяжёлый халфтайм', bpm:60, g:16, v:{k:'x-------x-------', s:'--------X-------', r:'x---x---x---x---'}, fill:3},
+  {st:'doom', n:'Дум на крэше', bpm:58, g:16, v:{k:'x-----x---------', s:'--------X-------', d:'x-------x-------'}, fill:3},
+  {st:'doom', n:'Похоронный марш', bpm:50, g:16, v:{k:'x---x---x---x---', s:'--------X-------', f:'x---x---x---x---'}, fill:3},
+  {st:'doom', n:'Стоунер-дум', bpm:68, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'doom', n:'Дум в 12/8', bpm:54, g:12, v:{k:'x-----x-x---', s:'------X-----', r:'x--x--x--x--'}, fill:1},
+  {st:'doom', n:'Слаудж', bpm:66, g:16, v:{k:'x--x----x-x-----', s:'--------X-------', o:'x---x---x---x---'}, fill:2},
+  {st:'doom', n:'Фьюнерал-дум', bpm:45, g:16, v:{k:'x---------------', s:'--------X-------', d:'x---------------', r:'----x---x---x---'}, fill:3},
+  {st:'doom', n:'Дэт-дум с даблбасом', bpm:64, g:16, v:{k:'x-x-x-x-xxxxxxxx', s:'--------X-------', n:'x---x---x---x---'}, fill:3},
+  {st:'doom', n:'Эпик-дум', bpm:72, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', r:'----x---x---x---', c:'x---------------'}, fill:3},
+  {st:'doom', n:'Дум на томах', bpm:52, g:16, v:{k:'x-------x-------', f:'x---x---x---x---', m:'--x-------x-----', s:'--------X-------'}, fill:3},
+  // industrial metal
+  {st:'industrial', n:'Машинная бочка', bpm:120, g:16, v:{k:'X---X---X---X---', s:'----X-------X---', l:'----X-------X---', h:'XXXXXXXXXXXXXXXX'}, fill:4},
+  {st:'industrial', n:'Марш', bpm:110, g:16, v:{k:'X-X-X-X-X-X-X-X-', s:'----X-------X---', o:'--X---X---X---X-'}, fill:1},
+  {st:'industrial', n:'Индастриал-грув', bpm:115, g:16, v:{k:'X--X--X-X--X----', s:'----X-------X---', l:'----X-------X---', h:'X-X-X-X-X-X-X-X-'}, fill:4},
+  {st:'industrial', n:'Синкопы на чайне', bpm:125, g:16, v:{k:'X-XX--X-X-XX----', s:'----X-------X---', n:'X---X---X---X---'}, fill:2},
+  {st:'industrial', n:'Даблбас-машина', bpm:130, g:16, v:{k:'XXXXXXXXXXXXXXXX', s:'----X-------X---', l:'----X-------X---', h:'X-X-X-X-X-X-X-X-'}, fill:1},
+  {st:'industrial', n:'Тяжёлый пульс', bpm:95, g:16, v:{k:'X-----X-X-----X-', s:'--------X-------', y:'X---X---X---X---'}, fill:3},
+  {st:'industrial', n:'Томовая машина', bpm:112, g:16, v:{k:'X---X---X---X---', m:'X--X--X---X--X--', s:'----X-------X---'}, fill:0},
+  {st:'industrial', n:'Брейкбит', bpm:135, g:16, v:{k:'X---------X-----', s:'----X--x-x--X---', h:'X-X-X-X-X-X-X-X-'}, fill:4},
+  {st:'industrial', n:'Танцевальный', bpm:128, g:16, v:{k:'X---X---X---X---', l:'----X-------X---', o:'--X---X---X---X-', h:'X---X---X---X---'}, fill:4},
+  {st:'industrial', n:'Тяжёлая восьмёрка', bpm:100, g:16, v:{k:'X-X---X-X-X---X-', s:'----X-------X---', h:'X-X-X-X-X-X-X-X-'}, fill:2},
+  // punk rock
   {st:'punk', n:'Быстрые восьмые', bpm:180, g:16, v:{k:'x-------x-------', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:1},
   {st:'punk', n:'Скейт-панк полька', bpm:200, g:16, v:{k:'x---x---x---x---', s:'--X---X---X---X-', r:'x-x-x-x-x-x-x-x-'}, fill:1},
   {st:'punk', n:'Поп-панк', bpm:165, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', h:'X-x-X-x-X-x-X-x-'}, fill:0},
@@ -512,6 +546,28 @@ const EXAMPLES = [
   {st:'punk', n:'Бочка на четыре', bpm:150, g:16, v:{k:'x---x---x---x---', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
   {st:'punk', n:'Куплет шестнадцатыми', bpm:120, g:16, v:{k:'x--x--x-x-------', s:'----X-------X---', h:'XoxoXoxoXoxoXoxo'}, fill:1},
   {st:'punk', n:'Мелодик-панк на райде', bpm:190, g:16, v:{k:'x-x-----x-x-----', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, fill:0},
+  // pop
+  {st:'pop', n:'Поп на четыре', bpm:120, g:16, v:{k:'x---x---x---x---', l:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:4},
+  {st:'pop', n:'Поп-рок', bpm:118, g:16, v:{k:'x-----x-x-x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'pop', n:'Диско', bpm:120, g:16, v:{k:'x---x---x---x---', s:'----X-------X---', o:'--x---x---x---x-', h:'x---x---x---x---'}, fill:4},
+  {st:'pop', n:'R&B', bpm:92, g:16, v:{k:'x--x---xx-x-----', s:'----X-------X---', h:'XoxoXoxoXoxoXoxo'}, fill:5},
+  {st:'pop', n:'Фанк-поп', bpm:105, g:16, v:{k:'x-x---x---x--x--', s:'----X--o-o--X---', h:'x-x-x-x-x-x-x-x-'}, fill:1},
+  {st:'pop', n:'Синти-поп', bpm:124, g:16, v:{k:'x---x---x---x---', l:'----X-------X---', w:'x-x-x-x-x-x-x-x-'}, fill:4},
+  {st:'pop', n:'Латино-поп', bpm:96, g:16, v:{k:'x---x---x---x---', s:'---x--x----x--x-', h:'x-x-x-x-x-x-x-x-'}, fill:4},
+  {st:'pop', n:'Шаффл-поп', bpm:100, g:12, v:{k:'x-----x-----', s:'---X-----X--', h:'x-xx-xx-xx-x'}, fill:0},
+  {st:'pop', n:'Инди-поп на томах', bpm:110, g:16, v:{k:'x-------x-------', f:'x-x-x-x-x-x-x-x-', l:'----X-------X---'}, fill:2},
+  {st:'pop', n:'Мотаун', bpm:110, g:16, v:{k:'x-----x-x-----x-', s:'X---X---X---X---', w:'----x-------x---', h:'x-x-x-x-x-x-x-x-'}, fill:4},
+  // ballads
+  {st:'ballad', n:'Пауэр-баллада', bpm:68, g:16, v:{k:'x-------x-x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'ballad', n:'Баллада на римшоте', bpm:72, g:16, v:{k:'x-------x-x-----', e:'----x-------x---', h:'x-x-x-x-x-x-x-x-'}, fill:5},
+  {st:'ballad', n:'Баллада в 12/8', bpm:60, g:12, v:{k:'x-----x-x---', s:'---X-----X--', h:'xxxxxxxxxxxx'}, fill:1},
+  {st:'ballad', n:'Рок-баллада на райде', bpm:70, g:16, v:{k:'x-------x-x-----', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, fill:3},
+  {st:'ballad', n:'Соул-баллада', bpm:66, g:16, v:{k:'x------xx-------', s:'----X-------X---', h:'XoxoXoxoXoxoXoxo'}, fill:5},
+  {st:'ballad', n:'Тихая баллада', bpm:64, g:16, v:{k:'x-------x-------', e:'----x-------x---', h:'o-o-o-o-o-o-o-o-'}, fill:5},
+  {st:'ballad', n:'Кантри-баллада', bpm:76, g:16, v:{k:'x-------x-------', e:'----x-------x---', h:'x-x-x-x-x-x-x-x-'}, fill:5},
+  {st:'ballad', n:'Баллада с бубном', bpm:74, g:16, v:{k:'x-----x-x-------', s:'----X-------X---', w:'x-x-x-x-x-x-x-x-'}, fill:0},
+  {st:'ballad', n:'Медленный грув', bpm:70, g:16, v:{k:'x--x----x-x-----', s:'----X-------X---', h:'XoxoXoxoXoxoXoxo'}, fill:3},
+  {st:'ballad', n:'Кульминация', bpm:78, g:16, v:{k:'x-x-----x-x-----', s:'----X-------X---', c:'x---x---x---x---'}, fill:3},
 ];
 function makeExample(def){
   const bar=240/def.bpm, step=bar/def.g, ev=[], vel={X:124,x:104,o:58};
@@ -841,12 +897,16 @@ function saveLibrary(){
   const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({name:t.name,bpm:t.bpm,chan:t.chan,bars:t.bars,uri:t.uri,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw])}));
   try{ localStorage.setItem('tracks1',JSON.stringify(data)); return true; }catch(e){ return false; }
 }
+function trackFolder(t){ return t.style ? STYLE_NAME[t.style] : t.demo ? STYLE_NAME.rock : 'Мои дорожки'; }
+const openFolders = new Set(['Мои дорожки']);
 function renderTracks(){
-  const group = t => t.style ? 'Примеры: '+STYLE_NAME[t.style] : t.demo ? 'Пример' : 'Мои дорожки';
-  const order = ['Мои дорожки','Пример','Примеры: Метал','Примеры: Рок','Примеры: Панк-рок'];
-  const idx = tracks.map((t,i)=>i).sort((a,b)=>order.indexOf(group(tracks[a]))-order.indexOf(group(tracks[b])) || a-b);
+  const order = ['Мои дорожки', ...Object.values(STYLE_NAME)];
+  const idx = tracks.map((t,i)=>i).sort((a,b)=>order.indexOf(trackFolder(tracks[a]))-order.indexOf(trackFolder(tracks[b])) || a-b);
+  const count={}; idx.forEach(i=>{ const g=trackFolder(tracks[i]); count[g]=(count[g]||0)+1; });
   let last='';
-  $('tracks').innerHTML = idx.map(i=>{ const t=tracks[i], g=group(t), head = g!==last ? `<li class="tgroup">${g}</li>` : ''; last=g; return head+trackRow(t,i); }).join('');
+  $('tracks').innerHTML = idx.map(i=>{ const t=tracks[i], g=trackFolder(t), open=openFolders.has(g);
+    const head = g!==last ? `<li class="tgroup"><button class="fold" data-fold="${g}" aria-expanded="${open}"><svg viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/></svg><span>${g}</span><span class="cnt">${count[g]}</span><span class="chev">${open?'▾':'▸'}</span></button></li>` : '';
+    last=g; return head+(open?trackRow(t,i):''); }).join('');
   idx.forEach(i=>{ const el=$('tracks').querySelector(`.pick[data-i="${i}"] .t1`); if(el) el.textContent=tracks[i].style ? tracks[i].def.n : tracks[i].name; });
   $('trkName').textContent=track().name+(track().dirty?' •':''); 
 }
@@ -856,16 +916,17 @@ function trackRow(t,i){
 }
 function select(i){ cur=Math.max(0,Math.min(i,tracks.length-1)); stop(); $('curName').textContent=track().name; renderChannels(); renderTracks(); render(); }
 $('tracks').addEventListener('click',e=>{
+  const fb=e.target.closest('[data-fold]'); if(fb){ const g=fb.dataset.fold; const was=openFolders.has(g); openFolders.clear(); if(!was) openFolders.add(g); renderTracks(); const h=$('tracks').querySelector(`[data-fold="${g}"]`); if(h) h.scrollIntoView({block:'start'}); return; }
   const rm=e.target.closest('[data-rm]'); if(rm){ const i=+rm.dataset.rm;
     stop(); if(rec){ rec=null; $('rec').setAttribute('aria-pressed','false'); setStatus('Установка: '+kit.name); }   // stop while the track still exists
-    const nc=i===cur?0:(cur>i?cur-1:cur); tracks.splice(i,1); cur=Math.max(0,Math.min(nc,tracks.length-1)); saveLibrary(); select(cur); return; }
+    const nc=i===cur?0:(cur>i?cur-1:cur); tracks.splice(i,1); cur=Math.max(0,Math.min(nc,tracks.length-1)); saveLibrary(); if(!tracks.some(t=>trackFolder(t)==='Мои дорожки')){ openFolders.clear(); openFolders.add(trackFolder(tracks[cur])); } select(cur); return; }
   const p=e.target.closest('.pick'); if(p){ const i=+p.dataset.i, t=tracks[i]; select(i); sheet('trkSheet',false);
   }
 });
 
 $('add').addEventListener('click',()=>{ initAudio(); $('file').click(); });
 $('add2').addEventListener('click',()=>{ initAudio(); sheet('trkSheet',false); $('file').click(); });
-$('trkOpen').addEventListener('click',()=>{ renderTracks(); sheet('trkSheet',true); $('trkClose').focus(); });
+$('trkOpen').addEventListener('click',()=>{ openFolders.clear(); openFolders.add(trackFolder(track())); renderTracks(); sheet('trkSheet',true); $('trkClose').focus(); });
 $('trkClose').addEventListener('click',()=>{ sheet('trkSheet',false); $('trkOpen').focus(); });
 $('newTrack').addEventListener('click',()=>{
   tracks.push({name:'Новый бит '+tracks.length, bpm:120, chan:9, events:[], saved:false, dirty:true, bars:8});
