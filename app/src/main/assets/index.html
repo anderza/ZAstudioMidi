@@ -19,7 +19,7 @@ html,body{background:var(--bg);color:var(--fg)}
 [hidden]{display:none!important}
 body{margin:0;font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 .app{max-width:560px;margin:0 auto;padding-block:calc(18px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;box-sizing:border-box;min-height:100vh;min-height:100dvh}
-.padsec{flex:1 1 0;display:flex;align-items:flex-start;justify-content:center;min-height:130px}
+.padsec{flex:1 1 0;display:flex;align-items:flex-end;justify-content:center;min-height:130px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:.02em;margin:0;text-transform:uppercase;text-wrap:balance}
 h1 span{color:var(--brass)}
@@ -49,7 +49,7 @@ button{cursor:pointer}
 .kit[aria-pressed="true"]{border-color:var(--brass);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
 
 /* pads */
-.pads{display:grid;grid-template-columns:repeat(4,var(--ps,80px));grid-auto-rows:var(--ps,80px);gap:6px}
+.pads{display:grid;grid-template-columns:repeat(var(--cols,4),var(--ps,80px));grid-auto-rows:var(--ps,80px);gap:6px}
 .pad{max-width:100%;-webkit-touch-callout:none;-webkit-user-select:none;touch-action:manipulation;border-radius:3px;background:linear-gradient(#2e323b,#23262e);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px;transition:background .12s,border-color .12s,color .12s,transform .08s;user-select:none}
 .pad.on{background:linear-gradient(var(--hit),var(--brass));border-color:var(--hit);color:var(--brass-ink);transform:scale(.95);transition:none}
 
@@ -215,6 +215,27 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 .strip.off .fwrap,.strip.off .lv{opacity:.4}
 @media (max-width:340px){.sliders{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.pad,.pad.on{transition:none;transform:none}}
+/* landscape phones: pads big on the left, everything else small in a column on the right */
+@media (orientation:landscape) and (max-height:560px){
+  .app{max-width:none;min-height:0;height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(236px,32vw,330px);grid-template-rows:repeat(5,auto) 1fr;column-gap:14px;row-gap:6px;padding-block:max(6px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-bottom,0px));overflow:hidden}
+  .app>header,.app>.about,.app>section{grid-column:2}
+  .app>.padsec{grid-column:1;grid-row:1 / -1;align-items:center;justify-content:center;min-height:0}
+  .app>.about{max-height:40vh;overflow-y:auto;font-size:11px;padding:6px 8px}
+  h1{font-size:18px}h1 .info{transform:scale(.8)}
+  .status{font-size:10px}
+  header{gap:6px}
+  .kits{gap:4px}.kit{padding:4px 2px;font-size:10.5px}
+  .trackbar{gap:4px}.trk{height:28px;padding:3px 6px;font-size:12px}.trk svg{width:16px;height:16px}
+  .trackbar .ctl{width:28px;height:28px}.trackbar .ctl svg{width:16px;height:16px}
+  .transport{padding:6px 8px;gap:5px}
+  .transport .row{gap:5px}
+  .transport .play{width:32px;height:32px}.transport .play svg{width:18px;height:18px}
+  .transport .row>.ctl{width:30px;height:30px}.transport .row>.ctl svg{width:16px;height:16px}
+  .row .time{font-size:10px}
+  .sliders{gap:2px 10px}.field label,.field output{font-size:10px}
+  .row2{gap:5px}.row2 select{padding:3px;font-size:11px}.row2 .mixbtn{padding:2px 8px;font-size:11px}.row2 .mixbtn svg{width:14px;height:14px}
+  .pad{font-size:13px}
+}
 </style>
 
 </head>
@@ -228,7 +249,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 25.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 26.
   </div>
 
   <section>
@@ -237,6 +258,17 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 
   <section class="padsec">
     <div class="pads" id="pads"></div>
+  </section>
+
+  <section class="trksec">
+    <div class="trackbar">
+      <button class="ctl" id="prevTrk" aria-label="Предыдущая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z"/></svg></button>
+      <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="tn" id="trkName">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
+      <button class="ctl" id="nextTrk" aria-label="Следующая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z"/></svg></button>
+      <button class="ctl" id="edit" aria-label="Редактировать дорожку"><svg viewBox="0 0 24 24"><path d="M4 17.2V20h2.8l8.3-8.3-2.8-2.8zM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.3 1.3 2.8 2.8z"/></svg></button>
+      <button class="ctl" id="add" aria-label="Добавить MIDI-дорожку"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
+    </div>
+    <input type="file" id="file" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" multiple hidden>
   </section>
 
   <section class="transport">
@@ -263,14 +295,6 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
     <div class="note" id="note" hidden></div>
   </section>
 
-  <section>
-    <div class="trackbar">
-      <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="tn" id="trkName">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
-      <button class="ctl" id="edit" aria-label="Редактировать дорожку"><svg viewBox="0 0 24 24"><path d="M4 17.2V20h2.8l8.3-8.3-2.8-2.8zM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.3 1.3 2.8 2.8z"/></svg></button>
-      <button class="ctl" id="add" aria-label="Добавить MIDI-дорожку"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
-    </div>
-    <input type="file" id="file" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" multiple hidden>
-  </section>
 
   <div class="mix-back" id="mixBack" hidden></div>
   <div class="mixer" id="trkSheet" role="dialog" aria-label="Дорожки" hidden>
@@ -612,7 +636,7 @@ const PAN={35:0,36:0,38:-0.12,37:-0.12,40:-0.12,39:-0.1, 42:-0.38,44:-0.38,46:-0
 function satCurve(k){ const n=2048, c=new Float32Array(n); for(let i=0;i<n;i++){ const x=i/(n-1)*2-1; c[i]=k>0?Math.tanh(k*x)/k:x; } return c; }
 function initAudio(){
   if(ctx) return;
-  ctx = new (window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
+  ctx = new (window.AudioContext||window.webkitAudioContext)({latencyHint:'balanced'});
   eqLow=ctx.createBiquadFilter(); eqLow.type='lowshelf'; eqLow.frequency.value=80;
   eqMid=ctx.createBiquadFilter(); eqMid.type='peaking'; eqMid.frequency.value=420; eqMid.Q.value=0.9;
   eqHigh=ctx.createBiquadFilter(); eqHigh.type='highshelf'; eqHigh.frequency.value=7500;
@@ -620,7 +644,7 @@ function initAudio(){
   master=ctx.createGain(); master.gain.value=$('vol').value/100;
   makeup=ctx.createGain(); limiter=ctx.createDynamicsCompressor();
   limiter.threshold.value=-2; limiter.knee.value=0; limiter.ratio.value=20; limiter.attack.value=0.002; limiter.release.value=0.08;
-  sat=ctx.createWaveShaper(); sat.oversample='2x';
+  sat=ctx.createWaveShaper(); sat.oversample='4x';
   eqLow.connect(eqMid).connect(eqHigh).connect(sat).connect(comp).connect(makeup);
   // user's graphic EQ over the whole mix
   let prev=makeup; eqBands=EQ_F.map((f,i)=>{ const b=ctx.createBiquadFilter(); b.type=i===0?'lowshelf':i===EQ_F.length-1?'highshelf':'peaking'; b.frequency.value=f; b.Q.value=1.1; b.gain.value=eqGain[i]||0; prev.connect(b); prev=b; return b; });
@@ -722,7 +746,20 @@ async function loadKit(){
   await decodeAll(todo);
   setStatus('Установка: '+kit.name);
 }
+// all cymbals (hats, crashes, rides, china, splash) sit a third lower than the drums by default
+const CYMBAL=new Set([42,44,46,49,51,52,53,55,57,59]), CYMBAL_GAIN=2/3;
 let openHat=null, queued=[];
+// Voice limit: a drum hit again lets its older rings fade instead of piling up. Dense parts (blast beats, double bass)
+// otherwise stack dozens of sounding voices, which overloads phones (stutter) and muddies the sound.
+const voices={}, allVoices=[], VOICE_MAX=36;
+function choke(v,at,tc){ if(v.dead) return; v.dead=true; try{ v.g.gain.cancelScheduledValues(at); v.g.gain.setTargetAtTime(0,at,tc); v.src.stop(at+tc*8); }catch(_){} }
+function addVoice(n,src,g,when){
+  const v={src,g,when}, vs=voices[n]||(voices[n]=[]); vs.push(v); allVoices.push(v);
+  src.onended=()=>{ v.dead=true; const i=vs.indexOf(v); if(i>=0) vs.splice(i,1); const j=allVoices.indexOf(v); if(j>=0) allVoices.splice(j,1); };
+  const per = (n===49||n===57||n===51||n===59||n===52||n===55||n===53) ? 4 : 3;
+  let live=vs.filter(x=>!x.dead && x.when<when); while(live.length>=per){ choke(live.shift(), when, 0.03); }
+  live=allVoices.filter(x=>!x.dead && x.when<when); while(live.length>=VOICE_MAX){ choke(live.shift(), when, 0.02); }
+}
 function hit(n,vel,when,cut){
   if(n<0) return false;
   const [z,pn]=soundFor(n); if(!z) return false; const buf=decoded[z[0]]; if(!buf) return false;
@@ -730,7 +767,7 @@ function hit(n,vel,when,cut){
   const src=ctx.createBufferSource(); src.buffer=buf;
   // no two hits alike: a few cents of pitch and a little level drift, like alternating samples
   src.playbackRate.value=Math.pow(2,(pn*100-(orig-coarse*100-fine)+(Math.random()-0.5)*14)/1200);
-  const g=ctx.createGain(); const v=vel/127; g.gain.value=(v*v*0.95+0.05*v)*(0.95+Math.random()*0.1);
+  const g=ctx.createGain(); const v=vel/127; g.gain.value=(v*v*0.95+0.05*v)*(0.95+Math.random()*0.1)*(CYMBAL.has(n)?CYMBAL_GAIN:1);
   // a soft hit is darker than a hard one
   const tone=ctx.createBiquadFilter(); tone.type='lowpass'; tone.Q.value=0.5; tone.frequency.value=Math.min(20000, 1600*Math.pow(2,v*3.6));
   const pan=ctx.createStereoPanner(); pan.pan.value=PAN[n]||0;
@@ -741,7 +778,7 @@ function hit(n,vel,when,cut){
   if(cut){ g.gain.setTargetAtTime(0, when+cut, cut*0.35); }
   else if(n===42||n===44){ g.gain.setTargetAtTime(0, when+0.045, 0.022); }   // the sample's tail is loose; damp it so the hat sounds shut
   else { const tail=drumTail(n); if(tail) g.gain.setTargetAtTime(0, when+tail, tail*0.25); }
-  src.start(when, Math.min(anchor||0, buf.duration/2));
+  src.start(when, Math.min(anchor||0, buf.duration/2)); addVoice(n,src,g,when);
   if(when>ctx.currentTime+0.02) queued.push({src,when});
   return true;
 }
@@ -774,10 +811,11 @@ function duration(){ const t=track(), e=t.events, end=e.length ? e[e.length-1].t
 let wrapLen=0;   // length of the pass that is still sounding right after a loop restart
 function pos(){ if(!playing) return startPos; const p=startPos+(ctx.currentTime-startCtx)*speed; return p<0 ? (wrapLen ? p+wrapLen : 0) : p; }
 function findIdx(t){ let lo=0,hi=list.length; while(lo<hi){ const m=(lo+hi)>>1; if(list[m].t<t) lo=m+1; else hi=m; } return lo; }
+const LOOKAHEAD=0.3;   // seconds of notes handed to the audio thread ahead of time, so a busy screen can't make them late
 function tick(){
   const now=ctx.currentTime, D=duration();
   for(let pass=0; pass<4; pass++){
-    const horizon=startPos+(now+(document.hidden?2.5:0.15)-startCtx)*speed;
+    const horizon=startPos+(now+(document.hidden?2.5:LOOKAHEAD)-startCtx)*speed;
     while(idx<list.length && list[idx].t<=horizon && list[idx].t<D){
       const e=list[idx++]; const when=Math.max(now, startCtx+(e.t-startPos)/speed);
       if(e.cut) hit(42, Math.round(e.v*0.7), when);
@@ -828,7 +866,10 @@ $('kits').addEventListener('click', async e=>{
 $('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}</button>`).join('');
 // square pads, as big as the free space allows
 function fitPads(){ const sec=document.querySelector('.padsec'), W=sec.clientWidth, H=sec.clientHeight;
-  $('pads').style.setProperty('--ps', Math.max(52, Math.floor(Math.min((W-18)/4, (H-6)/2)))+'px'); }
+  // 4×2 or, on a tall screen with room to spare, 2×4: whichever gives the bigger square pads
+  const wide=Math.min((W-18)/4,(H-6)/2), tall=Math.min((W-6)/2,(H-18)/4), cols=tall>wide*1.08?2:4;
+  $('pads').style.setProperty('--cols', cols);
+  $('pads').style.setProperty('--ps', Math.max(52, Math.floor(cols===2?tall:wide))+'px'); }
 window.addEventListener('resize', fitPads); requestAnimationFrame(fitPads); setTimeout(fitPads,300);
 
 const PAD_NOTE=[36,38,42,45,49,51,63,56];
@@ -908,7 +949,7 @@ function renderTracks(){
     const head = g!==last ? `<li class="tgroup"><button class="fold" data-fold="${g}" aria-expanded="${open}"><svg viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/></svg><span>${g}</span><span class="cnt">${count[g]}</span><span class="chev">${open?'▾':'▸'}</span></button></li>` : '';
     last=g; return head+(open?trackRow(t,i):''); }).join('');
   idx.forEach(i=>{ const el=$('tracks').querySelector(`.pick[data-i="${i}"] .t1`); if(el) el.textContent=tracks[i].style ? tracks[i].def.n : tracks[i].name; });
-  $('trkName').textContent=track().name+(track().dirty?' •':''); 
+  $('trkName').textContent=(track().def?track().def.n+' · '+track().bpm:track().name)+(track().dirty?' •':''); 
 }
 function trackRow(t,i){
     if(t.chan===undefined){ const d=findDrumChannel(t); t.chan=d.ch; t.autoChan=d.auto; } const n=t.events.filter(e=>e.ch===t.chan && e.n>=0).length; const d=t.events.length?t.events[t.events.length-1].t:0;
@@ -927,6 +968,16 @@ $('tracks').addEventListener('click',e=>{
 $('add').addEventListener('click',()=>{ initAudio(); $('file').click(); });
 $('add2').addEventListener('click',()=>{ initAudio(); sheet('trkSheet',false); $('file').click(); });
 $('trkOpen').addEventListener('click',()=>{ openFolders.clear(); openFolders.add(trackFolder(track())); renderTracks(); sheet('trkSheet',true); $('trkClose').focus(); });
+// step through the ready-made tracks in the order of the folders; keeps playing if it was playing
+function stepDemo(d){
+  const order=['Мои дорожки', ...Object.values(STYLE_NAME)];
+  const list=tracks.map((t,i)=>i).filter(i=>tracks[i].demo).sort((a,b)=>order.indexOf(trackFolder(tracks[a]))-order.indexOf(trackFolder(tracks[b])) || a-b);
+  if(!list.length) return;
+  const at=list.indexOf(cur), next=at<0 ? (d>0?list[0]:list[list.length-1]) : list[(at+d+list.length)%list.length];
+  const was=playing; select(next); if(was) play();
+}
+$('prevTrk').addEventListener('click',()=>stepDemo(-1));
+$('nextTrk').addEventListener('click',()=>stepDemo(1));
 $('trkClose').addEventListener('click',()=>{ sheet('trkSheet',false); $('trkOpen').focus(); });
 $('newTrack').addEventListener('click',()=>{
   tracks.push({name:'Новый бит '+tracks.length, bpm:120, chan:9, events:[], saved:false, dirty:true, bars:8});
@@ -957,7 +1008,7 @@ function recHit(n){
   if(playing){
     const t=track(), e={t:+pos().toFixed(4), ch:chan, n, raw:n, v:112};
     t.events.push(e); t.events.sort((a,b)=>a.t-b.t); t.dirty=true; rec.over++;
-    list=evs(); idx=findIdx(Math.max(0, startPos+(ctx.currentTime+(document.hidden?2.5:0.15)-startCtx)*speed));   // already heard, don't replay it now
+    list=evs(); idx=findIdx(Math.max(0, startPos+(ctx.currentTime+(document.hidden?2.5:LOOKAHEAD)-startCtx)*speed));   // already heard, don't replay it now
   } else rec.ev.push({t:+(ctx.currentTime-rec.t0).toFixed(4), ch:9, n, raw:n, v:112});
 }
 function keepOverdub(){
@@ -1370,7 +1421,7 @@ const pads=[...document.querySelectorAll('.pad')], padOff=new Array(pads.length)
 function frame(){
   if(ctx){
     const now=ctx.currentTime;
-    flashes=flashes.filter(f=>{ if(f.when<=now){ pads[f.g].classList.add('on'); padOff[f.g]=now+0.09; [noteChan[f.n],'oh','amb'].forEach(id=>{ const mt=id&&$('mt-'+id); if(mt){ mt.classList.add('on'); setTimeout(()=>mt.classList.remove('on'),90); } }); return false; } return true; });
+    flashes=flashes.filter(f=>{ if(f.when<=now){ pads[f.g].classList.add('on'); padOff[f.g]=now+0.09; if(!$('mixer').hidden) [noteChan[f.n],'oh','amb'].forEach(id=>{ const mt=id&&$('mt-'+id); if(mt){ mt.classList.add('on'); setTimeout(()=>mt.classList.remove('on'),90); } }); return false; } return true; });
     pads.forEach((p,i)=>{ if(padOff[i] && now>padOff[i]){ p.classList.remove('on'); padOff[i]=0; } });
   }
   if(playing){ render(); if(ed.open){ const sc=$('edScroll'), px=pos()/edStep()*ed.cell; if(px>sc.scrollLeft+sc.clientWidth-40) sc.scrollLeft=px-40; edDraw(); } }
