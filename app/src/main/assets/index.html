@@ -222,7 +222,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт от 1 до 5, потом трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 22.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 23.
   </div>
 
   <section>
@@ -286,6 +286,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
       <button class="ctl sm" id="edPlay" aria-label="Играть"><svg viewBox="0 0 24 24" id="edPlayIcon"><path d="M8 5v14l11-7z"/></svg></button>
       <button class="ctl sm" id="edStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button>
       <button class="ed-b" id="edUndo" disabled>Отменить</button>
+      <button class="ed-b" id="edQuant" title="Притянуть удары к сетке">Выровнять</button>
       <label class="ed-f">Сетка <select id="edGrid"><option value="8">1/8</option><option value="16" selected>1/16</option><option value="32">1/32</option></select></label>
       <label class="ed-f">Сила <input id="edVel" type="range" min="20" max="127" value="100"><output id="edVelOut">100</output></label>
       <label class="ed-f">Темп <input id="edBpm" type="number" min="40" max="300" inputmode="numeric"></label>
@@ -294,7 +295,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
       <button class="ed-b" id="edExport">Скачать MIDI</button>
       <button class="ed-b danger" id="edClear">Очистить</button>
     </div>
-    <div class="ed-hint" id="edHint" hidden>Нажмите на клетку, чтобы поставить удар, нажмите на удар, чтобы убрать. Нажатие на название инструмента даёт его послушать, удержание выделяет все его ноты, выделенные ноты можно перетащить на другой инструмент. Сведите или разведите два пальца, чтобы изменить масштаб сетки.</div>
+    <div class="ed-hint" id="edHint" hidden>Нажмите на клетку, чтобы поставить удар, нажмите на удар, чтобы убрать. Нажатие на название инструмента даёт его послушать, удержание выделяет все его ноты, выделенные ноты можно перетащить на другой инструмент. Сведите или разведите два пальца, чтобы изменить масштаб сетки. «Выровнять» ставит удары точно по клеткам выбранной сетки (только выделенные, если что-то выделено).</div>
     <div class="ed-sel" id="edSelBar" hidden>
       <span>Выбрано: <b id="edSelInfo">0</b></span>
       <label class="ed-f">Сила <input id="edSelVel" type="range" min="1" max="127" value="100"><output id="edSelVelOut">100</output></label>
@@ -1250,6 +1251,18 @@ $('edSave').addEventListener('click',()=>{
     toast(AndroidBridge.writeUri(t.uri, midiB64(t)) ? 'Файл на устройстве заменён: '+fileName(t) : 'Не удалось заменить файл на устройстве (нет прав на запись). Дорожка сохранена в приложении, используйте «Скачать MIDI».');
   }
   $('curName').textContent=t.name; renderTracks();
+});
+// quantize: move hits to the nearest step of the current grid (the selection if there is one, else the whole part)
+$('edQuant').addEventListener('click',()=>{
+  const st=edStep(), t=track(), end=ed.bars*ed.grid*st, pick=ed.sel.size?[...ed.sel]:edEvents();
+  if(!pick.length){ toast('Нет нот, которые можно выровнять.'); return; }
+  edPush(); let moved=0;
+  pick.forEach(e=>{ const q=Math.min(Math.round(e.t/st)*st, end-st); const nt=+Math.max(0,q).toFixed(5); if(Math.abs(nt-e.t)>1e-4) moved++; e.t=nt; });
+  // two hits of one drum landing on the same step become one (the louder stays)
+  const seen=new Map();
+  for(let j=t.events.length-1;j>=0;j--){ const e=t.events[j]; if(e.ch!==chan) continue; const k=e.n+'@'+e.t; const o=seen.get(k);
+    if(o){ o.v=Math.max(o.v,e.v); t.events.splice(j,1); ed.sel.delete(e); } else seen.set(k,e); }
+  edCommit(); toast(moved ? 'Выровнено ударов: '+moved+' (сетка '+$('edGrid').selectedOptions[0].textContent+')' : 'Всё уже стоит ровно по сетке.');
 });
 $('edClose').addEventListener('click',closeEditor);
 $('edit').addEventListener('click',openEditor);
