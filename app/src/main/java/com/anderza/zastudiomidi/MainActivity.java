@@ -1,4 +1,4 @@
-package com.anderza.mididrums;
+package com.anderza.zastudiomidi;
 
 import android.Manifest;
 import android.app.Activity;
