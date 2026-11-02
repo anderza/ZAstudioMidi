@@ -39,18 +39,18 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease
           mkdir -p out
-          cp app/build/outputs/apk/release/app-release.apk out/MidiDrums.apk
+          cp app/build/outputs/apk/release/app-release.apk out/ZAstudioMidi.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MidiDrums-apk
-          path: out/MidiDrums.apk
+          name: ZAstudioMidi-apk
+          path: out/ZAstudioMidi.apk
 
       # a release per build gives a direct download link that opens on a phone
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: ZaDrumsMidi, сборка ${{ github.run_number }}
-          files: out/MidiDrums.apk
+          name: ZAstudioMidi, сборка ${{ github.run_number }}
+          files: out/ZAstudioMidi.apk
           make_latest: true
