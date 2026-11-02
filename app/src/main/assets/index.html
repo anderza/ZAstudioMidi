@@ -305,13 +305,18 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 .pr-keys canvas{display:block;touch-action:none}
 .ed-b.danger.arm{background:#e5484d;color:#fff}
 #instSheet{z-index:41}
+.brand{display:flex;flex-direction:column;gap:1px;min-width:0}
+.copy{font-size:10px;line-height:1.2;color:var(--muted);letter-spacing:.02em;white-space:nowrap}
 </style>
 
 </head>
 <body>
 <div class="app">
   <header>
-    <h1>ZAstudio<span>Midi</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
+    <div class="brand">
+      <h1>ZAstudio<span>Midi</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
+      <small class="copy">© Zapolski Andrei · dionys@yandex.ru</small>
+    </div>
     <div class="status" id="status">Загрузка сэмплов…</div>
   </header>
 
