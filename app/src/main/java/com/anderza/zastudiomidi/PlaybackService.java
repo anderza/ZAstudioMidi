@@ -1,4 +1,4 @@
-package com.anderza.mididrums;
+package com.anderza.zastudiomidi;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -41,7 +41,7 @@ public class PlaybackService extends Service {
             startForeground(1, n);
         }
         if (wake == null) {
-            wake = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mididrums:play");
+            wake = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zastudiomidi:play");
             wake.acquire(4 * 60 * 60 * 1000L);
         }
         return START_NOT_STICKY;

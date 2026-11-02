@@ -3,28 +3,28 @@ plugins {
 }
 
 android {
-    namespace 'com.anderza.mididrums'
+    namespace 'com.anderza.zastudiomidi'
     compileSdk 34
 
     defaultConfig {
-        applicationId 'com.anderza.mididrums'
+        applicationId 'com.anderza.zastudiomidi'
         minSdk 24
         targetSdk 34
         // every CI build gets a higher number so Android installs it as an update
-        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger() + 300)   // new repository: run numbers restart, the version must still be higher than the old app's
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger() + 100)
         versionName('1.' + (System.getenv('GITHUB_RUN_NUMBER') ?: '0'))
     }
 
     // One fixed key for every build: Android only accepts an update signed with the same key as the installed app.
     // The key lives in app/release.jks (kept in the repository at the owner's request); KEYSTORE_* secrets override it.
-    def ksPass = System.getenv('KEYSTORE_PASSWORD') ?: 'e9ce5667772bbc3ef0b387b3'
+    def ksPass = System.getenv('KEYSTORE_PASSWORD') ?: '6fa92a73ce560e4f46bc39dd'
     def hasKey = file('release.jks').exists() && !ksPass.isEmpty()
     if (hasKey) {
         signingConfigs {
             release {
                 storeFile file('release.jks')
                 storePassword ksPass
-                keyAlias 'mididrums'
+                keyAlias 'zastudiomidi'
                 keyPassword ksPass
             }
         }
