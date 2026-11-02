@@ -311,7 +311,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
     <b>Часы</b>: отсчёт 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 33. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
+    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 34. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
   </div>
 
   <section>
@@ -1179,7 +1179,8 @@ function keepOverdub(){
 }
 $('rec').addEventListener('click', async ()=>{
   initAudio(); if(ctx.state!=='running') await ctx.resume();
-  if(!rec){ rec={t0:ctx.currentTime, ev:[], over:0}; $('rec').setAttribute('aria-pressed','true'); setStatus(playing?'Запись поверх трека: играйте на пэдах':'Запись: играйте на пэдах'); return; }
+  if(countT){ cancelCount(); $('rec').setAttribute('aria-pressed','false'); return; }   // a second tap during the count cancels it
+  if(!rec){ $('rec').setAttribute('aria-pressed','true'); countIn(()=>{ rec={t0:ctx.currentTime, ev:[], over:0}; setStatus(playing?'Запись поверх трека: играйте на пэдах':'Запись: играйте на пэдах'); }); return; }
   const r=rec; rec=null; $('rec').setAttribute('aria-pressed','false'); setStatus('Установка: '+kit.name);
   if(r.over){ const t=keepOverdub(); const k=r.over%10, kk=r.over%100, w=(k===1&&kk!==11)?'удар':(k>=2&&k<=4&&(kk<12||kk>14))?'удара':'ударов'; showNote('Добавлено '+r.over+' '+w+' в «'+t.name+'».'); }
   if(!r.ev.length){ if(!r.over) showNote('Запись пустая: во время записи нажимайте на пэды.'); return; }
@@ -1195,14 +1196,18 @@ let countT=null, countTimers=[];
 function showCount(n){ const b=$('count'); b.setAttribute('aria-pressed',!!n);
   if(n){ b.dataset.svg=b.dataset.svg||b.innerHTML; b.innerHTML='<b>'+n+'</b>'; $('countBig').textContent=n; $('countBig').hidden=false; }
   else { if(b.dataset.svg) b.innerHTML=b.dataset.svg; $('countBig').hidden=true; } }
-function cancelCount(){ countTimers.forEach(clearTimeout); countTimers=[]; countT=null; queued.forEach(q=>{ try{ q.src.stop(); }catch(_){} }); queued=[]; showCount(0); }
-$('count').addEventListener('click', async ()=>{
-  if(countT){ cancelCount(); return; }
-  initAudio(); if(ctx.state!=='running') await ctx.resume(); if(playing) pause();
+function cancelCount(){ countTimers.forEach(clearTimeout); countTimers=[]; countT=null; if(!playing){ queued.forEach(q=>{ try{ q.src.stop(); }catch(_){} }); queued=[]; } showCount(0); }
+// counts 1-2-3 in the project tempo with stick clicks, then calls done(audio time of the next beat)
+async function countIn(done){
+  initAudio(); if(ctx.state!=='running') await ctx.resume();
   const beat=60/(track().bpm||120)/speed, t0=ctx.currentTime+0.08, N=3; countT=true;
   for(let i=0;i<N;i++){ const at=t0+i*beat; hit(37,i===N-1?124:100,at);
     countTimers.push(setTimeout(()=>{ if(countT) showCount(i+1); }, Math.max(0,(at-ctx.currentTime)*1000))); }
-  countTimers.push(setTimeout(()=>{ if(!countT) return; countTimers=[]; countT=null; showCount(0); play(t0+N*beat); }, Math.max(0,(t0+N*beat-ctx.currentTime)*1000-120)));
+  countTimers.push(setTimeout(()=>{ if(!countT) return; countTimers=[]; countT=null; showCount(0); done(t0+N*beat); }, Math.max(0,(t0+N*beat-ctx.currentTime)*1000-120)));
+}
+$('count').addEventListener('click', async ()=>{
+  if(countT){ cancelCount(); return; }
+  if(playing) pause(); countIn(at=>play(at));
 });
 $('loop').addEventListener('click',()=>{ loop=!loop; $('loop').setAttribute('aria-pressed',loop); });
 let seeking=false;
@@ -1779,7 +1784,7 @@ function drawLanes(){
   });
 }
 function openStudio(){ initAudio(); $('studio').hidden=false; edFullscreen(true); st.sel=null; renderStudio(); loadParts(); }
-function closeStudio(){ kbAllOff(); st.armed=null; $('studio').hidden=true; edFullscreen(false); $('studioOpen').focus(); }
+function closeStudio(){ kbAllOff(); st.armed=null; st.recLive=false; if(countT) cancelCount(); $('studio').hidden=true; edFullscreen(false); $('studioOpen').focus(); }
 $('studioOpen').addEventListener('click',openStudio);
 $('stClose').addEventListener('click',closeStudio);
 $('stPlay').addEventListener('click',()=> playing?pause():play());
@@ -1803,7 +1808,12 @@ $('stRows').addEventListener('click',e=>{
   const t=track(), row = b.dataset.mute ?? b.dataset.solo ?? b.dataset.arm; if(row===undefined) return; const r=+row, p=r<0?null:t.parts[r];
   if(b.dataset.mute!==undefined){ if(p) p.mute=!p.mute; else t.dmute=!t.dmute; }
   if(b.dataset.solo!==undefined){ if(p) p.solo=!p.solo; else t.dsolo=!t.dsolo; }
-  if(b.dataset.arm!==undefined){ st.armed = st.armed===r ? null : r; if(st.armed!==null){ st.kbOpen=true; if(!st.oct[r]) st.oct[r]=r<0?36:Math.floor(CATS[INST[p.inst].cat].base/12)*12; toast(playing?'Запись: играйте на клавиатуре':'Запись включена: нажмите «Играть» и играйте на клавиатуре'); } }
+  if(b.dataset.arm!==undefined){
+    if(countT){ cancelCount(); st.armed=null; st.recLive=false; studioChanged(); return; }
+    st.armed = st.armed===r ? null : r; st.recLive=false;
+    if(st.armed!==null){ st.kbOpen=true; if(!st.oct[r]) st.oct[r]=r<0?36:Math.floor(CATS[INST[p.inst].cat].base/12)*12;
+      const wasPlaying=playing;
+      countIn(at=>{ if(st.armed===null) return; st.recLive=true; if(!wasPlaying||!playing) play(at); renderKb(); }); } }
   studioChanged();
 });
 // long press on an instrument opens its actions
@@ -1860,7 +1870,7 @@ function kbRow(){ const t=track(); if(st.armed!==null && (st.armed<0 || t.parts[
 function renderKb(){
   const row=kbRow(), t=track(), base=st.oct[row] ?? (row<0?36:Math.floor(CATS[INST[t.parts[row].inst].cat].base/12)*12); st.oct[row]=base;
   const name = row<0 ? 'Барабаны' : INST[t.parts[row].inst].name;
-  $('kbName').textContent=name+(st.armed===row?' · запись':''); $('kbName').classList.toggle('rec', st.armed===row); $('kbOct').textContent=noteName(base);
+  $('kbName').textContent=name+(st.armed===row?(st.recLive?' · запись':' · отсчёт…'):''); $('kbName').classList.toggle('rec', st.armed===row); $('kbOct').textContent=noteName(base);
   let white='', black='', wi=0;
   for(let n=base;n<base+25;n++){ if(isBlack(n)) black+=`<button class="kb-b" data-n="${n}" style="left:calc(${wi}*var(--kw) - var(--kw)*.3)"></button>`; else { white+=`<button class="kb-w" data-n="${n}">${n%12===0?noteName(n):(row<0&&DRUM_NAMES[n]?'<small>'+DRUM_NAMES[n].slice(0,5)+'</small>':'')}</button>`; wi++; } }
   $('kbKeys').style.setProperty('--kw',(100/wi)+'%'); $('kbKeys').innerHTML=white+black;
@@ -1877,7 +1887,7 @@ function kbOff(id){
   const h=st.held[id]; if(!h) return; delete st.held[id];
   if(h.voice) h.voice.release(ctx.currentTime);
   const el=$('kbKeys').querySelector(`[data-n="${h.n}"]`); if(el && !Object.values(st.held).some(x=>x.n===h.n)) el.classList.remove('on');
-  if(st.armed===h.row && h.t0!==null && playing){
+  if(st.armed===h.row && st.recLive && h.t0!==null && playing){
     const t=ownTrack(), D=duration(); let d=pos()-h.t0; if(d<0) d+=D;
     if(h.row<0){ t.events.push({t:+h.t0.toFixed(5), ch:chan, n:h.n, raw:h.n, v:105}); t.events.sort((a,b)=>a.t-b.t); t.dirty=true; list=evs(); idx=findIdx(Math.max(0, startPos+(ctx.currentTime+LOOKAHEAD-startCtx)*speed)); }
     else { const p=t.parts[h.row]; if(p) p.notes.push({t:+h.t0.toFixed(5), d:+Math.max(0.05,d).toFixed(5), n:h.n, v:105}); p&&p.notes.sort((a,b)=>a.t-b.t); }
