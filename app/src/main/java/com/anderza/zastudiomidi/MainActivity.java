@@ -18,6 +18,7 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -33,6 +34,10 @@ import java.util.List;
 /** Hosts the drum player page (assets/index.html) in a full-screen WebView. */
 public class MainActivity extends Activity {
     private static final int PICK_FILES = 1;
+    private static final int MIC_REQ = 3;
+    private PermissionRequest pendingMic;      // the page asked for the microphone, waiting for the user's answer
+    private OutputStream bigOut;               // a large file (song export) written in pieces
+    private Uri bigUri;
 
     private WebView web;
     private ValueCallback<Uri[]> pendingPick;
@@ -53,6 +58,23 @@ public class MainActivity extends Activity {
 
         web.setWebViewClient(new WebViewClient());
         web.setWebChromeClient(new WebChromeClient() {
+            // "Запись с микрофона": the page asks for the microphone; ask Android for it the first time
+            @Override
+            public void onPermissionRequest(final PermissionRequest req) {
+                runOnUiThread(() -> {
+                    boolean mic = false;
+                    for (String r : req.getResources()) if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) mic = true;
+                    if (!mic) { req.deny(); return; }
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        req.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+                    } else {
+                        if (pendingMic != null) pendingMic.deny();
+                        pendingMic = req;
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MIC_REQ);
+                    }
+                });
+            }
+
             // "Добавить MIDI-дорожку" opens the system file picker
             @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
@@ -111,6 +133,18 @@ public class MainActivity extends Activity {
         }
         pendingPick.onReceiveValue(result);
         pendingPick = null;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        if (requestCode == MIC_REQ && pendingMic != null) {
+            if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED)
+                pendingMic.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+            else pendingMic.deny();
+            pendingMic = null;
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, results);
     }
 
     @Override
@@ -223,6 +257,48 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 return false;
             }
+        }
+
+        /** A large file to Downloads in pieces (the song export): begin, append base64 chunks, end. */
+        @JavascriptInterface
+        public boolean beginFile(String name, String mime) {
+            try {
+                if (bigOut != null) { try { bigOut.close(); } catch (Exception ignored) { } }
+                bigOut = null; bigUri = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ContentValues v = new ContentValues();
+                    v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                    v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+                    v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                    bigUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                    if (bigUri == null) return false;
+                    bigOut = getContentResolver().openOutputStream(bigUri, "wt");
+                } else {
+                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists() && !dir.mkdirs()) return false;
+                    File f = new File(dir, name);
+                    bigUri = Uri.fromFile(f);
+                    bigOut = new FileOutputStream(f, false);
+                }
+                return bigOut != null;
+            } catch (Exception e) {
+                bigOut = null;
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public boolean appendFile(String base64) {
+            if (bigOut == null) return false;
+            try { bigOut.write(Base64.decode(base64, Base64.DEFAULT)); return true; } catch (Exception e) { return false; }
+        }
+
+        @JavascriptInterface
+        public String endFile() {
+            if (bigOut == null) return "";
+            try { bigOut.close(); } catch (Exception e) { bigOut = null; return ""; }
+            bigOut = null;
+            return bigUri != null ? bigUri.toString() : "";
         }
 
         /** Writes a file the page built (base64) to Downloads, replacing a file of the same name

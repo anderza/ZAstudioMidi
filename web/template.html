@@ -458,19 +458,51 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
 
 /* audio tracks */
 .st-alane{position:relative;background:#16191f;border:1px solid var(--edge);border-radius:9px;overflow:hidden;min-width:0;cursor:pointer;touch-action:pan-y;-webkit-touch-callout:none;user-select:none}
-.st-ahead{grid-template-columns:36px minmax(0,1fr) 26px}
+.st-ahead{grid-template-columns:36px minmax(0,1fr) 30px}
 .st-aname{grid-area:name;min-width:0;display:flex;flex-direction:column;justify-content:center;align-self:stretch}
 .st-aname .nm{font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-aname .cat{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--c);font-weight:700}
 .st-aname .vl{color:var(--muted);letter-spacing:0;font-weight:600}
-.st-adel{grid-area:knob;width:26px;height:26px;border-radius:50%;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-size:16px;line-height:1;padding:0}
+.st-acts .av{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;align-self:center;min-width:3.4ch}
+.st-adel{width:22px;height:20px;border-radius:6px;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-size:16px;line-height:1;padding:0}
 .st-adel.arm{background:var(--rec);color:#fff;border-color:var(--rec)}
 .st-acts .st-v{width:auto;padding:0 6px;font-variant-numeric:tabular-nums}
-@media (max-width:440px) and (orientation:portrait){ .st-ahead{grid-template-columns:30px minmax(0,1fr) 24px} .st-adel{width:24px;height:24px} }
+@media (max-width:440px) and (orientation:portrait){ .st-ahead{grid-template-columns:30px minmax(0,1fr) 28px} }
 
 /* long presses must never start the system text selection or the callout menu on a phone */
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+
+/* pads panel in the Studio */
+.st-padp .padsec{height:clamp(110px,24vh,190px);min-height:0;display:flex;align-items:center;justify-content:center;margin-top:6px}
+.st-padp .kb-head .cb.tp{width:32px;height:30px}.st-padp .kb-head .cb.tp svg{width:18px;height:18px}
+.pad-hint{font-size:10.5px;color:var(--muted)}
+@media (orientation:landscape) and (max-height:560px){ .st-padp .padsec{height:clamp(70px,28vh,130px);margin-top:3px} }
+.st-bot{grid-template-columns:repeat(4,minmax(0,1fr))}
+.st-bot .st-kbb{justify-content:center}
+@media (max-width:440px){ .st-bot .st-kbb span{display:inline;font-size:11px} .st-bot .st-kbb svg{display:none} }
+.st-bot .st-kbb[aria-pressed="true"]{color:var(--brass);box-shadow:inset 0 0 0 1px rgba(247,165,28,.6)}
+.mgrid .mbtn.wide{grid-column:span 2;flex-direction:row;height:46px;gap:8px}
+.mbtn.busy{color:#fff;background:var(--rec)}
+body.mic-on #stPlay{background:var(--rec)}
+.st-mic{--c:#FF5A4E}
+/* projects */
+.projects{position:fixed;inset:0;z-index:19;background:radial-gradient(120% 60% at 50% 0,#1e1e22 0,var(--bg) 70%),var(--bg);display:flex;flex-direction:column;gap:12px;box-sizing:border-box;overflow-y:auto;padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.proj-top{display:flex;align-items:center;gap:10px}
+.proj-top .itile{background:#1C1C20;border:1px solid #333}
+.proj-top .itile svg{width:40px;height:40px}
+.proj-top h1{font-size:22px}
+.proj-h{margin:6px 0 0;color:var(--muted)}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.proj{position:relative;aspect-ratio:1/1;border-radius:18px;background:linear-gradient(160deg,#323239,#232327);border:1px solid var(--edge);box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07);display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding:12px;text-align:left;color:var(--fg);cursor:pointer;min-width:0;box-sizing:border-box}
+.proj.new{align-items:center;justify-content:center;border:2px dashed #4a4a52;background:rgba(255,255,255,.02);box-shadow:none;gap:6px}
+.pplus{font:300 56px/1 var(--body);color:var(--brass)}
+.proj b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.proj small{color:var(--muted);font-size:11px}
+.pthumb{position:absolute;left:12px;right:12px;top:14px;display:flex;flex-direction:column;gap:6px}
+.pthumb span{display:block;height:10px;border-radius:4px;background:var(--c);width:var(--w);margin-left:var(--l);opacity:.92}
+.pdel{position:absolute;right:8px;bottom:10px;min-width:26px;height:26px;border-radius:13px;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-size:14px;padding:0 6px}
+.pdel.arm{background:var(--rec);color:#fff;border-color:var(--rec);font-size:11px}
 /* sheets and editors */
 .mixer{background:#1f1f23;border-top:1px solid #34343a;border-radius:18px 18px 0 0;padding-top:20px}
 .mixer::before{content:"";position:absolute;top:7px;left:50%;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:#4a4a52}
@@ -494,12 +526,10 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
   <div class="legacy" hidden>
     <button id="studioOpen" tabindex="-1">Студия</button>
     <button id="play" tabindex="-1"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
-    <button id="rec" tabindex="-1" aria-pressed="false"></button>
     <b id="lcdPos">1.1</b><span id="time">0:00 / 0:00</span><span id="lcdTempo"></span>
     <input id="seek" type="range" min="0" max="1000" value="0" tabindex="-1">
     <div class="status" id="status">Загрузка сэмплов…</div>
     <div class="kits" id="kits"></div>
-    <section class="padsec"><div class="pads" id="pads"></div></section>
     <span class="name" id="curName">—</span>
     <div class="note" id="note" hidden></div>
   </div>
@@ -607,7 +637,10 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
         <button class="mbtn" id="mixOpen" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg><span>Миксер</span></button>
         <button class="mbtn" id="eqOpen" aria-haspopup="dialog"><b class="eqb">EQ</b><span>Эквалайзер</span></button>
         <button class="mbtn" id="loop" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span>Повтор</span></button>
-        <button class="mbtn" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Отсчёт</span></button>
+        <button class="mbtn" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg><span>Отсчёт</span></button>
+        <button class="mbtn" id="metro" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Метроном</span></button>
+        <button class="mbtn wide" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 18h16v3H4z"/></svg><span>Экспорт песни в WAV</span></button>
+        <button class="mbtn wide" id="projOpen"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>Мои проекты</span></button>
       </div>
       <div class="msec">
         <h3>Звук</h3>
@@ -621,6 +654,11 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
         </div>
       </div>
     </div>
+  </div>
+  <div class="projects" id="projects" hidden>
+    <div class="proj-top"><span class="itile"><svg viewBox="0 0 108 108"><path d="M37 31.5a1.5 1.5 0 0 1 3 0v45a1.5 1.5 0 0 1-3 0zm15.5 0a1.5 1.5 0 0 1 3 0v45a1.5 1.5 0 0 1-3 0zm15.5 0a1.5 1.5 0 0 1 3 0v45a1.5 1.5 0 0 1-3 0z" fill="#3A3A42"/><rect x="31" y="58" width="15" height="8" rx="3" fill="#EBC03F"/><rect x="46.5" y="38" width="15" height="8" rx="3" fill="#4FC26B"/><rect x="62" y="50" width="15" height="8" rx="3" fill="#4A9DFF"/></svg></span><h1>Za<span>Studio</span></h1><span class="st-sp"></span><small class="copy">© Zapolski Andrei</small></div>
+    <h2 class="proj-h">Мои проекты</h2>
+    <div class="proj-grid" id="projGrid"></div>
   </div>
   <div class="studio" id="studio" role="dialog" aria-label="Студия" hidden>
     <div class="st-top cbar">
@@ -645,12 +683,16 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
       <div class="kb-head"><b id="kbName"></b><span class="st-sp"></span><button class="ed-b sq" id="kbDown" aria-label="Октава ниже">−</button><output id="kbOct"></output><button class="ed-b sq" id="kbUp" aria-label="Октава выше">+</button></div>
       <div class="kb-keys" id="kbKeys"></div>
     </div>
+    <div class="st-kb st-padp" id="stPads" hidden>
+      <div class="kb-head"><button class="cb tp" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button><b>Пэды</b><span class="st-sp"></span><small class="pad-hint">Долгое нажатие: выбор звука</small></div>
+      <section class="padsec"><div class="pads" id="pads"></div></section>
+    </div>
     <div class="st-bot">
       <button class="ed-b st-kbb" id="stKbBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2zm2 2v8h2v-3h1V8zm4 0v5h1v3h2v-3h1V8zm5 0v5h1v3h2v-3h1V8zm5 0v5h1v3h1V8z"/></svg><span>Клавиатура</span></button>
-      <button class="ed-b" id="st_cut">Разрезать</button>
-      <button class="ed-b" id="st_copy">Копировать</button>
-      <button class="ed-b" id="st_paste">Вставить</button>
-      <button class="ed-b danger" id="st_del">Очистить</button>
+      <button class="ed-b st-kbb" id="stPadsBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>Пэды</span></button>
+      <button class="ed-b st-kbb" id="stLoopBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span>Повтор</span></button>
+      <button class="ed-b st-kbb" id="stMetroBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Метроном</span></button>
+      <button class="ed-b" id="st_cut" hidden>Разрезать</button><button class="ed-b" id="st_copy" hidden>Копировать</button><button class="ed-b" id="st_paste" hidden>Вставить</button><button class="ed-b danger" id="st_del" hidden>Очистить</button>
     </div>
   </div>
   <div class="mixer" id="clipSheet" role="dialog" aria-label="Действия с куском" hidden>
@@ -1153,23 +1195,24 @@ function duration(){ const t=track(), e=t.events, end=e.length ? e[e.length-1].t
   // looping a song that closes on a single downbeat hit: the next pass starts on that beat instead of after a silent bar
   if(loop && end>0 && Math.abs(end-last)<0.03) return last;
   return Math.ceil(L/bar-0.02)*bar; }   // files end on a whole bar too, so a loop comes back in without a gap
-let wrapLen=0;   // length of the pass that is still sounding right after a loop restart
-function pos(){ if(!playing) return startPos; const p=startPos+(ctx.currentTime-startCtx)*speed; return p<0 ? (wrapLen ? p+wrapLen : 0) : p; }
+let wrapLen=0, wrapA=0;   // length of the pass that is still sounding right after a loop restart
+function pos(){ if(!playing) return startPos; const p=startPos+(ctx.currentTime-startCtx)*speed; if(wrapLen && p<wrapA) return p+wrapLen; return p<0 ? 0 : p; }
 function findIdx(t){ let lo=0,hi=list.length; while(lo<hi){ const m=(lo+hi)>>1; if(list[m].t<t) lo=m+1; else hi=m; } return lo; }
 const LOOKAHEAD=0.3;   // seconds of notes handed to the audio thread ahead of time, so a busy screen can't make them late
 function tick(){
-  const now=ctx.currentTime, D=duration();
+  const now=ctx.currentTime, D=duration(), [LA,LB]=loop?loopRange():[0,D];
   for(let pass=0; pass<4; pass++){
     const horizon=startPos+(now+(document.hidden?2.5:LOOKAHEAD)-startCtx)*speed;
-    while(idx<list.length && list[idx].t<=horizon && list[idx].t<D){
+    while(idx<list.length && list[idx].t<=horizon && list[idx].t<LB){
       const e=list[idx++]; const when=Math.max(now, startCtx+(e.t-startPos)/speed);
       if(e.cut) hit(42, Math.round(e.v*0.7), when);
       if(hit(e.n,e.v,when,e.cut)) flashes.push({when,g:noteGroup(e.n),n:e.n});
     }
-    if(mlist.length) scheduleM(now, horizon, D);
-    if(horizon<D || !loop || D<=0) break;
+    if(mlist.length) scheduleM(now, horizon, LB);
+    metroSched(now, horizon, LB);
+    if(horizon<LB || !loop || LB-LA<=0.05) break;
     // loop: the next pass starts exactly where this one ends, scheduled ahead like any other note
-    startCtx += (D-startPos)/speed; startPos=0; idx=0; mDone=-1; wrapLen=D; audioSchedule(startCtx,0);
+    startCtx += (LB-startPos)/speed; startPos=LA; idx=findIdx(LA); mDone=LA-1e-6; wrapLen=LB-LA; wrapA=LA; audioSchedule(startCtx,LA,LB); metroReset(LA);
   }
   if(!loop && pos()>=D) stop();
   if(queued.length>64) queued=queued.filter(q=>q.when>now);
@@ -1177,17 +1220,18 @@ function tick(){
 async function play(at){
   initAudio(); if(ctx.state!=='running') await ctx.resume();
   if(track().parts && track().parts.length){ await loadParts(); buildM(); }
-  if(!list.length && !mlist.length && !aClips().length){ showNote('В этой дорожке нет нот на выбранном канале. Выберите другой канал ударных.'); return; }
+  if(!list.length && !mlist.length && !aClips().length && !micRec && !metro){ showNote('В этой дорожке нет нот на выбранном канале. Выберите другой канал ударных.'); return; }
   if(startPos>=duration()) startPos=0;
-  startCtx=Math.max(ctx.currentTime+0.02, at||ctx.currentTime+0.05); idx=findIdx(startPos); mDone=startPos-1e-6; wrapLen=0; playing=true; audioSchedule(startCtx,startPos);
+  if(loop){ const [la,lb]=loopRange(); if(startPos<la-1e-3 || startPos>=lb-1e-3) startPos=la; }
+  startCtx=Math.max(ctx.currentTime+0.02, at||ctx.currentTime+0.05); idx=findIdx(startPos); mDone=startPos-1e-6; wrapLen=0; wrapA=0; playing=true; audioSchedule(startCtx,startPos); metroReset(startPos);
   timer=setInterval(tick,25); tick(); setPlayIcon();
 }
-function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer); audioStop();
+function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer); audioStop(); if(micRec) setTimeout(micStop);
   const t=ctx.currentTime; queued.forEach(q=>{ if(q.when>t+0.005) try{ q.src.stop(); }catch(_){} }); queued=[]; setPlayIcon(); }
 document.addEventListener('visibilitychange',()=>{ if(playing){ clearInterval(timer); timer=setInterval(tick,25); tick(); } });
 function stop(){ pause(); startPos=0; idx=0; render(); }
 function seekTo(t){ const was=playing; if(was) pause(); startPos=Math.max(0,Math.min(t,duration())); idx=findIdx(startPos); if(was) play(); render(); }
-function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx=findIdx(startPos); wrapLen=0; } speed=s; if(playing){ audioStop(); audioSchedule(startCtx,startPos); } }
+function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx=findIdx(startPos); wrapLen=0; wrapA=0; } speed=s; if(playing){ audioStop(); audioSchedule(startCtx,startPos); metroReset(startPos); } }
 
 /* ---------- UI ---------- */
 function setStatus(t){ $('status').textContent=t; }
@@ -1266,7 +1310,7 @@ function renderChannels(){
 }
 function trackNote(){
   const t=track(), msgs=[];
-  if(!list.length) msgs.push(chan===9 ? 'На 10-м канале нет нот ударных. Если барабаны записаны на другом канале, выберите его выше.' : 'На этом канале нет нот.');
+  if(!list.length && t.events.length) msgs.push(chan===9 ? 'На 10-м канале нет нот ударных. Если барабаны записаны на другом канале, выберите его выше.' : 'На этом канале нет нот.');
   else if(t.autoChan && chan===t.chan) msgs.push('Ударные найдены на канале '+(chan+1)+'.');
   const remapped=list.filter(e=>e.raw!==e.n).length, silent=list.filter(e=>e.n<0).length;
   if(remapped) msgs.push('Нестандартных нот переведено в General MIDI: '+remapped+'.');
@@ -1278,13 +1322,13 @@ $('chan').addEventListener('change',()=>{ const was=playing; pause(); chan=track
 
 /* ---------- saved tracks (kept in this browser / app) ---------- */
 function loadLibrary(){
-  try{ return (JSON.parse(store.get('tracks1'))||[]).map(t=>({name:t.name, bpm:t.bpm, chan:t.chan, saved:true, bars:t.bars, uri:t.uri,
+  try{ return (JSON.parse(store.get('tracks1'))||[]).map(t=>({aid:t.aid, name:t.name, bpm:t.bpm, chan:t.chan, saved:true, bars:t.bars, uri:t.uri,
     events:t.ev.map(([t0,ch,n,v,raw])=>({t:t0,ch,n,v,raw:raw??n,cut:HAT_OPEN[raw]})),
     dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts||[],
     parts:(t.parts||[]).filter(p=>INST_IDS.includes(p.inst)).map(p=>({id:p.id, inst:p.inst, vol:p.vol??0.8, mute:!!p.mute, solo:!!p.solo, cuts:p.cuts||[], notes:p.notes.map(([t,d,n,v])=>({t,d,n,v}))})) })); }catch(e){ return []; }
 }
 function saveLibrary(){
-  const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({name:t.name,bpm:t.bpm,chan:t.chan,bars:t.bars,uri:t.uri,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw]),
+  const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({aid:t.aid,name:t.name,bpm:t.bpm,chan:t.chan,bars:t.bars,uri:t.uri,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw]),
     dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts,
     parts:(t.parts||[]).map(p=>({id:p.id, inst:p.inst, vol:p.vol, mute:p.mute, solo:p.solo, cuts:p.cuts, notes:p.notes.map(m=>[+m.t.toFixed(4),+m.d.toFixed(4),m.n,m.v])}))}));
   try{ localStorage.setItem('tracks1',JSON.stringify(data)); return true; }catch(e){ return false; }
@@ -1822,7 +1866,7 @@ $('eqPresets').addEventListener('click',e=>{ const b=e.target.closest('[data-p]'
 $('eqStrips').addEventListener('input',e=>{ const f=e.target.closest('.fader'); if(f) setEq(+f.dataset.i,+f.value); });
 $('eqStrips').addEventListener('dblclick',e=>{ const f=e.target.closest('.fader'); if(f){ f.value=0; setEq(+f.dataset.i,0); } });
 $('eqPlay').addEventListener('click',()=> playing?pause():play());
-window.onAndroidBack = () => { if(openSheet){ sheet(openSheet,false); return true; } if(ed.open){ closeEditor(); return true; } if(pr.open){ closeProll(); return true; } if(openSheet){ sheet(openSheet,false); return true; } return false; };
+window.onAndroidBack = () => { if(openSheet){ sheet(openSheet,false); return true; } if(ed.open){ closeEditor(); return true; } if(pr.open){ closeProll(); return true; } if($('projects').hidden){ openProjects(); return true; } if(openSheet){ sheet(openSheet,false); return true; } return false; };
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && ctx && playing && ctx.state!=='running') ctx.resume(); });
 
 { const v=+store.get('vol'); if(store.get('vol')!==null && v>=0 && v<=100) setVol(v); }
@@ -1888,13 +1932,18 @@ function scheduleM(now, horizon, D){
 }
 // changes to a shipped example are kept in the user's own copy
 function ownTrack(){ let t=track(); if(t.demo){ const keep=stU.t===t; t=keepOverdub(); if(keep) stU.t=t; } t.saved=true; return t; }
-function studioChanged(){ const t=track(); if(!t.demo){ t.saved=true; saveLibrary(); } list=evs(); if(playing) idx=findIdx(Math.max(0, startPos+(ctx.currentTime+LOOKAHEAD-startCtx)*speed)); buildM(); applyLevels(); renderStudio(); }
+function studioChanged(){ const t=track(); if(!t.demo){ t.saved=true; saveLibrary(); if(t.audio||t.aid) aSaveMeta(t); } list=evs(); if(playing) idx=findIdx(Math.max(0, startPos+(ctx.currentTime+LOOKAHEAD-startCtx)*speed)); buildM(); applyLevels(); renderStudio(); }
 let stPick=null;   // which part the sound sheet is choosing for
 
 /* rows: -1 is the drum track, 0.. are the parts. Each row can be cut into clips; clips can be copied, pasted, deleted and dragged */
 const st={sel:null, clip:null, armed:null, kbOpen:false, oct:{}, held:{}};   // sel: {row, a, b}
 const rowCuts = (t,row) => row<0 ? (t.dcuts||(t.dcuts=[])) : (t.parts[row].cuts||(t.parts[row].cuts=[]));
-function clipAt(row, x){ const t=track(), D=duration(), cs=[0,...rowCuts(t,row).filter(c=>c>0&&c<D).sort((a,b)=>a-b),D]; for(let i=0;i<cs.length-1;i++) if(x>=cs[i]&&x<cs[i+1]) return {row,a:cs[i],b:cs[i+1]}; return {row,a:cs[cs.length-2]||0,b:D}; }
+// a clip's region covers the bars that hold its notes; the rest of the space between cuts stays empty and selectable on its own
+function fitClip(row,a,b,x){ const ns=rowNotes(track(),row).filter(m=>m.t>=a-1e-3&&m.t<b-1e-3); if(!ns.length) return {row,a,b};
+  const bar=barSec(); let first=Infinity, last=0; ns.forEach(m=>{ first=Math.min(first,m.t); last=Math.max(last,m.t+(m.d||0)); });
+  const fa=Math.max(a,Math.floor((first+1e-3)/bar)*bar), fb=Math.min(b,Math.max(fa+1e-3,Math.ceil((last+1e-3)/bar)*bar));
+  if(x==null || (x>=fa && x<fb)) return {row,a:fa,b:fb}; return x<fa ? {row,a,b:fa} : {row,a:fb,b}; }
+function clipAt(row, x){ const t=track(), D=duration(), cs=[0,...rowCuts(t,row).filter(c=>c>0&&c<D).sort((a,b)=>a-b),D]; for(let i=0;i<cs.length-1;i++) if(x>=cs[i]&&x<cs[i+1]) return fitClip(row,cs[i],cs[i+1],x); return {row,a:cs[cs.length-2]||0,b:D}; }
 function rowNotes(t,row){ return row<0 ? t.events.filter(e=>e.ch===chan && e.n>=0) : t.parts[row].notes; }
 function rowKind(row){ return row<0?'drums':'inst'; }
 const beatSec = () => 60/track().bpm;
@@ -1957,9 +2006,11 @@ function renderStudio(){
   let h=headHTML(-1,'drums',kit.name+' · '+(t.def?t.def.n:t.name), t.dvol??1, t.dmute, t.dsolo, st.armed===-1);
   parts.forEach((p,i)=>{ const d=INST[p.inst]; h+=headHTML(i,d.cat,d.name,p.vol,p.mute,p.solo,st.armed===i); });
   (t.audio||[]).forEach((c,i)=>{ h+=aHeadHTML(i,c); });
-  h+='<div class="st-adds">'+Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>`<button class="st-add" data-add="${k}" style="--c:${c.c}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg><span>+ ${c.one}</span></button>`).join('')+`<button class="st-add" data-addwav="1" style="--c:#4A9DFF"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg><span>+ Аудио (WAV)</span></button><button class="st-add" data-addfile="1" style="--c:var(--brass)"><svg viewBox="0 0 24 24"><path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5zM15 12v5.3a2.3 2.3 0 1 1-1.5-2.2V12z"/></svg><span>+ MIDI-файл</span></button>`+'</div>';
+  h+='<div class="st-adds">'+Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>`<button class="st-add" data-add="${k}" style="--c:${c.c}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg><span>+ ${c.one}</span></button>`).join('')+`<button class="st-add st-mic" data-addmic="1" style="--c:#FF5A4E"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.9V21h-2v-3.1A7 7 0 0 1 5 11z"/></svg><span>${micRec?'■ Остановить запись':'+ Запись с микрофона'}</span></button><button class="st-add" data-addwav="1" style="--c:#4A9DFF"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg><span>+ Аудио (WAV)</span></button><button class="st-add" data-addfile="1" style="--c:var(--brass)"><svg viewBox="0 0 24 24"><path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5zM15 12v5.3a2.3 2.3 0 1 1-1.5-2.2V12z"/></svg><span>+ MIDI-файл</span></button>`+'</div>';
   $('stRows').innerHTML=h;
   $('stKb').hidden=!st.kbOpen; $('stKbBtn').setAttribute('aria-pressed',st.kbOpen); if(st.kbOpen) renderKb();
+  $('stPads').hidden=!st.padsOpen; $('stPadsBtn').setAttribute('aria-pressed',!!st.padsOpen); $('stLoopBtn').setAttribute('aria-pressed',loop); if(st.padsOpen) requestAnimationFrame(fitPads);
+  aLoadTrack(t);
   setTimeout(drawLanes); stSnap();
 }
 function drawLanes(){
@@ -1972,6 +2023,7 @@ function drawLanes(){
     if(W(beat,w)>7) for(let k=0;k*beat<D;k++){ if(k%4===0) continue; const x=Math.round(X(k*beat,w))+.5; if(x<0||x>w) continue; c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(x,h-4,1,4); }
     for(let b=0;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<-30||x>w+1) continue; c.fillStyle='rgba(255,255,255,.32)'; c.fillRect(x,b%step?h-7:h-11,1,b%step?7:11); if(b%step===0){ c.fillStyle=col('--fg'); c.globalAlpha=.75; c.fillText(String(b+1),x+3,11); c.globalAlpha=1; } }
     if(st.zoom>1){ c.fillStyle=col('--fg'); c.globalAlpha=0.3; c.fillRect(x0/D*w,h-2,V/D*w,2); c.globalAlpha=1; }
+    if(loop){ const [la,lb]=loopRange(); c.fillStyle=col('--brass'); c.globalAlpha=.9; c.fillRect(X(la,w),0,W(lb-la,w),4); c.globalAlpha=.12; c.fillRect(X(la,w),0,W(lb-la,w),h); c.globalAlpha=1; }
     const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.beginPath(); c.moveTo(px-6,0); c.lineTo(px+6,0); c.lineTo(px+6,5); c.lineTo(px,11); c.lineTo(px-6,5); c.fill(); c.fillRect(px-1,0,2,h);
     $('stTimeOut').textContent=fmt(Math.min(pos(),D))+' / '+fmt(D); $('stLcdPos').textContent=lcdPos(Math.min(pos(),D)); }
   document.querySelectorAll('#stRows .st-lane').forEach(el=>{
@@ -1986,7 +2038,7 @@ function drawLanes(){
     // regions: every clip between cuts that holds notes, as a rounded block in the instrument colour
     const all=rowNotes(t,row), cs=[0,...rowCuts(t,row).filter(x=>x>0&&x<D).sort((a,b)=>a-b),D], label=row<0?kit.name:INST[t.parts[row].inst].name;
     for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-3&&m.t<b-1e-3)) continue; if(mv && a>=mv.a-1e-3 && b<=mv.b+1e-6) continue;
-      const x=X(a,w)+1, rw=W(b-a,w)-2; if(x+rw<0||x>w||rw<1) continue;
+      const f=fitClip(row,a,b), x=X(f.a,w)+1, rw=W(f.b-f.a,w)-2; if(x+rw<0||x>w||rw<1) continue;
       c.fillStyle=cc; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
       if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
         if(rw>34){ c.save(); c.beginPath(); c.rect(x+4,1,rw-8,ti); c.clip(); c.globalAlpha=1; c.fillStyle='rgba(10,10,12,.82)'; c.font='700 10px '+col('--body'); c.fillText(label,x+6,ti-3); c.restore(); } }
@@ -2240,7 +2292,7 @@ $('stFile').addEventListener('change', async e=>{
 $('actMidi').addEventListener('click',()=>{ stFileRow=actRow; sheet('actSheet',false); $('stFile').click(); });
 
 /* ---------- on-screen keyboard: plays the armed instrument (or the drums), records while the track plays ---------- */
-$('stKbBtn').addEventListener('click',()=>{ st.kbOpen=!st.kbOpen; if(!st.kbOpen) kbAllOff(); renderStudio(); });
+$('stKbBtn').addEventListener('click',()=>{ st.kbOpen=!st.kbOpen; if(!st.kbOpen) kbAllOff(); else st.padsOpen=false; renderStudio(); });
 function kbRow(){ const t=track(); if(st.armed!==null && (st.armed<0 || t.parts[st.armed])) return st.armed; if(st.sel) return st.sel.row; return t.parts&&t.parts.length ? 0 : -1; }
 function renderKb(){
   const row=kbRow(), t=track(), base=st.oct[row] ?? (row<0?36:Math.floor(CATS[INST[t.parts[row].inst].cat].base/12)*12); st.oct[row]=base;
@@ -2417,10 +2469,10 @@ function aLevel(a){ return (a.mute || anySolo()) ? 0 : a.vol; }
 function kLen(k){ return Math.max(0, Math.min(k.len, duration()-k.t)); }
 function audioStop(){ aSrcs.forEach(s=>{ try{ s.stop(); }catch(_){} }); aSrcs=[]; }
 // start every clip that sounds at or after song position `from`, with `from` heard at context time `at`
-function audioSchedule(at, from){
-  if(!ctx) return;
+function audioSchedule(at, from, to){
+  if(!ctx) return; to = to ?? (loop ? loopRange()[1] : duration());
   aClips().forEach(a=>{ if(!a._g){ a._g=ctx.createGain(); a._g.connect(audioOut()); } a._g.gain.value=aLevel(a);
-    a.clips.forEach(k=>{ const L=kLen(k); if(L<=0 || from>=k.t+L) return;
+    a.clips.forEach(k=>{ const L=Math.min(kLen(k), to-k.t); if(L<=0 || from>=k.t+L) return;
       const off=Math.max(0,from-k.t), when=Math.max(ctx.currentTime, at+Math.max(0,k.t-from)/speed);
       const s=ctx.createBufferSource(); s.buffer=a.buf; s.playbackRate.value=speed; s.connect(a._g);
       s.start(when, k.off+off, L-off); aSrcs.push(s); s.onended=()=>{ aSrcs=aSrcs.filter(x=>x!==s); }; }); });
@@ -2438,31 +2490,33 @@ function aHeadHTML(i,a){
   return `<div class="st-row st-arow" style="--c:${AUDIO_C}"><div class="st-head st-ahead">
     <span class="st-tile"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg></span>
     <span class="st-aname"><span class="nm">${escH(a.name)}</span><span class="cat">Аудио <span class="vl">${fmt(a.buf.duration)}</span></span></span>
-    <button class="st-adel" data-adel="${i}" aria-label="Удалить аудиодорожку">×</button>
-    <span class="st-acts"><button class="st-m" data-amute="${i}" aria-pressed="${!!a.mute}" aria-label="Заглушить">M</button><button class="st-v" data-avol="${i}" aria-label="Громкость">${Math.round(a.vol*100)}%</button></span>
+    <div class="knob st-knob" data-aknob="${i}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="150" aria-valuenow="${Math.round(a.vol*100)}" style="--a:${a.vol/1.5}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
+    <span class="st-acts"><button class="st-m" data-amute="${i}" aria-pressed="${!!a.mute}" aria-label="Заглушить">M</button><span class="av">${Math.round(a.vol*100)}%</span><button class="st-adel" data-adel="${i}" aria-label="Удалить аудиодорожку">×</button></span>
   </div><div class="st-alane" data-alane="${i}"><canvas></canvas></div></div>`;
 }
 $('stWav').addEventListener('change', async e=>{
   const fs=[...e.target.files]; e.target.value=''; if(!fs.length) return;
   initAudio(); let added=0;
   for(const f of fs){
-    let buf; try{ const ab=await f.arrayBuffer(); buf=await new Promise((res,rej)=>ctx.decodeAudioData(ab,res,rej)); }catch(err){ toast('Не удалось прочитать '+f.name); continue; }
+    let buf, keep; try{ const ab=await f.arrayBuffer(); keep=ab.slice(0); buf=await new Promise((res,rej)=>ctx.decodeAudioData(ab,res,rej)); }catch(err){ toast('Не удалось прочитать '+f.name); continue; }
+    const fid=await aStoreFile(keep);
     const t=ownTrack(); t.audio=t.audio||[];
     const at=Math.max(0, Math.floor(pos()/barSec()+1e-6)*barSec());   // from the bar under the cursor
-    t.audio.push({name:f.name.replace(/\.[^.]+$/,''), buf, vol:1, mute:false, peaks:aPeaks(buf), clips:[{t:at, off:0, len:buf.duration}]}); aFitBars(t); added++;
+    t.audio.push({name:f.name.replace(/\.[^.]+$/,''), buf, vol:1, mute:false, fid, peaks:aPeaks(buf), clips:[{t:at, off:0, len:buf.duration}]}); aFitBars(t); added++;
   }
-  if(added){ studioChanged(); aRestart(); toast(added>1?'Добавлено аудиодорожек: '+added:'Аудио добавлено. Нажмите на кусок, чтобы выбрать, тащите за середину или края. Аудио живёт до закрытия приложения.'); }
+  if(added){ studioChanged(); aRestart(); toast(added>1?'Добавлено аудиодорожек: '+added:'Аудио добавлено. Нажмите на кусок, чтобы выбрать, тащите за середину или края. Аудио сохраняется вместе с проектом.'); }
 });
 $('stRows').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.addwav){ $('stWav').click(); return; }
+  if(b.dataset.addmic){ micStart(); return; }
   const t=track(), A=t.audio||[];
-  if(b.dataset.amute!==undefined){ const a=A[+b.dataset.amute]; if(!a) return; a.mute=!a.mute; b.setAttribute('aria-pressed',a.mute); aApply(); drawLanes(); return; }
+  if(b.dataset.amute!==undefined){ const a=A[+b.dataset.amute]; if(!a) return; a.mute=!a.mute; b.setAttribute('aria-pressed',a.mute); aApply(); aSaveMeta(t); drawLanes(); return; }
   if(b.dataset.avol!==undefined){ const a=A[+b.dataset.avol]; if(!a) return; const steps=[1,0.8,0.6,0.4,0.2,1.25,1.5]; a.vol=steps[(steps.indexOf(a.vol)+1)%steps.length]; b.textContent=Math.round(a.vol*100)+'%'; aApply(); return; }
   if(b.dataset.adel!==undefined){ if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='?'; setTimeout(()=>{ b.classList.remove('arm'); b.textContent='×'; },2500); return; }
     aDelTrack(+b.dataset.adel); return; }
 });
-function aDelTrack(i){ const A=track().audio||[], a=A.splice(i,1)[0]; if(a && a._g) try{ a._g.disconnect(); }catch(_){} st.asel=null; aRestart(); renderStudio(); }
+function aDelTrack(i){ const A=track().audio||[], a=A.splice(i,1)[0]; if(a && a._g) try{ a._g.disconnect(); }catch(_){} st.asel=null; aRestart(); aSaveMeta(track()); renderStudio(); }
 // audio lanes: tap a clip to select it, tap it again for its menu; drag its middle to move it, its edges to trim; tap empty space to move the playhead
 (()=>{ let d=null, lastEmpty=null;
   const at=(el,x)=>{ const r=el.getBoundingClientRect(); return st.x0+Math.max(0,Math.min(1,(x-r.left)/r.width))*vD(); };
@@ -2510,6 +2564,155 @@ $('clipActs').addEventListener('click',e=>{ const b=e.target.closest('[data-act]
   a.clips.sort((x,y)=>x.t-y.t); st.asel=null; studioChanged(); aRestart();
 });
 
-setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio();
+/* ---------- loop region, metronome ---------- */
+let metro=store.get('metro')==='1', metNext=0;
+// Repeat plays the selected clip (MIDI or audio) when one is selected, otherwise the whole song
+function loopRange(){ const D=duration();
+  if(st.sel){ const a=Math.max(0,st.sel.a), b=Math.min(D,st.sel.b); if(b-a>0.05) return [a,b]; }
+  if(st.asel){ const a=aClips()[st.asel.i], k=a&&a.clips[st.asel.k]; if(k){ const b=Math.min(D,k.t+kLen(k)); if(b-k.t>0.05) return [k.t,b]; } }
+  return [0,D]; }
+function metroClick(when, accent){ const o=ctx.createOscillator(), g=ctx.createGain(); o.frequency.value=accent?1760:1100; o.type='square';
+  g.gain.setValueAtTime(0.0001,when); g.gain.exponentialRampToValueAtTime(accent?0.32:0.2,when+0.002); g.gain.exponentialRampToValueAtTime(0.0001,when+0.05);
+  o.connect(g).connect(ctx.destination); o.start(when); o.stop(when+0.06); }
+function metroSched(now, horizon, end){ if(!metro) return; const b=beatSec();
+  while(metNext<=horizon && metNext<end-1e-4){ const when=startCtx+(metNext-startPos)/speed; if(when>=now-0.01) metroClick(Math.max(now,when), Math.round(metNext/b)%4===0); metNext+=b; } }
+function metroReset(from){ const b=beatSec(); metNext=Math.ceil(from/b-1e-6)*b; }
+function setMetro(on){ metro=on; store.set('metro',on?'1':'0'); $('metro').setAttribute('aria-pressed',on); $('stMetroBtn').setAttribute('aria-pressed',on); if(playing) metroReset(pos()); }
+$('metro').addEventListener('click',()=>setMetro(!metro));
+$('stMetroBtn').addEventListener('click',()=>setMetro(!metro));
+$('stLoopBtn').addEventListener('click',()=>$('loop').click());
+$('loop').addEventListener('click',()=>{ $('stLoopBtn').setAttribute('aria-pressed',loop); drawLanes(); });
+setMetro(metro);
+
+/* ---------- pads inside the Studio ---------- */
+$('stPadsBtn').addEventListener('click',()=>{ st.padsOpen=!st.padsOpen; if(st.padsOpen){ st.kbOpen=false; kbAllOff(); } renderStudio(); });
+
+/* ---------- audio volume knobs ---------- */
+(()=>{ let k=null, y0=0, v0=0, lastTap=0;
+  const setV=(i,v)=>{ const a=aClips()[i]; if(!a) return; a.vol=Math.max(0,Math.min(1.5,Math.round(v*100)/100)); aApply();
+    const el=document.querySelector(`[data-aknob="${i}"]`); if(el){ el.style.setProperty('--a',a.vol/1.5); el.setAttribute('aria-valuenow',Math.round(a.vol*100)); const o=el.closest('.st-head').querySelector('.av'); if(o) o.textContent=Math.round(a.vol*100)+'%'; } };
+  $('stRows').addEventListener('pointerdown',e=>{ const el=e.target.closest('[data-aknob]'); if(!el) return; const i=+el.dataset.aknob;
+    if(Date.now()-lastTap<300){ setV(i,1); aSaveMeta(track()); lastTap=0; return; } lastTap=Date.now();
+    k={i}; y0=e.clientY; v0=aClips()[i].vol; el.setPointerCapture(e.pointerId); e.preventDefault(); });
+  $('stRows').addEventListener('pointermove',e=>{ if(k) setV(k.i, v0+(y0-e.clientY)/100); });
+  const end=()=>{ if(k){ k=null; aSaveMeta(track()); } };
+  $('stRows').addEventListener('pointerup',end); $('stRows').addEventListener('pointercancel',end);
+})();
+
+/* ---------- audio kept between launches: file bytes and track layout in IndexedDB ---------- */
+const IDB=(()=>{ let dbp=null;
+  const db=()=>dbp||(dbp=new Promise((res,rej)=>{ try{ const r=indexedDB.open('zastudio',1); r.onupgradeneeded=()=>r.result.createObjectStore('audio'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }));
+  const run=(mode,f)=>db().then(d=>new Promise((res,rej)=>{ const tx=d.transaction('audio',mode), q=f(tx.objectStore('audio')); tx.oncomplete=()=>res(q&&q.result); tx.onerror=()=>rej(tx.error); }));
+  return { get:k=>run('readonly',s=>s.get(k)), set:(k,v)=>run('readwrite',s=>s.put(v,k)), del:k=>run('readwrite',s=>s.delete(k)) }; })();
+const newId = p => p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function aSaveMeta(t){ if(!t || t.demo) return; if(!t.aid){ t.aid=newId('t'); saveLibrary(); }
+  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
+async function aStoreFile(bytes){ const fid=newId('f'); try{ await IDB.set('f:'+fid, bytes); }catch(e){ toast('Не удалось сохранить аудио в память телефона: оно останется до закрытия'); } return fid; }
+async function aLoadTrack(t){ if(!t || !t.aid || t._aLoaded) return; t._aLoaded=true;
+  let meta; try{ meta=await IDB.get('t:'+t.aid); }catch(e){ return; } if(!meta || !meta.length) return;
+  initAudio(); const out=[];
+  for(const m of meta){ try{ const bytes=await IDB.get('f:'+m.fid); if(!bytes) continue; const buf=await new Promise((res,rej)=>ctx.decodeAudioData(bytes.slice(0),res,rej));
+    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
+  t.audio=out; if(t===track()){ renderStudio(); aRestart(); } }
+
+/* ---------- WAV encoding ---------- */
+function wavBytes(chs, rate){ const n=chs[0].length, nc=chs.length, buf=new ArrayBuffer(44+n*nc*2), v=new DataView(buf);
+  const w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+n*nc*2,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,nc,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*nc*2,true); v.setUint16(32,nc*2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*nc*2,true);
+  let o=44; for(let i=0;i<n;i++) for(let c=0;c<nc;c++){ const s=Math.max(-1,Math.min(1,chs[c][i])); v.setInt16(o, s<0?s*0x8000:s*0x7fff, true); o+=2; }
+  return buf; }
+function joinF32(chunks){ const n=chunks.reduce((s,c)=>s+c.length,0), out=new Float32Array(n); let o=0; chunks.forEach(c=>{ out.set(c,o); o+=c.length; }); return out; }
+function b64(bytes){ let s=''; const u=new Uint8Array(bytes); for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s); }
+function saveBig(name, bytes, mime){
+  if(window.AndroidBridge && AndroidBridge.beginFile){
+    if(!AndroidBridge.beginFile(name,mime)) return false; const u=new Uint8Array(bytes), step=3*262144;   // multiple of 3: chunks stay valid base64
+    for(let i=0;i<u.length;i+=step) if(!AndroidBridge.appendFile(b64(u.subarray(i,i+step)))) return false;
+    return !!AndroidBridge.endFile(); }
+  if(window.claude && window.claude.use){ toast('В онлайн-просмотре сохранение файлов закрыто. В приложении файл ляжет в «Загрузки».'); return null; }
+  const url=URL.createObjectURL(new Blob([bytes],{type:mime})), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),10000); return true; }
+
+/* ---------- song export: the mix is captured while it plays once from the start ---------- */
+let exporting=null;
+async function exportSong(){
+  if(exporting){ exportStop(true); return; }
+  initAudio(); if(ctx.state!=='running') await ctx.resume();
+  const D=duration(); if(!D){ toast('В песне пока ничего нет'); return; }
+  if(playing) pause(); seekTo(0);
+  const sp=ctx.createScriptProcessor(4096,2,2), L=[], R=[]; let on=false;
+  sp.onaudioprocess=e=>{ if(!on) return; L.push(new Float32Array(e.inputBuffer.getChannelData(0))); R.push(new Float32Array(e.inputBuffer.getChannelData(1))); };
+  clipOut.connect(sp); sp.connect(ctx.destination);
+  const wasLoop=loop; loop=false;
+  exporting={sp,L,R,wasLoop,timer:null}; $('exportBtn').classList.add('busy'); $('exportBtn').querySelector('span').textContent='Остановить экспорт';
+  toast('Экспорт: песня играет один раз от начала до конца ('+fmt(D/speed)+'), не закрывайте приложение');
+  await play(); on=true;
+  exporting.timer=setInterval(()=>{ if(!playing) exportStop(false); },200);
+}
+function exportStop(cancel){ const x=exporting; if(!x) return; exporting=null; clearInterval(x.timer);
+  setTimeout(()=>{ try{ clipOut.disconnect(x.sp); }catch(_){} try{ x.sp.disconnect(); }catch(_){} loop=x.wasLoop;
+    $('exportBtn').classList.remove('busy'); $('exportBtn').querySelector('span').textContent='Экспорт песни в WAV';
+    if(cancel){ if(playing) pause(); toast('Экспорт отменён'); return; }
+    const l=joinF32(x.L), r=joinF32(x.R); if(!l.length){ toast('Звук не записался'); return; }
+    // drop the silence before the first sound so the file starts on time
+    let s=0; while(s<l.length && Math.abs(l[s])<1e-4 && Math.abs(r[s])<1e-4) s++; s=Math.max(0,s-64);
+    const name=(track().name||'song').replace(/[\\/:*?"<>|]/g,'_')+'.wav', ok=saveBig(name, wavBytes([l.subarray(s), r.subarray(s)], ctx.sampleRate), 'audio/wav');
+    if(ok) toast(window.AndroidBridge?'Сохранено в «Загрузки»: '+name:'Файл '+name+' готов'); else if(ok===false) toast('Не удалось сохранить WAV'); }, 400); }
+$('exportBtn').addEventListener('click',()=>{ sheet('menuSheet',false); exportSong(); });
+
+/* ---------- recording from the microphone into a new audio track ---------- */
+let micRec=null;
+async function micStart(){
+  if(micRec){ micStop(); return; }
+  initAudio(); if(ctx.state!=='running') await ctx.resume();
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast('Микрофон здесь недоступен'); return; }
+  let stream; try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }
+  catch(e){ toast('Нет доступа к микрофону. Разрешите его приложению в настройках телефона.'); return; }
+  const src=ctx.createMediaStreamSource(stream), sp=ctx.createScriptProcessor(4096,1,1), z=ctx.createGain(); z.gain.value=0;
+  const chunks=[]; src.connect(sp); sp.connect(z); z.connect(ctx.destination);
+  if(playing) pause();
+  const t0=Math.max(0,pos()); let first=null;
+  sp.onaudioprocess=e=>{ if(!micRec || !playing) return; if(first===null) first=e.playbackTime; chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
+  micRec={stream,src,sp,z,chunks,t0,first:()=>first}; document.body.classList.add('mic-on'); renderStudio();
+  toast('Идёт запись с микрофона. Пауза или стоп заканчивают её.');
+  await play(); micRec.ctx0=startCtx;
+}
+async function micStop(){ const m=micRec; if(!m) return; micRec=null; document.body.classList.remove('mic-on');
+  try{ m.src.disconnect(); m.sp.disconnect(); m.z.disconnect(); }catch(_){} m.stream.getTracks().forEach(t=>t.stop()); if(playing) pause();
+  const data=joinF32(m.chunks), rate=ctx.sampleRate; if(data.length<rate*0.3){ toast('Запись слишком короткая'); renderStudio(); return; }
+  const buf=ctx.createBuffer(1,data.length,rate); buf.copyToChannel(data,0);
+  // what the singer heard came out late by the output latency, and the mic adds its own: move the take earlier by both
+  // sample 0 was captured about one buffer before `first`; song position t0 was heard at ctx0 plus the output latency
+  const o0=(ctx.outputLatency||0)+(ctx.baseLatency||0)+((m.ctx0??0)-(m.first()??m.ctx0??0))+4096/rate;
+  const t=ownTrack(); t.audio=t.audio||[]; const n=t.audio.filter(a=>/^Запись/.test(a.name)).length+1;
+  const fid=await aStoreFile(wavBytes([data],rate));
+  const clip = o0>=0 ? {t:m.t0, off:Math.min(o0,buf.duration-0.1), len:buf.duration-Math.min(o0,buf.duration-0.1)} : {t:m.t0-o0, off:0, len:buf.duration};
+  t.audio.push({name:'Запись '+n, buf, vol:1, mute:false, fid, peaks:aPeaks(buf), clips:[clip]});
+  aFitBars(t); studioChanged(); toast('Запись добавлена: '+fmt(buf.duration));
+}
+
+/* ---------- projects screen: opens first, «Новый проект» and the saved projects ---------- */
+function projList(){ return tracks.map((t,i)=>({t,i})).filter(x=>!x.t.demo); }
+function projThumb(t){ const rows=[CATS.drums.c, ...(t.parts||[]).map(p=>CATS[INST[p.inst].cat].c)]; if(t.aid || (t.audio&&t.audio.length)) rows.push(AUDIO_C);
+  return rows.slice(0,5).map((c,j)=>`<span style="--c:${c};--w:${45+((j*37+t.name.length*13)%50)}%;--l:${(j*17)%30}%"></span>`).join(''); }
+function renderProjects(){
+  const ps=projList().reverse();
+  $('projGrid').innerHTML=`<button class="proj new" data-new="1"><span class="pplus">+</span><b>Новый проект</b></button>`+
+    ps.map(({t,i})=>{ const D=t.bars?t.bars*240/t.bpm:(t.events.length?t.events[t.events.length-1].t:0);
+      return `<div class="proj" data-open="${i}" role="button" tabindex="0"><span class="pthumb">${projThumb(t)}</span><b>${escH(t.name)}</b><small>${t.bpm} BPM · ${fmt(D)}</small><button class="pdel" data-pdel="${i}" aria-label="Удалить проект">×</button></div>`; }).join('');
+}
+function openProjects(){ if(playing) pause(); renderProjects(); $('projects').hidden=false; }
+function closeProjects(){ $('projects').hidden=true; }
+$('projGrid').addEventListener('click',e=>{
+  const del=e.target.closest('[data-pdel]');
+  if(del){ if(!del.classList.contains('arm')){ del.classList.add('arm'); del.textContent='Удалить?'; setTimeout(()=>{ del.classList.remove('arm'); del.textContent='×'; },2500); return; }
+    const i=+del.dataset.pdel, t=tracks[i]; if(t.aid) IDB.del('t:'+t.aid).catch(()=>{}); stop(); tracks.splice(i,1); if(cur>=i) cur=Math.max(0,cur-1); saveLibrary(); select(Math.min(cur,tracks.length-1)); renderProjects(); return; }
+  if(e.target.closest('[data-new]')){ const n=projList().length+1;
+    tracks.push({name:'Проект '+n, bpm:120, chan:9, events:[], parts:[], saved:true, dirty:false, bars:8, dcuts:[]}); saveLibrary();
+    select(tracks.length-1); closeProjects(); st.x0=0; st.zoom=1; renderStudio(); return; }
+  const o=e.target.closest('[data-open]'); if(o){ select(+o.dataset.open); closeProjects(); }
+});
+$('projOpen').addEventListener('click',()=>{ sheet('menuSheet',false); openProjects(); });
+
+setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio(); openProjects();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
 </script>
