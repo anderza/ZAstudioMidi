@@ -529,6 +529,15 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 .kb-grip.on::before{background:var(--brass)}
 #stKb .kb-keys{height:var(--kbh,clamp(80px,16vh,130px))}
 #stPads .padsec{height:var(--padh,clamp(110px,24vh,190px))}
+/* instrument silhouettes */
+.ic .b{fill:var(--ib)!important;stroke:none!important}
+.ic .d{fill:var(--id)!important;stroke:none!important}
+.ic .d[stroke]{stroke:var(--id)!important;fill:none!important}
+.ic .s{stroke:var(--ib)!important;fill:none!important}
+.st-tile .ic{--ib:rgba(14,14,16,.84);--id:var(--c);width:30px;height:30px}
+#addGrid .ic{--ib:var(--c);--id:#2b2b30;width:30px;height:30px}
+@media (orientation:landscape) and (max-height:560px){ .st-tile .ic{width:25px;height:25px} }
+@media (max-width:440px){ .st-tile .ic{width:26px;height:26px} }
 /* chord window: previous, current (bright), next */
 .chords{display:flex;align-items:center;gap:2px;height:40px;box-sizing:border-box;padding:0 8px;border-radius:9px;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.1);font-variant-numeric:tabular-nums;flex:none}
 .chords span{min-width:2.6em;text-align:center;font-weight:700;white-space:nowrap}
@@ -2008,6 +2017,75 @@ const ICONS = {
   keys:'<path d="M2 5h20v14H2zm2 2v10h2.5v-4H6V7zm4 0v6h-.5v4h3v-4H10V7zm4.5 0v6H14v4h3v-4h-.5V7zm4.5 0v6h-.5v4H20V7z"/>',
   strings:'<path d="M14.6 2.3l1.4-1 1 1-1 1.4-2 2 .4.4c1.3-.3 2.6.1 3.5 1 1.1 1.1 1.3 2.7.7 4-.4.9-1.3 1.1-1.5 2-.2.8.3 1.7-.4 2.9-1.4 2.4-5 3.4-8 1.6l-4.6 4.6-1.2-1.2 4.6-4.6c-1.8-3-.8-6.6 1.6-8 1.2-.7 2.1-.2 2.9-.4.9-.2 1.1-1.1 2-1.5 1.3-.6 2.9-.4 4 .7l.2.2zM9 12.5l1.4 1.4 1-1-1.4-1.4z"/>',
 };
+// instrument silhouettes, 48×48: b = body, d = cut-out details (drawn in the tile colour), s = thin lines
+const ICON48 = {
+drums:`<g>
+  <path class="s" d="M38 13v27M10 15v25" stroke="#8B9099" stroke-width="1.6" fill="none"/>
+  <ellipse class="b" cx="38" cy="12" rx="9" ry="2.4" fill="url(#gBrass)"/>
+  <ellipse class="b" cx="10" cy="14" rx="7.5" ry="2" fill="url(#gBrass)"/>
+  <rect class="b" x="17" y="14" width="14" height="7" rx="1.5" fill="url(#gRed)"/>
+  <ellipse class="d" cx="24" cy="14" rx="7" ry="2" fill="url(#gHead)"/>
+  <circle class="b" cx="24" cy="32" r="12" fill="url(#gRed)"/>
+  <circle class="d" cx="24" cy="32" r="9" fill="url(#gHead)"/>
+  <circle class="s" cx="24" cy="32" r="11" stroke="url(#gMetal)" stroke-width="1.6" fill="none"/>
+  <path class="b" d="M3 26h12v6.5a6 2 0 0 1-12 0z" fill="url(#gMetal)"/>
+  <ellipse class="d" cx="9" cy="26" rx="6" ry="2" fill="url(#gHead)"/>
+  <path class="b" d="M35 27h11v8a5.5 2 0 0 1-11 0z" fill="url(#gRed)"/>
+  <ellipse class="d" cx="40.5" cy="27" rx="5.5" ry="2" fill="url(#gHead)"/>
+</g>`,
+synth:`<g>
+  <rect class="b" x="2" y="11" width="44" height="27" rx="3.5" fill="url(#gPanel)"/>
+  <rect class="d" x="5" y="14" width="9" height="5" rx="1" fill="#59E39A"/>
+  <circle class="d" cx="19" cy="16.5" r="2.4" fill="url(#gMetal)"/><circle class="d" cx="26" cy="16.5" r="2.4" fill="url(#gMetal)"/>
+  <circle class="d" cx="33" cy="16.5" r="2.4" fill="url(#gMetal)"/><circle class="d" cx="40" cy="16.5" r="2.4" fill="url(#gMetal)"/>
+  <path class="d" d="M5 22h38v13H5z" fill="url(#gKey)"/>
+  <path class="s" d="M10.4 22v13M15.9 22v13M21.3 22v13M26.7 22v13M32.1 22v13M37.6 22v13" stroke="#8A8F99" stroke-width=".8" fill="none"/>
+  <path class="b" d="M8.9 22h3v8h-3zm5.4 0h3v8h-3zm10.8 0h3v8h-3zm5.4 0h3v8h-3zm5.4 0h3v8h-3z" fill="#16171B"/>
+</g>`,
+bass:`<g transform="rotate(42 24 24)">
+  <path class="b" d="M21 1.5h6l.6 7.5h-7.2z" fill="url(#gBlack)"/>
+  <path class="d" d="M19 3h2M19 6h2M27 3h2M27 6h2" stroke="url(#gMetal)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <rect class="b" x="22.2" y="8.5" width="3.6" height="23" fill="url(#gWoodD)"/>
+  <path class="s" d="M23.3 9v10M24.7 9v10M23 12h2M23 16h2M23 20h2M23 24h2" stroke="#D9C9A8" stroke-width=".55" fill="none"/>
+  <path class="b" d="M24 29c4-1.6 9-1 9.5 4 .3 2.6-2 3.3-1.2 6 1 3.6-2.5 8-8.3 8s-9.6-3.6-8.6-7.6c.6-2.6-1.6-3.2-1.2-6.4.6-4.6 5.7-5.6 9.8-4z" fill="url(#gRed)"/>
+  <path class="d" d="M19.8 33.5h8.4v2.2h-8.4zm0 4.5h8.4v2.2h-8.4z" fill="url(#gBlack)"/>
+  <path class="d" d="M21 43h6v1.6h-6z" fill="url(#gMetal)"/>
+  <path class="s" d="M23 19v24.5M24 19v24.5M25 19v24.5" stroke="#F2F2F2" stroke-width=".5" fill="none"/>
+</g>`,
+keys:`<g>
+  <path class="b" d="M5 6h38v24H5z" fill="url(#gBlack)"/>
+  <path class="d" d="M12 9h24v7H12z" fill="#2A2A30"/>
+  <path class="s" d="M14 11h20M14 13.5h20" stroke="#EDE7DA" stroke-width=".8" fill="none"/>
+  <path class="b" d="M3 29h42v5H3z" fill="url(#gBlack)"/>
+  <path class="d" d="M5 31h38v11H5z" fill="url(#gKey)"/>
+  <path class="s" d="M9.75 31v11M14.5 31v11M19.25 31v11M24 31v11M28.75 31v11M33.5 31v11M38.25 31v11" stroke="#8A8F99" stroke-width=".8" fill="none"/>
+  <path class="b" d="M8.4 31h2.7v6.5H8.4zm4.8 0h2.7v6.5h-2.7zm9.5 0h2.7v6.5h-2.7zm4.8 0h2.7v6.5h-2.7zm4.8 0h2.7v6.5h-2.7z" fill="#121215"/>
+  <path class="b" d="M6 42h3v4H6zm33 0h3v4h-3z" fill="url(#gBlack)"/>
+</g>`,
+strings:`<g>
+  <path class="s" d="M5 43 43 6" stroke="url(#gWoodD)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path class="s" d="M7 44.6 44.4 8" stroke="#F4EEE2" stroke-width=".9" fill="none"/>
+  <g transform="rotate(-32 24 26)">
+    <circle class="b" cx="24" cy="4" r="2.6" fill="url(#gWoodD)"/>
+    <rect class="b" x="22.6" y="5" width="2.8" height="12" fill="url(#gBlack)"/>
+    <path class="b" d="M24 15.5c5.6 0 8.6 2.6 7.8 6.4-.4 2-2.6 2.8-2.6 4.6s5 2.6 5 8.6c0 6-4.6 9.4-10.2 9.4s-10.2-3.4-10.2-9.4c0-6 5-6.8 5-8.6s-2.2-2.6-2.6-4.6c-.8-3.8 2.2-6.4 7.8-6.4z" fill="url(#gWood)"/>
+    <path class="d" d="M19 27.5c-.8 1.6-.8 3.6 0 5.2M29 27.5c.8 1.6.8 3.6 0 5.2" stroke="#2B1407" stroke-width="1" stroke-linecap="round" fill="none"/>
+    <rect class="d" x="20.6" y="33.6" width="6.8" height="1.3" rx=".5" fill="#F1D9A8"/>
+    <path class="d" d="M22.4 37h3.2l.8 6h-4.8z" fill="#1A1A1E"/>
+    <path class="s" d="M23.2 6v31M24.8 6v31" stroke="#F2F2F2" stroke-width=".45" fill="none"/>
+  </g>
+</g>`,
+audio:`<g>
+  <path class="b" d="M4 21h3v6H4zm5-6h3v18H9zm5-9h3v36h-3zm5 11h3v14h-3zm5-8h3v30h-3zm5 6h3v18h-3zm5-3h3v24h-3zm5 7h3v10h-3z" fill="url(#gWave)"/>
+</g>`,
+mic:`<g>
+  <rect class="b" x="16" y="3" width="16" height="25" rx="8" fill="url(#gMetal)"/>
+  <path class="s" d="M17 9h14M16.6 13h14.8M16.4 17h15.2M16.6 21h14.8" stroke="#5B6069" stroke-width="1" fill="none"/>
+  <path class="d" d="M11 22v2a13 13 0 0 0 26 0v-2" stroke="url(#gBlack)" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <path class="b" d="M22.6 36.5h2.8V43h-2.8zM14 43h20v3H14z" fill="url(#gBlack)"/>
+</g>`,
+};
+const icon48=k=>`<svg class="ic" viewBox="0 0 48 48" aria-hidden="true">${ICON48[k]}</svg>`;
 const NOTE_NM=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const noteName = n => NOTE_NM[n%12]+(Math.floor(n/12)-1);
 const isBlack = n => [1,3,6,8,10].includes(n%12);
@@ -2116,7 +2194,7 @@ function moveClip(s, toRow, dt){
 function headHTML(row, cat, nm, lvl, m, so, r){
   const vol=Math.round(lvl*100);
   return `<div class="st-row" data-row="${row}" style="--c:${rowColor(row)}"><div class="st-head" data-head="${row}">
-    <span class="st-tile"><svg viewBox="0 0 24 24">${ICONS[cat]}</svg></span>
+    <span class="st-tile">${icon48(cat)}</span>
     <button class="st-name" data-pick="${row}"><span class="nm">${nm}</span><span class="cat">${CATS[cat].one||CATS[cat].name} <span class="vl">${vol}%</span></span></button>
     <div class="knob st-knob" data-knob="${row}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${vol}" style="--a:${lvl}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
     <span class="st-acts"><button class="st-m" data-mute="${row}" aria-pressed="${!!m}" aria-label="Заглушить">M</button><button class="st-s" data-solo="${row}" aria-pressed="${!!so}" aria-label="Соло">S</button><button class="st-r" data-arm="${row}" aria-pressed="${!!r}" aria-label="Запись с клавиатуры">R</button></span>
@@ -2617,7 +2695,7 @@ function aPeaks(buf){
 function aFitBars(t){ let end=0; (t.audio||[]).forEach(a=>a.clips.forEach(k=>{ end=Math.max(end,k.t+k.len); })); const need=Math.ceil(end/barSec()-1e-6), have=Math.round(duration()/barSec()); if(need>have) t.bars=Math.min(999,need); }
 function aHeadHTML(i,a){
   return `<div class="st-row st-arow" style="--c:${a.color||AUDIO_C}"><div class="st-head st-ahead" data-ahead="${i}">
-    <span class="st-tile"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg></span>
+    <span class="st-tile">${icon48(a.lat!==undefined?'mic':'audio')}</span>
     <span class="st-aname"><span class="nm">${escH(a.name)}</span><span class="cat">Аудио <span class="vl">${fmt(a.buf.duration)}</span></span></span>
     <div class="knob st-knob" data-aknob="${i}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="150" aria-valuenow="${Math.round(a.vol*100)}" style="--a:${a.vol/1.5}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
     <span class="st-acts"><button class="st-m" data-amute="${i}" aria-pressed="${!!a.mute}" aria-label="Заглушить">M</button><span class="av">${Math.round(a.vol*100)}%</span><button class="st-adel" data-adel="${i}" aria-label="Удалить аудиодорожку">×</button></span>
@@ -2960,10 +3038,10 @@ $('actRepl').addEventListener('click',()=>{ const r=actRow; sheet('actSheet',fal
 
 // «Добавить инструмент»: one button under the instruments, the choices in a sheet
 function openAddSheet(){
-  const B=(attr,c,ic,label)=>`<button class="mbtn" ${attr} style="--c:${c}"><svg viewBox="0 0 24 24">${ic}</svg><span>${label}</span></button>`;
-  $('addGrid').innerHTML = Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>B(`data-add="${k}"`,c.c,ICONS[k],c.one)).join('')
-    + B('data-addmic="1"','#FF5A4E','<path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.9V21h-2v-3.1A7 7 0 0 1 5 11z"/>','Микрофон')
-    + B('data-addwav="1"','#4A9DFF',AUDIO_ICON,'Аудио файл')
+  const B=(attr,c,ic,label)=>`<button class="mbtn" ${attr} style="--c:${c}">${ic.startsWith('<svg')?ic:`<svg viewBox="0 0 24 24">${ic}</svg>`}<span>${label}</span></button>`;
+  $('addGrid').innerHTML = Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>B(`data-add="${k}"`,c.c,icon48(k),c.one)).join('')
+    + B('data-addmic="1"','#FF5A4E',icon48('mic'),'Микрофон')
+    + B('data-addwav="1"','#4A9DFF',icon48('audio'),'Аудио файл')
     + B('data-addfile="1"','var(--brass)','<path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5zM15 12v5.3a2.3 2.3 0 1 1-1.5-2.2V12z"/>','MIDI-файл');
   sheet('addSheet',true); }
 $('addClose').addEventListener('click',()=>sheet('addSheet',false));
