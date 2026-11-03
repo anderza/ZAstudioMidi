@@ -1901,8 +1901,8 @@ const beatSec = () => 60/track().bpm;
 const snapBeat = x => Math.round(x/beatSec())*beatSec();
 function addCut(t,row,x){ const D=duration(); if(x<=0.001||x>=D-0.001) return; const cs=rowCuts(t,row); if(!cs.some(c=>Math.abs(c-x)<1e-3)) cs.push(+x.toFixed(5)); cs.sort((a,b)=>a-b); }
 function removeIn(t,row,a,b){
-  if(row<0){ const keep=[]; t.events.forEach(e=>{ if(!(e.ch===chan && e.t>=a-1e-6 && e.t<b-1e-6)) keep.push(e); }); const out=t.events.filter(e=>!keep.includes(e)); t.events=keep; return out; }
-  const p=t.parts[row], out=p.notes.filter(m=>m.t>=a-1e-6&&m.t<b-1e-6); p.notes=p.notes.filter(m=>!out.includes(m)); return out;
+  if(row<0){ const keep=[]; t.events.forEach(e=>{ if(!(e.ch===chan && e.t>=a-1e-3 && e.t<b-1e-3)) keep.push(e); }); const out=t.events.filter(e=>!keep.includes(e)); t.events=keep; return out; }
+  const p=t.parts[row], out=p.notes.filter(m=>m.t>=a-1e-3&&m.t<b-1e-3); p.notes=p.notes.filter(m=>!out.includes(m)); return out;
 }
 function insertNotes(t,row,ns,dt){
   const D=duration();
@@ -1916,7 +1916,7 @@ function stAction(kind){
   const s=st.sel; if(!s && kind!=='paste'){ toast('Сначала нажмите на дорожку, чтобы выбрать кусок'); return; }
   const t=ownTrack();
   if(kind==='cut'){ const x=snapBeat(pos()); if(x<=s.a+1e-3||x>=s.b-1e-3){ toast('Поставьте курсор внутрь выбранного куска'); return; } addCut(t,s.row,x); st.sel=clipAt(s.row,s.a); toast('Разрезано'); }
-  if(kind==='copy'){ st.clip={kind:rowKind(s.row), len:s.b-s.a, notes:rowNotes(t,s.row).filter(m=>m.t>=s.a-1e-6&&m.t<s.b-1e-6).map(m=>({...m, t:m.t-s.a}))}; toast('Скопировано: '+st.clip.notes.length+' нот'); return; }
+  if(kind==='copy'){ st.clip={kind:rowKind(s.row), len:s.b-s.a, notes:rowNotes(t,s.row).filter(m=>m.t>=s.a-1e-3&&m.t<s.b-1e-3).map(m=>({...m, t:m.t-s.a}))}; toast('Скопировано: '+st.clip.notes.length+' нот'); return; }
   if(kind==='paste'){
     if(!st.clip){ toast('Сначала скопируйте кусок'); return; }
     const row = s ? s.row : (st.clip.kind==='drums'?-1:null); if(row===null){ toast('Выберите дорожку инструмента'); return; }
@@ -1985,7 +1985,7 @@ function drawLanes(){
     const ti = h>46 ? 15 : 3, bi = 3;   // region name strip on top, inset at the bottom
     // regions: every clip between cuts that holds notes, as a rounded block in the instrument colour
     const all=rowNotes(t,row), cs=[0,...rowCuts(t,row).filter(x=>x>0&&x<D).sort((a,b)=>a-b),D], label=row<0?kit.name:INST[t.parts[row].inst].name;
-    for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-6&&m.t<b-1e-6)) continue; if(mv && a>=mv.a-1e-6 && b<=mv.b+1e-6) continue;
+    for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-3&&m.t<b-1e-3)) continue; if(mv && a>=mv.a-1e-3 && b<=mv.b+1e-6) continue;
       const x=X(a,w)+1, rw=W(b-a,w)-2; if(x+rw<0||x>w||rw<1) continue;
       c.fillStyle=cc; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
       if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
@@ -1999,17 +1999,18 @@ function drawLanes(){
         const nh=Math.max(2.5,Math.min(7,(ah-4)/Math.max(12,hi-lo)));
         c.fillStyle=cc; for(const m of ns){ const x=X(m.t+dt,w), mw=Math.max(2,W(m.d,w)-1); if(x+mw<0||x>w) continue; const y=top+(hi-m.n)/(hi-lo)*(ah-nh); c.globalAlpha=alpha*(0.55+0.45*m.v/127); c.fillRect(x,y,mw,nh); } }
       c.globalAlpha=1; };
-    draw(mv ? all.filter(m=>!(m.t>=mv.a-1e-6&&m.t<mv.b-1e-6)) : all, 0, dim?0.35:1);
+    draw(mv ? all.filter(m=>!(m.t>=mv.a-1e-3&&m.t<mv.b-1e-3)) : all, 0, dim?0.35:1);
     if(row>=0 && !t.parts[row].notes.length){ c.fillStyle=col('--muted'); c.font='11px '+col('--body'); c.fillText('Пусто: нажмите дважды, откроется меню',8,h/2+4); }
     // cuts
     c.strokeStyle='rgba(255,255,255,.3)'; c.setLineDash([3,3]); rowCuts(t,row).forEach(x=>{ const cx=Math.round(X(x,w))+.5; c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,h); c.stroke(); }); c.setLineDash([]);
     // the selected clip: white frame, like a picked region
     if(s && s.row===row && !mv){ const sa=tr&&tr.na!=null?tr.na:s.a, sb=tr&&tr.nb!=null?tr.nb:s.b;
       if(tr){ c.fillStyle='rgba(8,8,10,.72)'; if(sa>s.a) c.fillRect(X(s.a,w),0,W(sa-s.a,w),h); if(sb<s.b) c.fillRect(X(sb,w),0,W(s.b-sb,w),h); }
+      if(s.keep && s.keep.length){ draw(s.keep.filter(m=>!(m.t>=sa-1e-3&&m.t<sb-1e-3)),0,0.18); draw(s.keep.filter(m=>m.t>=sa-1e-3&&m.t<sb-1e-3),0,0.6); }
       c.fillStyle='rgba(255,255,255,.08)'; rr(X(sa,w)+1,1,W(sb-sa,w)-2,h-2,6); c.fill(); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(X(sa,w)+2,2,W(sb-sa,w)-4,h-4,5); c.stroke();
       c.fillStyle=col('--ph'); [X(sa,w)+3,X(sb,w)-6].forEach(hx=>{ rr(hx,h/2-9,3,18,1.5); c.fill(); }); c.lineWidth=1; }   // edge handles: grab them to trim
     if(drag && !drag.trim && drag.to===row){ const x=X(drag.s.a+drag.dt,w)+1, rw=W(drag.s.b-drag.s.a,w)-2;
-      if(rowKind(row)===rowKind(drag.s.row)){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-6&&m.t<drag.s.b-1e-6);
+      if(rowKind(row)===rowKind(drag.s.row)){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-3&&m.t<drag.s.b-1e-3);
         c.fillStyle=cc; c.globalAlpha=.32; rr(x,1,rw,h-2,6); c.fill(); if(ti>3){ c.globalAlpha=.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill(); } c.globalAlpha=1;
         draw(sn,drag.dt,1); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(x+1,2,rw-2,h-4,5); c.stroke(); c.lineWidth=1; }
       else { c.fillStyle='rgba(255,70,60,.14)'; rr(x,1,rw,h-2,6); c.fill(); } }
@@ -2112,8 +2113,8 @@ function laneDown(cx,cy){ const a=laneAt(cx,cy); if(!a) return false;
 function laneMove(cx,cy){ const d=st.drag; if(!d) return;
   if(!d.s){ if(!d.pan && st.zoom>1 && Math.abs(cx-d.cx)>8 && Math.abs(cx-d.cx)>Math.abs(cy-d.cy)*1.2){ d.pan=true; d.px0=st.x0; } if(d.pan){ st.x0=d.px0-(cx-d.cx)/d.a.w*vD(); stClamp(); st.followOff=Date.now()+2500; drawLanes(); } return; }
   if(!d.moving && Math.hypot(cx-d.cx,cy-d.cy)<8) return; d.moving=true;
-  if(d.trim){ const dt=(cx-d.cx)/d.a.w*vD(), bt=Math.min(beatSec(), d.s.b-d.s.a);
-    if(d.trim==='r') d.nb=Math.max(d.s.a+bt, Math.min(d.s.b, snapBeat(d.s.b+dt))); else d.na=Math.min(d.s.b-bt, Math.max(d.s.a, snapBeat(d.s.a+dt)));
+  if(d.trim){ const dt=(cx-d.cx)/d.a.w*vD(), bt=Math.min(beatSec(), d.s.b-d.s.a), [lo,hi]=trimRoom(d.s);
+    if(d.trim==='r') d.nb=Math.max(d.s.a+bt, Math.min(hi, snapBeat(d.s.b+dt))); else d.na=Math.min(d.s.b-bt, Math.max(lo, snapBeat(d.s.a+dt)));
     drawLanes(); return; }
   const a=laneAt(cx,cy); if(a){ d.to=a.row; } d.dt=snapBeat((cx-d.cx)/d.a.w*vD()); drawLanes(); }
 function laneUp(){ const d=st.drag; st.drag=null; if(!d||d.pan) return;
@@ -2121,12 +2122,26 @@ function laneUp(){ const d=st.drag; st.drag=null; if(!d||d.pan) return;
   if(d.moving){ moveClip(d.s, d.to, d.dt); return; }
   if(d.s){ openClipMenu(d.a.row); return; }   // second tap on the selected clip: its menu
   st.asel=null; st.sel=clipAt(d.a.row,d.a.x); drawLanes(); }
-// trimming a clip's edge inwards deletes the notes left outside it
-function trimClip(d){ const t=ownTrack(), s=d.s;
-  if(d.trim==='r' && d.nb!=null && d.nb<s.b-1e-4){ removeIn(t,s.row,d.nb,s.b); addCut(t,s.row,d.nb); st.sel={row:s.row,a:s.a,b:d.nb}; }
-  else if(d.trim==='l' && d.na!=null && d.na>s.a+1e-4){ removeIn(t,s.row,s.a,d.na); addCut(t,s.row,d.na); st.sel={row:s.row,a:d.na,b:s.b}; }
-  else { drawLanes(); return; }
-  studioChanged(); }
+// How far a selected clip's edges may go outwards: back over its own trimmed notes, and on through empty space up to the next notes or the song's ends
+function trimRoom(s){ const t=track(), D=duration(), ns=rowNotes(t,s.row);
+  let lo=0, hi=D;
+  ns.forEach(m=>{ if(m.t<s.a-1e-3) lo=Math.max(lo, m.t+(m.d||0.01)); if(m.t>=s.b-1e-3) hi=Math.min(hi, m.t); });
+  return [Math.min(lo,s.a), Math.max(hi,s.b)]; }
+// Trimming is undoable while the clip stays selected: notes cut off are kept with the selection and come back if the edge is pulled out again.
+// They are dropped for good once something else is selected.
+function trimClip(d){ const s=d.s, na=d.trim==='l'&&d.na!=null?d.na:s.a, nb=d.trim==='r'&&d.nb!=null?d.nb:s.b;
+  if(Math.abs(na-s.a)<1e-4 && Math.abs(nb-s.b)<1e-4){ drawLanes(); return; }
+  const t=ownTrack(), row=s.row, cs=rowCuts(t,row); let keep=(s.keep||[]).slice();
+  // cut off
+  if(na>s.a) keep=keep.concat(removeIn(t,row,s.a,na));
+  if(nb<s.b) keep=keep.concat(removeIn(t,row,nb,s.b));
+  // pulled back out: kept notes inside the new frame return
+  const back=keep.filter(m=>m.t>=na-1e-3 && m.t<nb-1e-3); keep=keep.filter(m=>!back.includes(m));
+  if(back.length) insertNotes(t,row,back.map(m=>({...m})),0);
+  // the frame's edges become the cuts
+  for(let i=cs.length-1;i>=0;i--){ const c=cs[i]; if((Math.abs(c-s.a)<1e-3 && Math.abs(na-s.a)>1e-4) || (Math.abs(c-s.b)<1e-3 && Math.abs(nb-s.b)>1e-4) || (c>na+1e-3 && c<nb-1e-3)) cs.splice(i,1); }
+  addCut(t,row,na); addCut(t,row,nb);
+  st.sel={row, a:na, b:nb, keep}; studioChanged(); }
 const CLIP_ACTS=[['edit','Редактировать ноты'],['cut','Разрезать по курсору'],['copy','Копировать'],['paste','Вставить в курсор'],['del','Удалить ноты куска'],['wav','Добавить WAV / MP3'],['midi','Загрузить MIDI в эту дорожку']];
 let clipFor=null;
 function openClipMenu(row){ const t=track(), s=st.sel&&st.sel.row===row?st.sel:null; clipFor={row}; aMenu=null;
