@@ -471,6 +471,10 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
 .st-adel.arm{background:var(--rec);color:#fff;border-color:var(--rec)}
 .st-acts .st-v{width:auto;padding:0 6px;font-variant-numeric:tabular-nums}
 @media (max-width:440px) and (orientation:portrait){ .st-ahead{grid-template-columns:30px minmax(0,1fr) 24px} .st-adel{width:24px;height:24px} }
+
+/* long presses must never start the system text selection or the callout menu on a phone */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* sheets and editors */
 .mixer{background:#1f1f23;border-top:1px solid #34343a;border-radius:18px 18px 0 0;padding-top:20px}
 .mixer::before{content:"";position:absolute;top:7px;left:50%;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:#4a4a52}
@@ -2061,7 +2065,7 @@ $('stRows').addEventListener('pointerdown',e=>{
 });
 ['pointerup','pointercancel','pointerleave'].forEach(k=>$('stRows').addEventListener(k,()=>{ if(stLong){ clearTimeout(stLong.timer); stLong=null; } }));
 $('stRows').addEventListener('pointermove',e=>{ if(stLong && Math.hypot(e.clientX-stLong.x,e.clientY-stLong.y)>8){ clearTimeout(stLong.timer); stLong=null; } });
-$('stRows').addEventListener('contextmenu',e=>{ if(e.target.closest('.st-name')) e.preventDefault(); });
+document.addEventListener('contextmenu',e=>{ if(!e.target.closest('input,textarea,select')) e.preventDefault(); });
 let actRow=null;
 function openInstActions(row){
   actRow=row; const t=track();
