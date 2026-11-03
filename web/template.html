@@ -433,6 +433,28 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
   .st-tile{width:30px;height:30px;border-radius:8px}.st-tile svg{width:19px;height:19px}
   .st-acts{gap:3px}.st-acts button{width:24px}
 }
+
+/* studio menu (song, mixer, EQ, loop, count-in, tempo, volume, balance) */
+#menuSheet .mixer-in{gap:14px}
+#menuSheet h2{font-size:18px;letter-spacing:.04em}
+.brand-a{color:var(--brass)}
+#menuSheet .copy{font-size:11px;color:var(--muted);text-align:left;opacity:1}
+.msec{display:flex;flex-direction:column;gap:8px}
+.msec h3{margin:0;font:600 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.trk{background:#1a1a1e;border-color:var(--edge);border-radius:10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.6)}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;height:68px;border-radius:12px;border:1px solid var(--edge);background:linear-gradient(#3a3a40,#2b2b30);box-shadow:inset 0 1px 0 rgba(255,255,255,.09);color:#e8e8ec;font-size:11.5px;font-weight:600;padding:4px}
+.mbtn svg{width:24px;height:24px;fill:currentColor}
+.mbtn .eqb{font:700 17px/24px var(--display);height:24px}
+.mbtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mbtn[aria-pressed="true"]{color:var(--brass);box-shadow:inset 0 0 0 1.5px var(--brass)}
+.mbtn b:not(.eqb){font:700 24px/24px var(--display);color:var(--hit)}
+#menuSheet input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:24px}
+#menuSheet input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:#4a4a53}
+#menuSheet input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:radial-gradient(circle at 45% 35%,#fff,#d7d7dc);box-shadow:0 1px 4px rgba(0,0,0,.6)}
+.mrow{display:flex;gap:10px;align-items:center}
+.mrow select{flex:1;min-width:0;border-radius:10px;background:#1a1a1e;border-color:var(--edge);padding:8px}
+.mrow #balKnob{width:40px;height:40px}
 /* sheets and editors */
 .mixer{background:#1f1f23;border-top:1px solid #34343a;border-radius:18px 18px 0 0;padding-top:20px}
 .mixer::before{content:"";position:absolute;top:7px;left:50%;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:#4a4a52}
@@ -452,67 +474,19 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
 </style>
 
 <div class="app">
-  <section class="cbar" aria-label="Транспорт">
-    <div class="cb-g">
-      <button class="cb" id="studioOpen" aria-label="Студия: дорожки" title="Студия"><svg viewBox="0 0 24 24"><path d="M3 4h18v3H3zm0 6.5h12v3H3zM3 17h15v3H3z"/></svg></button>
-      <button class="cb" id="mixOpen" aria-label="Миксер" aria-haspopup="dialog" title="Миксер"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg></button>
-    </div>
-    <div class="cb-g tpg">
-      <button class="cb tp" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
-      <button class="cb tp" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button>
-    </div>
-    <div class="lcd" aria-live="off"><b id="lcdPos">1.1</b><span class="lcd-s"><span id="time">0:00 / 0:00</span><span id="lcdTempo">♩ —</span></span></div>
-    <div class="cb-g">
-      <button class="cb" id="loop" aria-label="Повтор" aria-pressed="false" title="Повтор"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
-      <button class="cb" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт" title="Отсчёт"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg></button>
-    </div>
-  </section>
-
-  <header class="ihead">
-    <span class="itile"><svg viewBox="0 0 24 24"><path d="M3 10c0-2 4-3.4 9-3.4s9 1.4 9 3.4v6.5c0 2-4 3.5-9 3.5s-9-1.5-9-3.5zm2 0c0 .9 3.1 2 7 2s7-1.1 7-2-3.1-2-7-2-7 1.1-7 2z"/><path d="M6.3 2.6l5.2 5.6-.9.8-5.2-5.6zM17.7 2.6l-5.2 5.6.9.8 5.2-5.6z"/></svg></span>
-    <div class="brand">
-      <h1>ZAstudio<span>Midi</span></h1>
-      <div class="status" id="status">Загрузка сэмплов…</div>
-    </div>
-    <button class="ctl eqb" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog">EQ</button>
-    <div class="bal"><div class="knob" id="balKnob" role="slider" tabindex="0" aria-label="Баланс лево-право" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="knob-cap"><span class="knob-ind"></span></div></div><output id="balOut">Ц</output></div>
-    <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button>
-  </header>
-
-  <div class="about" id="about" hidden>
-    <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
-    <b>Верхняя панель</b>: слева Студия (все дорожки и инструменты) и Миксер, в центре Играть и Запись, табло показывает такт.долю, время и темп, справа Повтор и Отсчёт.
-    <b>Отсчёт</b>: 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
-    <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 35. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
-  </div>
-
-  <section class="kitsec">
-    <div class="kits" id="kits" role="group" aria-label="Установка"></div>
-  </section>
-
-  <section class="padsec">
-    <div class="pads" id="pads"></div>
-  </section>
-
-  <section class="song">
-    <span class="name" id="curName" hidden>—</span>
-    <div class="trackbar">
-      <button class="ctl" id="prevTrk" aria-label="Предыдущая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z"/></svg></button>
-      <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="tn" id="trkName">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
-      <button class="ctl" id="nextTrk" aria-label="Следующая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z"/></svg></button>
-      <button class="ctl" id="edit" aria-label="Редактировать дорожку"><svg viewBox="0 0 24 24"><path d="M4 17.2V20h2.8l8.3-8.3-2.8-2.8zM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.3 1.3 2.8 2.8z"/></svg></button>
-      <button class="ctl" id="add" aria-label="Добавить MIDI-дорожку"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
-    </div>
-    <input type="file" id="file" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" multiple hidden>
-    <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Позиция">
-    <div class="sliders">
-      <div class="field"><label for="tempo">Темп</label><input id="tempo" type="range" min="50" max="150" step="5" value="100"><output id="tempoOut">100%</output></div>
-      <div class="field"><label for="vol">Громк.</label><input id="vol" type="range" min="0" max="100" value="80"><output id="volOut">80%</output></div>
-    </div>
-    <select id="chan" aria-label="Канал ударных"></select>
+  <!-- The app opens straight into the Studio. These hidden controls keep the drum-pad engine (pads, pad recording, the old seek bar) wired up. -->
+  <div class="legacy" hidden>
+    <button id="studioOpen" tabindex="-1">Студия</button>
+    <button id="play" tabindex="-1"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
+    <button id="rec" tabindex="-1" aria-pressed="false"></button>
+    <b id="lcdPos">1.1</b><span id="time">0:00 / 0:00</span><span id="lcdTempo"></span>
+    <input id="seek" type="range" min="0" max="1000" value="0" tabindex="-1">
+    <div class="status" id="status">Загрузка сэмплов…</div>
+    <div class="kits" id="kits"></div>
+    <section class="padsec"><div class="pads" id="pads"></div></section>
+    <span class="name" id="curName">—</span>
     <div class="note" id="note" hidden></div>
-  </section>
-  <small class="copy">© Zapolski Andrei · dionys@yandex.ru</small>
+  </div>
 
   <div class="mix-back" id="mixBack" hidden></div>
   <div class="mixer" id="trkSheet" role="dialog" aria-label="Дорожки" hidden>
@@ -593,10 +567,49 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
     </div>
   </div>
 
+  <div class="mixer" id="menuSheet" role="dialog" aria-label="Песня и настройки" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><div class="mh"><h2>ZAstudio<span class="brand-a">Midi</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h2><small class="copy">© Zapolski Andrei · dionys@yandex.ru</small></div><div class="acts"><button id="menuClose">Готово</button></div></div>
+      <div class="about" id="about" hidden>
+        <b>Студия</b>: слева инструменты, справа их дорожки. Сверху ☰ (это меню), отмена, ⏮ ▶ ■, табло (такт.доля, время, темп) и такты −/+.
+        <b>Песня</b>: стрелки листают готовые биты, нажатие на название открывает список, карандаш открывает редактор ударных, плюс добавляет MIDI-файл.
+        <b>Отсчёт</b>: 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. <b>EQ</b>: эквалайзер на весь звук. <b>Крутилка Л/П</b>: баланс, двойное нажатие возвращает в центр.
+        Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 35.
+      </div>
+      <div class="msec">
+        <h3>Песня</h3>
+        <div class="trackbar">
+          <button class="ctl" id="prevTrk" aria-label="Предыдущая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z"/></svg></button>
+          <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="tn" id="trkName">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
+          <button class="ctl" id="nextTrk" aria-label="Следующая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z"/></svg></button>
+          <button class="ctl" id="edit" aria-label="Редактировать ударные"><svg viewBox="0 0 24 24"><path d="M4 17.2V20h2.8l8.3-8.3-2.8-2.8zM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.3 1.3 2.8 2.8z"/></svg></button>
+          <button class="ctl" id="add" aria-label="Добавить MIDI-дорожку"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
+        </div>
+        <input type="file" id="file" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" multiple hidden>
+      </div>
+      <div class="mgrid">
+        <button class="mbtn" id="mixOpen" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg><span>Миксер</span></button>
+        <button class="mbtn" id="eqOpen" aria-haspopup="dialog"><b class="eqb">EQ</b><span>Эквалайзер</span></button>
+        <button class="mbtn" id="loop" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span>Повтор</span></button>
+        <button class="mbtn" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Отсчёт</span></button>
+      </div>
+      <div class="msec">
+        <h3>Звук</h3>
+        <div class="sliders">
+          <div class="field"><label for="tempo">Темп</label><input id="tempo" type="range" min="50" max="150" step="5" value="100"><output id="tempoOut">100%</output></div>
+          <div class="field"><label for="vol">Громк.</label><input id="vol" type="range" min="0" max="100" value="80"><output id="volOut">80%</output></div>
+        </div>
+        <div class="mrow">
+          <select id="chan" aria-label="Канал ударных"></select>
+          <div class="bal"><div class="knob" id="balKnob" role="slider" tabindex="0" aria-label="Баланс лево-право" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="knob-cap"><span class="knob-ind"></span></div></div><output id="balOut">Ц</output></div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="studio" id="studio" role="dialog" aria-label="Студия" hidden>
     <div class="st-top cbar">
       <div class="cb-g">
-        <button class="cb" id="stClose" aria-label="Закрыть студию" title="К пэдам"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg></button>
+        <button class="cb" id="stMenu" aria-label="Песня и настройки" aria-haspopup="dialog" title="Меню"><svg viewBox="0 0 24 24"><path d="M3 5h18v2.2H3zm0 5.9h18v2.2H3zm0 5.9h18V19H3z"/></svg></button>
         <button class="cb" id="stUndo" aria-label="Отменить действие" disabled><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.6 0-5 1-6.9 2.6L2 7v9h9l-3.6-3.6c1.4-1.2 3.2-1.9 5.1-1.9 3.5 0 6.5 2.3 7.6 5.5l2.4-.8C21.1 11 17.2 8 12.5 8z"/></svg></button>
       </div>
       <div class="cb-g tpg">
@@ -609,7 +622,7 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
       <span class="st-sp"></span>
       <button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button>
     </div>
-    <div class="ed-hint" id="stHint" hidden>Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок, второе нажатие открывает редактор. Выбранный кусок можно перетащить на другой инструмент или по времени. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
+    <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок, второе нажатие открывает редактор. Выбранный кусок можно перетащить на другой инструмент или по времени. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
     <div class="st-tl"><span class="st-corner">Такты</span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
@@ -1156,7 +1169,7 @@ function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx
 
 /* ---------- UI ---------- */
 function setStatus(t){ $('status').textContent=t; }
-function showNote(t){ $('note').textContent=t; $('note').hidden=!t; }
+function showNote(t){ $('note').textContent=t; $('note').hidden=!t; if(t) toast(t); }
 const fmt = s => { s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
 function setPlayIcon(){
   try{ if(window.AndroidBridge && AndroidBridge.setPlaying) AndroidBridge.setPlaying(playing); }catch(_){}   // keeps the app playing in the background
@@ -1375,6 +1388,7 @@ $('count').addEventListener('click', async ()=>{
   if(playing) pause(); countIn(at=>play(at));
 });
 $('loop').addEventListener('click',()=>{ loop=!loop; $('loop').setAttribute('aria-pressed',loop); });
+$('count').addEventListener('click',()=>{ if(openSheet==='menuSheet') sheet('menuSheet',false); });
 let seeking=false;
 $('seek').addEventListener('input',()=>{ seeking=true; $('time').textContent=fmt($('seek').value/1000*duration())+' / '+fmt(duration()); });
 $('seek').addEventListener('change',()=>{ seeking=false; seekTo($('seek').value/1000*duration()); });
@@ -1786,7 +1800,7 @@ $('eqPresets').addEventListener('click',e=>{ const b=e.target.closest('[data-p]'
 $('eqStrips').addEventListener('input',e=>{ const f=e.target.closest('.fader'); if(f) setEq(+f.dataset.i,+f.value); });
 $('eqStrips').addEventListener('dblclick',e=>{ const f=e.target.closest('.fader'); if(f){ f.value=0; setEq(+f.dataset.i,0); } });
 $('eqPlay').addEventListener('click',()=> playing?pause():play());
-window.onAndroidBack = () => { if(openSheet){ sheet(openSheet,false); return true; } if(ed.open){ closeEditor(); return true; } if(pr.open){ closeProll(); return true; } if(!$('studio').hidden){ closeStudio(); return true; } if(openSheet){ sheet(openSheet,false); return true; } return false; };
+window.onAndroidBack = () => { if(openSheet){ sheet(openSheet,false); return true; } if(ed.open){ closeEditor(); return true; } if(pr.open){ closeProll(); return true; } if(openSheet){ sheet(openSheet,false); return true; } return false; };
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && ctx && playing && ctx.state!=='running') ctx.resume(); });
 
 { const v=+store.get('vol'); if(store.get('vol')!==null && v>=0 && v<=100) setVol(v); }
@@ -1970,7 +1984,10 @@ function drawLanes(){
 function openStudio(){ initAudio(); $('studio').hidden=false; edFullscreen(true); st.sel=null; stClamp(); stRowH(); renderStudio(); loadParts(); }
 function closeStudio(){ kbAllOff(); st.armed=null; st.recLive=false; if(countT) cancelCount(); $('studio').hidden=true; edFullscreen(false); $('studioOpen').focus(); }
 $('studioOpen').addEventListener('click',openStudio);
-$('stClose').addEventListener('click',closeStudio);
+$('stMenu').addEventListener('click',()=>sheet('menuSheet',true));
+$('menuClose').addEventListener('click',()=>sheet('menuSheet',false));
+// the browser may start audio suspended until the first touch
+document.addEventListener('pointerdown',()=>{ if(ctx && ctx.state!=='running') ctx.resume(); },true);
 $('stPlay').addEventListener('click',()=> playing?pause():play());
 $('stStop').addEventListener('click',()=>{ stop(); drawLanes(); });
 $('stHome').addEventListener('click',()=>{ seekTo(0); drawLanes(); });
@@ -2298,6 +2315,6 @@ $('prClear').addEventListener('click',()=>{ const b=$('prClear'); if(!b.classLis
 window.addEventListener('resize',()=>{ if(pr.open) prLayout(); });
 [['stInfoBtn','stHint'],['prInfo','prHint']].forEach(([b,h])=>$(b).addEventListener('click',()=>{ $(h).hidden=!$(h).hidden; $(b).setAttribute('aria-expanded',!$(h).hidden); setTimeout(()=>{ drawLanes(); prDraw(); }); }));
 
-setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame);
+setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
 </script>
