@@ -2846,6 +2846,83 @@ $('actRepl').addEventListener('click',()=>{ const r=actRow; sheet('actSheet',fal
     Object.entries(INST).filter(([,d])=>d.cat===k).map(([id,d])=>`<button class="snd" data-inst="${id}" aria-pressed="${id===p.inst}">${d.name}<small>${d.d}</small></button>`).join('')).join('');
   sheet('instSheet',true); });
 
+/* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
+const DEMO_SONGS = [
+  { name:'Демо: Рок', bpm:118, key:'E',
+    sections:[
+      {bars:4, ch:'E E D A', dr:{k:'x-----x-x-------', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, p:{bass:'eighth', gtr:'power8', organ:'pad'}},
+      {bars:8, ch:'E E A A E E B A', dr:{k:'x-----x-x-x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, p:{bass:'eighth', gtr:'chug', keys:'stab', organ:'pad'}},
+      {bars:8, ch:'A B E C#m A B E E', dr:{k:'x-----x-x-------', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, p:{bass:'eighth', gtr:'power8', lead:'melody', str:'pad', organ:'pad', keys:'block'}},
+      {bars:4, ch:'E D A E', dr:{k:'x-----x-x-------', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, p:{bass:'eighth', gtr:'power8', lead:'melody', str:'pad', organ:'pad'}, end:true},
+    ],
+    inst:{bass:'bass_pick', gtr:'syn_saw', lead:'syn_square', organ:'key_organ', keys:'key_piano', str:'str_ens'} },
+  { name:'Демо: Баллада', bpm:70, key:'C',
+    sections:[
+      {bars:4, ch:'C G Am F', dr:null, p:{keys:'arp', pad:'pad'}},
+      {bars:8, ch:'C G Am Em F C F G', dr:{k:'x-------x-x-----', e:'----x-------x---', h:'x-x-x-x-x-x-x-x-'}, p:{keys:'arp', bass:'root', pad:'pad', ep:'block'}},
+      {bars:8, ch:'F G Em Am F G C C', dr:{k:'x-------x-x-----', s:'----x-------x---', h:'x-x-x-x-x-x-x-x-'}, p:{keys:'arp', bass:'root', str:'pad', lead:'melodySlow', pad:'pad'}},
+      {bars:4, ch:'F G C C', dr:{k:'x-------x-------', e:'----x-------x---', r:'x---x---x---x---'}, p:{keys:'arp', bass:'root', str:'pad', pad:'pad'}, end:true},
+    ],
+    inst:{keys:'key_piano', ep:'key_ep', bass:'bass_finger', pad:'syn_warm', str:'str_ens', lead:'syn_newage'} },
+  { name:'Демо: Панк-рок', bpm:176, key:'D',
+    sections:[
+      {bars:4, ch:'D D G A', dr:{k:'x-------x-------', s:'----X-------X---', c:'x-------x-------'}, p:{gtr:'power8', bass:'eighth'}},
+      {bars:8, ch:'D G D A D G A D', dr:{k:'x---x---x---x---', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, p:{gtr:'power8', bass:'eighth', keys:'stab'}},
+      {bars:8, ch:'G A D Bm G A D D', dr:{k:'x---x---x---x---', s:'----X-------X---', r:'x-x-x-x-x-x-x-x-'}, p:{gtr:'power8', bass:'eighth', lead:'melody', str:'pad', organ:'pad'}},
+      {bars:8, ch:'D G D A D G A D', dr:{k:'x---x---x---x---', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, p:{gtr:'power8', bass:'eighth', keys:'stab', lead:'melody'}},
+      {bars:4, ch:'G A D D', dr:{k:'x---x---x---x---', s:'----X-------X---', c:'x---x---x---x---'}, p:{gtr:'power8', bass:'eighth', str:'pad', organ:'pad'}, end:true},
+    ],
+    inst:{gtr:'syn_basslead', bass:'bass_pick', keys:'key_piano', lead:'syn_saw', str:'str_ens', organ:'key_organ'} },
+];
+function buildDemo(sp){
+  const bar=240/sp.bpm, step=bar/16, PC={C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11};
+  const chord=s=>{ const m=s.match(/^([A-G][#b]?)(m?)$/); return {r:PC[m[1]], min:m[2]==='m'}; };
+  const near=(pc,lo)=>{ let n=lo+((pc-lo)%12+12)%12; return n; };   // the pitch class pc at or above lo
+  const triad=(c,lo)=>{ const r=near(c.r,lo); return [r, r+(c.min?3:4), r+7]; };
+  const ev=[], parts={}, P=k=>parts[k]||(parts[k]=[]), N=(k,t,d,n,v)=>P(k).push({t:+t.toFixed(4), d:+d.toFixed(4), n, v});
+  const D=(t,key,v)=>ev.push({t:+t.toFixed(5), ch:9, n:LANE_KEY[key], v, raw:LANE_KEY[key]});
+  const vel={X:122,x:100,o:58};
+  let b0=0, mel=0;
+  sp.sections.forEach((sec,si)=>{
+    const chs=sec.ch.split(' ').map(chord);
+    for(let i=0;i<sec.bars;i++){
+      const b=b0+i, t0=b*bar, c=chs[i%chs.length], last=i===sec.bars-1;
+      // drums: groove, a crash on each section start, a fill on the last bar of a section
+      if(sec.dr){ const fill = last && !sec.end;
+        for(const [key,str] of Object.entries(sec.dr)) [...str].forEach((x,j)=>{ if(fill && j>=8 && key!=='h' && key!=='r' && key!=='c') return; if(fill && j>=8 && (key==='h'||key==='r'||key==='c')) return; if(vel[x]) D(t0+j*step,key,vel[x]); });
+        if(fill){ ['s','s','t','t','m','m','f','f'].forEach((k,j)=>D(t0+(8+j)*step,k,96+j*3)); D(t0+8*step,'k',100); D(t0+12*step,'k',100); }
+        if(i===0) D(t0,'c',118);
+        if(sec.end && last){ D(t0,'c',124); }
+      } else if(si===0 && i===sec.bars-1){ D(t0+12*step,'s',70); D(t0+14*step,'s',84); D(t0+15*step,'s',96); }
+      const endBar = sec.end && last;   // the final bar rings out: one long chord
+      for(const [k,style] of Object.entries(sec.p)){
+        const lo = {bass:28, gtr:40, lead:64, organ:52, keys:55, str:48, pad:52, ep:55}[k] || 52;
+        if(endBar){ if(k==='bass') N(k,t0,bar*0.95,near(c.r,lo),100); else if(k!=='lead') triad(c,lo).forEach(n=>N(k,t0,bar*0.95,n,88)); continue; }
+        if(style==='eighth'){ const r=near(c.r,lo); for(let j=0;j<8;j++) N(k,t0+j*2*step,step*1.8,(j===7&&i%2)?r+7:r,j%2?92:110); }
+        else if(style==='root'){ const r=near(c.r,lo); N(k,t0,step*7.5,r,96); N(k,t0+8*step,step*5.5,r,86); N(k,t0+14*step,step*1.8,r+7,80); }
+        else if(style==='power8'){ const r=near(c.r,lo); for(let j=0;j<8;j++){ const v=j%2?96:112; [r,r+7,r+12].forEach(n=>N(k,t0+j*2*step,step*1.7,n,v)); } }
+        else if(style==='chug'){ const r=near(c.r,lo); [0,3,6,8,10,12,14].forEach((j,q)=>{ const v=q===0||j===8?114:94; const ns=(j===0||j===8)?[r,r+7,r+12]:[r,r+7]; ns.forEach(n=>N(k,t0+j*step,step*(j===6?1.8:1.6),n,v)); }); }
+        else if(style==='pad'){ triad(c,lo).forEach(n=>N(k,t0,bar*0.98,n,k==='organ'?70:78)); }
+        else if(style==='block'){ [0,8].forEach(j=>triad(c,lo).forEach(n=>N(k,t0+j*step,step*7,n,84))); }
+        else if(style==='stab'){ [2,6,10,14].forEach(j=>triad(c,lo).forEach(n=>N(k,t0+j*step,step*1.2,n,90))); }
+        else if(style==='arp'){ const [a,b2,c2]=triad(c,lo), seq=[a-12,a,b2,c2,a+12,c2,b2,a]; seq.forEach((n,j)=>N(k,t0+j*2*step,step*3.6,n,j===0?92:76)); }
+        else if(style==='melody' || style==='melodySlow'){
+          // chord tones on a two-bar rhythm, rising then falling
+          const tones=triad(c,lo).concat(triad(c,lo+12)).sort((x,y)=>x-y);
+          const rh = style==='melody' ? (mel%2 ? [[0,4],[4,2],[6,2],[8,6],[14,2]] : [[0,2],[2,2],[4,4],[8,2],[10,2],[12,4]]) : (mel%2 ? [[0,8],[8,8]] : [[0,4],[4,4],[8,8]]);
+          rh.forEach(([j,len],q)=>{ const idx = mel%2 ? Math.max(0,4-q) : Math.min(tones.length-1,1+q); N(k,t0+j*step,step*len*0.95,tones[idx],q===0?104:92); });
+          mel++; }
+      }
+    }
+    b0+=sec.bars;
+  });
+  ev.sort((a,b)=>a.t-b.t);
+  const order=Object.keys(sp.inst).filter(k=>parts[k]);
+  return {name:sp.name, bpm:sp.bpm, bars:b0, chan:9, saved:true, events:ev, dcuts:[],
+    parts:order.map((k,i)=>({id:'demo'+i+Math.random().toString(36).slice(2,6), inst:sp.inst[k], vol:{bass:0.85,gtr:0.62,lead:0.7,organ:0.45,keys:0.6,str:0.5,pad:0.45,ep:0.55}[k]??0.6, mute:false, solo:false, cuts:[], notes:parts[k].sort((a,b)=>a.t-b.t)}))};
+}
+if(store.get('demos1')!=='1'){ DEMO_SONGS.forEach(sp=>tracks.push(buildDemo(sp))); if(saveLibrary()) store.set('demos1','1'); }
+
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio(); openProjects();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
 </script>
