@@ -76,6 +76,7 @@ button{cursor:pointer}
 input[type=range]{width:100%;accent-color:var(--brass);margin:0}
 .seek{flex:1;min-width:0}
 .sliders{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+.field.recl{grid-template-columns:auto 1fr auto auto;margin:8px 0 2px}.field.recl label,.field.recl output{font-size:12px;color:var(--muted)}.field.recl output{min-width:52px;text-align:right}.field.recl .ed-b{padding:6px 10px;font-size:12px}
 .field{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;min-width:0}
 .field label{white-space:nowrap}
 .field input[type=range]{height:14px}
@@ -663,6 +664,7 @@ body.mic-on #stPlay{background:var(--rec)}
           <div class="field"><label for="tempo">Темп</label><input id="tempo" type="range" min="50" max="150" step="5" value="100"><output id="tempoOut">100%</output></div>
           <div class="field"><label for="vol">Громк.</label><input id="vol" type="range" min="0" max="100" value="80"><output id="volOut">80%</output></div>
         </div>
+        <div class="field recl"><label for="recLat">Задержка записи</label><input id="recLat" type="range" min="0" max="500" step="5" value="150"><output id="recLatOut">150 мс</output><button class="ed-b" id="recCal">Измерить</button></div>
         <div class="mrow">
           <select id="chan" aria-label="Канал ударных"></select>
           <div class="bal"><div class="knob" id="balKnob" role="slider" tabindex="0" aria-label="Баланс лево-право" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="knob-cap"><span class="knob-ind"></span></div></div><output id="balOut">Ц</output></div>
@@ -2630,13 +2632,13 @@ const IDB=(()=>{ let dbp=null;
   return { get:k=>run('readonly',s=>s.get(k)), set:(k,v)=>run('readwrite',s=>s.put(v,k)), del:k=>run('readwrite',s=>s.delete(k)) }; })();
 const newId = p => p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function aSaveMeta(t){ if(!t || t.demo) return; if(!t.aid){ t.aid=newId('t'); saveLibrary(); }
-  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
+  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, lat:a.lat, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
 async function aStoreFile(bytes){ const fid=newId('f'); try{ await IDB.set('f:'+fid, bytes); }catch(e){ toast('Не удалось сохранить аудио в память телефона: оно останется до закрытия'); } return fid; }
 async function aLoadTrack(t){ if(!t || !t.aid || t._aLoaded) return; t._aLoaded=true;
   let meta; try{ meta=await IDB.get('t:'+t.aid); }catch(e){ return; } if(!meta || !meta.length) return;
   initAudio(); const out=[];
   for(const m of meta){ try{ const bytes=await IDB.get('f:'+m.fid); if(!bytes) continue; const buf=await new Promise((res,rej)=>ctx.decodeAudioData(bytes.slice(0),res,rej));
-    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
+    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, lat:m.lat, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
   t.audio=out; if(t===track()){ renderStudio(); aRestart(); } }
 
 /* ---------- WAV encoding ---------- */
@@ -2706,11 +2708,12 @@ async function micStop(){ const m=micRec; if(!m) return; micRec=null; document.b
   const buf=ctx.createBuffer(1,data.length,rate); buf.copyToChannel(data,0);
   // what the singer heard came out late by the output latency, and the mic adds its own: move the take earlier by both
   // sample 0 was captured about one buffer before `first`; song position t0 was heard at ctx0 plus the output latency
-  const o0=(ctx.outputLatency||0)+(ctx.baseLatency||0)+((m.ctx0??0)-(m.first()??m.ctx0??0))+4096/rate;
+  // sample 0 was captured about two buffers before `first`; the round trip (speaker + mic) is recLat, measured or set in the menu
+  const L=recLat(), o0=((m.ctx0??0)-(m.first()??m.ctx0??0))+2*4096/rate+L;
   const t=ownTrack(); t.audio=t.audio||[]; const n=t.audio.filter(a=>/^Запись/.test(a.name)).length+1;
   const fid=await aStoreFile(wavBytes([data],rate));
   const clip = o0>=0 ? {t:m.t0, off:Math.min(o0,buf.duration-0.1), len:buf.duration-Math.min(o0,buf.duration-0.1)} : {t:m.t0-o0, off:0, len:buf.duration};
-  t.audio.push({name:'Запись '+n, buf, vol:1, mute:false, fid, peaks:aPeaks(buf), clips:[clip]});
+  t.audio.push({name:'Запись '+n, buf, vol:1, mute:false, fid, lat:L, peaks:aPeaks(buf), clips:[clip]});
   aFitBars(t); studioChanged(); toast('Запись добавлена: '+fmt(buf.duration));
 }
 
@@ -2783,6 +2786,44 @@ $('setGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-set]'
   else if(k==='midi'){ stFileRow=r; $('stFile').click(); }
   else if(k==='kb'){ if(r<0){ st.padsOpen=true; st.kbOpen=false; } else { st.kbOpen=true; st.padsOpen=false; } renderStudio(); }
 });
+
+/* ---------- recording latency: the take is moved earlier by the speaker-to-mic round trip ---------- */
+function recLat(){ const v=parseFloat(store.get('recLat')); return isFinite(v) ? v : Math.min(0.4, 0.08+(ctx&&ctx.outputLatency||0)+(ctx&&ctx.baseLatency||0)); }
+function shiftTake(a, d){ a.clips.forEach(k=>{ k.off+=d; if(k.off<0){ k.t-=k.off; k.len+=k.off; k.off=0; } else k.len-=d; k.len=Math.max(0.05, Math.min(k.len, a.buf.duration-k.off)); }); }
+function setRecLat(v, quiet){ v=Math.max(0,Math.min(0.5,v)); store.set('recLat',String(v)); showRecLat();
+  const t=track(); let n=0; (t.audio||[]).forEach(a=>{ if(a.lat===undefined || !a.buf) return; const d=v-a.lat; if(Math.abs(d)<1e-4) return; shiftTake(a,d); a.lat=v; n++; });
+  if(n){ studioChanged(); aRestart(); if(!quiet) toast('Записи сдвинуты: '+Math.round(v*1000)+' мс'); } }
+function showRecLat(){ const v=Math.round(recLat()*1000); $('recLat').value=v; $('recLatOut').textContent=v+' мс'; }
+$('recLat').addEventListener('input',()=>{ $('recLatOut').textContent=$('recLat').value+' мс'; });
+$('recLat').addEventListener('change',()=>setRecLat(+$('recLat').value/1000, true));
+// measure: clicks go out of the speaker and come back through the mic
+async function calibrate(){
+  if(micRec || playing){ toast('Сначала остановите воспроизведение'); return; }
+  initAudio(); if(ctx.state!=='running') await ctx.resume();
+  let stream; try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }
+  catch(e){ toast('Нет доступа к микрофону'); return; }
+  const B=4096, rate=ctx.sampleRate, src=ctx.createMediaStreamSource(stream), sp=ctx.createScriptProcessor(B,1,1), z=ctx.createGain(); z.gain.value=0;
+  const chunks=[]; src.connect(sp); sp.connect(z); z.connect(ctx.destination);
+  sp.onaudioprocess=e=>chunks.push({P:e.playbackTime, d:new Float32Array(e.inputBuffer.getChannelData(0))});
+  $('recCal').textContent='Слушаю…'; toast('Тишина, пожалуйста: телефон щёлкнет 5 раз (без наушников)');
+  const t0=ctx.currentTime+0.6, gap=0.6, clicks=[];
+  for(let i=0;i<5;i++){ const at=t0+i*gap, o=ctx.createOscillator(), g=ctx.createGain(); o.frequency.value=1800; g.gain.setValueAtTime(0.9,at); g.gain.exponentialRampToValueAtTime(0.001,at+0.03);
+    o.connect(g).connect(ctx.destination); o.start(at); o.stop(at+0.04); clicks.push(at); }
+  await new Promise(r=>setTimeout(r,(t0+5*gap+0.6-ctx.currentTime)*1000));
+  try{ src.disconnect(); sp.disconnect(); z.disconnect(); }catch(_){} stream.getTracks().forEach(t=>t.stop()); $('recCal').textContent='Измерить';
+  // time of each sample, then the first loud onset after each click
+  const T=[], X=[]; chunks.forEach(c=>{ const s0=c.P-2*B/rate; for(let j=0;j<c.d.length;j++){ T.push(s0+j/rate); X.push(Math.abs(c.d[j])); } });
+  let noise=0; for(let i=0;i<X.length && T[i]<t0-0.05;i++) noise=Math.max(noise,X[i]);
+  const lats=[]; clicks.forEach(at=>{ let peak=0; for(let i=0;i<X.length;i++) if(T[i]>=at-0.05 && T[i]<at+gap-0.05) peak=Math.max(peak,X[i]);
+    if(peak<Math.max(0.02,noise*3)) return; const th=Math.max(noise*2, peak*0.35);
+    for(let i=0;i<X.length;i++) if(T[i]>=at-0.05 && T[i]<at+gap-0.05 && X[i]>=th){ lats.push(T[i]-at); break; } });
+  if(lats.length<3){ toast('Щелчки не услышаны. Сделайте громче, без наушников, и повторите.'); return; }
+  lats.sort((a,b)=>a-b); const L=lats[lats.length>>1];
+  if(L<-0.05 || L>0.5){ toast('Не удалось измерить, попробуйте ещё раз'); return; }
+  setRecLat(Math.max(0,L), true); toast('Задержка записи: '+Math.round(Math.max(0,L)*1000)+' мс');
+}
+$('recCal').addEventListener('click',calibrate);
+showRecLat();
 
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio(); openProjects();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
