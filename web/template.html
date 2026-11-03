@@ -505,6 +505,11 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 #stLoopTop[aria-pressed="true"]{color:var(--brass)}
 @media (max-width:440px){ #stHome{display:none} }
 @media (orientation:landscape) and (max-height:560px){ .tfw,.tfd{height:clamp(80px,calc(100dvh - 260px),180px)} }
+/* track name and colour */
+#lookName{width:100%;box-sizing:border-box;height:44px;border-radius:10px;border:1px solid var(--edge);background:#1d1d21;color:var(--fg);font:600 16px var(--body);padding:0 12px}
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.swatches button{aspect-ratio:1/1;border-radius:50%;border:2px solid transparent;background:var(--c);box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}
+.swatches button[aria-pressed="true"]{border-color:#fff}
 /* chord window: previous, current (bright), next */
 .chords{display:flex;align-items:center;gap:2px;height:40px;box-sizing:border-box;padding:0 8px;border-radius:9px;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.1);font-variant-numeric:tabular-nums;flex:none}
 .chords span{min-width:2.6em;text-align:center;font-weight:700;white-space:nowrap}
@@ -754,7 +759,14 @@ body.mic-on #stPlay{background:var(--rec)}
   <div class="mixer" id="actSheet" role="dialog" aria-label="Действия с инструментом" hidden>
     <div class="mixer-in">
       <div class="mix-head"><h2 id="actTitle">Инструмент</h2><div class="acts"><button id="actClose">Закрыть</button></div></div>
-      <div class="acts-list"><button class="snd" id="actRepl">Заменить инструмент…</button><button class="snd" id="actMidi">Загрузить MIDI-файл в эту дорожку</button><button class="snd danger" id="actDel">Удалить инструмент</button></div>
+      <div class="acts-list"><button class="snd" id="actName">Переименовать</button><button class="snd" id="actColor">Цвет</button><button class="snd" id="actRepl">Заменить инструмент…</button><button class="snd" id="actMidi">Загрузить MIDI-файл в эту дорожку</button><button class="snd danger" id="actDel">Удалить инструмент</button></div>
+    </div>
+  </div>
+  <div class="mixer" id="lookSheet" role="dialog" aria-label="Название и цвет дорожки" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><h2>Название и цвет</h2><div class="acts"><button id="lookReset">Сбросить</button><button id="lookOk">Готово</button></div></div>
+      <input type="text" id="lookName" maxlength="40" autocomplete="off" aria-label="Название дорожки">
+      <div class="swatches" id="lookCols"></div>
     </div>
   </div>
   <div class="mixer" id="tmixSheet" role="dialog" aria-label="Микшер дорожек" hidden>
@@ -1403,13 +1415,13 @@ $('chan').addEventListener('change',()=>{ const was=playing; pause(); chan=track
 function loadLibrary(){
   try{ return (JSON.parse(store.get('tracks1'))||[]).map(t=>({aid:t.aid, name:t.name, bpm:t.bpm, chan:t.chan, saved:true, bars:t.bars, uri:t.uri,
     events:t.ev.map(([t0,ch,n,v,raw])=>({t:t0,ch,n,v,raw:raw??n,cut:HAT_OPEN[raw]})),
-    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts||[], dfx:t.dfx,
-    parts:(t.parts||[]).filter(p=>INST_IDS.includes(p.inst)).map(p=>({id:p.id, inst:p.inst, vol:p.vol??0.8, mute:!!p.mute, solo:!!p.solo, cuts:p.cuts||[], fx:p.fx, notes:p.notes.map(([t,d,n,v])=>({t,d,n,v}))})) })); }catch(e){ return []; }
+    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts||[], dfx:t.dfx, dname:t.dname, dcolor:t.dcolor,
+    parts:(t.parts||[]).filter(p=>INST_IDS.includes(p.inst)).map(p=>({id:p.id, inst:p.inst, vol:p.vol??0.8, mute:!!p.mute, solo:!!p.solo, cuts:p.cuts||[], fx:p.fx, name:p.name, color:p.color, notes:p.notes.map(([t,d,n,v])=>({t,d,n,v}))})) })); }catch(e){ return []; }
 }
 function saveLibrary(){
   const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({aid:t.aid,name:t.name,bpm:t.bpm,chan:t.chan,bars:t.bars,uri:t.uri,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw]),
-    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts, dfx:t.dfx,
-    parts:(t.parts||[]).map(p=>({id:p.id, inst:p.inst, vol:p.vol, mute:p.mute, solo:p.solo, cuts:p.cuts, fx:p.fx, notes:p.notes.map(m=>[+m.t.toFixed(4),+m.d.toFixed(4),m.n,m.v])}))}));
+    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts, dfx:t.dfx, dname:t.dname, dcolor:t.dcolor,
+    parts:(t.parts||[]).map(p=>({id:p.id, inst:p.inst, vol:p.vol, mute:p.mute, solo:p.solo, cuts:p.cuts, fx:p.fx, name:p.name, color:p.color, notes:p.notes.map(m=>[+m.t.toFixed(4),+m.d.toFixed(4),m.n,m.v])}))}));
   try{ localStorage.setItem('tracks1',JSON.stringify(data)); return true; }catch(e){ return false; }
 }
 function trackFolder(t){ return t.style ? STYLE_NAME[t.style] : t.demo ? STYLE_NAME.rock : 'Мои дорожки'; }
@@ -2071,7 +2083,7 @@ function moveClip(s, toRow, dt){
 
 function headHTML(row, cat, nm, lvl, m, so, r){
   const vol=Math.round(lvl*100);
-  return `<div class="st-row" data-row="${row}" style="--c:${CATS[cat].c}"><div class="st-head" data-head="${row}">
+  return `<div class="st-row" data-row="${row}" style="--c:${rowColor(row)}"><div class="st-head" data-head="${row}">
     <span class="st-tile"><svg viewBox="0 0 24 24">${ICONS[cat]}</svg></span>
     <button class="st-name" data-pick="${row}"><span class="nm">${nm}</span><span class="cat">${CATS[cat].one||CATS[cat].name} <span class="vl">${vol}%</span></span></button>
     <div class="knob st-knob" data-knob="${row}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${vol}" style="--a:${lvl}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
@@ -2082,8 +2094,8 @@ function renderStudio(){
   if($('studio').hidden) return;
   const t=track(), parts=t.parts||[], D=duration(), bars=Math.max(1,Math.round(D/barSec()));
   $('stInfo').textContent=t.bpm+' BPM · '+bars+' т.';
-  let h=headHTML(-1,'drums',kit.name+' · '+(t.def?t.def.n:t.name), t.dvol??1, t.dmute, t.dsolo, st.armed===-1);
-  parts.forEach((p,i)=>{ const d=INST[p.inst]; h+=headHTML(i,d.cat,d.name,p.vol,p.mute,p.solo,st.armed===i); });
+  let h=headHTML(-1,'drums',t.dname||(kit.name+' · '+(t.def?t.def.n:t.name)), t.dvol??1, t.dmute, t.dsolo, st.armed===-1);
+  parts.forEach((p,i)=>{ const d=INST[p.inst]; h+=headHTML(i,d.cat,p.name||d.name,p.vol,p.mute,p.solo,st.armed===i); });
   (t.audio||[]).forEach((c,i)=>{ h+=aHeadHTML(i,c); });
   h+='<div class="st-adds">'+(micRec?`<button class="st-add st-mic" data-addmic="1" style="--c:#FF5A4E"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg><span>Остановить запись</span></button>`:'')+`<button class="st-add st-addone" data-addmenu="1" style="--c:var(--brass)"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg><span>Добавить инструмент</span></button>`+'</div>';
   $('stRows').innerHTML=h;
@@ -2106,7 +2118,7 @@ function drawLanes(){
     const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.beginPath(); c.moveTo(px-6,0); c.lineTo(px+6,0); c.lineTo(px+6,5); c.lineTo(px,11); c.lineTo(px-6,5); c.fill(); c.fillRect(px-1,0,2,h);
     $('stTimeOut').textContent=fmt(Math.min(pos(),D))+' / '+fmt(D); $('stLcdPos').textContent=lcdPos(Math.min(pos(),D)); }
   document.querySelectorAll('#stRows .st-lane').forEach(el=>{
-    const row=+el.dataset.lane, [c,w,h]=fit(el.querySelector('canvas')), cc=row<0?CATS.drums.c:CATS[INST[t.parts[row].inst].cat].c;
+    const row=+el.dataset.lane, [c,w,h]=fit(el.querySelector('canvas')), cc=rowColor(row);
     const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
     c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
     const s=st.sel, drag=st.drag&&st.drag.moving?st.drag:null;
@@ -2115,7 +2127,7 @@ function drawLanes(){
     const dim = row<0 ? drumLevel()===0 : partLevel(t.parts[row])===0, fade=dim?0.45:1;
     const ti = h>46 ? 15 : 3, bi = 3;   // region name strip on top, inset at the bottom
     // regions: every clip between cuts that holds notes, as a rounded block in the instrument colour
-    const all=rowNotes(t,row), cs=[0,...rowCuts(t,row).filter(x=>x>0&&x<D).sort((a,b)=>a-b),D], label=row<0?kit.name:INST[t.parts[row].inst].name;
+    const all=rowNotes(t,row), cs=[0,...rowCuts(t,row).filter(x=>x>0&&x<D).sort((a,b)=>a-b),D], label=row<0?(t.dname||kit.name):(t.parts[row].name||INST[t.parts[row].inst].name);
     for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-3&&m.t<b-1e-3)) continue; if(mv && a>=mv.a-1e-3 && b<=mv.b+1e-6) continue;
       const f=fitClip(row,a,b), x=X(f.a,w)+1, rw=W(f.b-f.a,w)-2; if(x+rw<0||x>w||rw<1) continue;
       c.fillStyle=cc; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
@@ -2153,13 +2165,13 @@ function drawLanes(){
     c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
     const ti=h>46?15:3, fade=aLevel(a)===0?0.45:1, n=a.peaks.length;
     a.clips.forEach((k,j)=>{ const L=kLen(k), x=X(k.t,w)+1, rw=W(L,w)-2; if(rw<1 || x+rw<0 || x>w) return;
-      c.fillStyle=AUDIO_C; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
+      const AC=a.color||AUDIO_C; c.fillStyle=AC; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
       if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
         if(rw>34){ c.save(); c.beginPath(); c.rect(x+4,1,rw-8,ti); c.clip(); c.globalAlpha=1; c.fillStyle='rgba(6,12,24,.85)'; c.font='700 10px '+col('--body'); c.fillText(a.name,x+6,ti-3); c.restore(); } }
       const top=ti+3, mid=(top+h-3)/2, amp=(h-3-top)/2;
-      c.fillStyle=AUDIO_C; c.globalAlpha=fade;
+      c.fillStyle=AC; c.globalAlpha=fade;
       for(let px=Math.max(0,Math.ceil(x)); px<Math.min(w,x+rw); px++){ const tt=k.off+(px-x)/rw*L, v=a.peaks[Math.max(0,Math.min(n-1,Math.floor(tt/a.buf.duration*n)))]; const hh=Math.max(1,v*amp*2); c.fillRect(px,mid-hh/2,1,hh); }
-      c.globalAlpha=fade; c.strokeStyle=AUDIO_C; c.lineWidth=1; rr(x+.5,1.5,rw-1,h-3,6); c.stroke(); c.globalAlpha=1;
+      c.globalAlpha=fade; c.strokeStyle=AC; c.lineWidth=1; rr(x+.5,1.5,rw-1,h-3,6); c.stroke(); c.globalAlpha=1;
       if(st.asel && st.asel.i===i && st.asel.k===j){ c.strokeStyle=col('--ph'); c.lineWidth=2; rr(x+1,2,rw-2,h-4,5); c.stroke(); c.lineWidth=1;
         c.fillStyle=col('--ph'); [x+3,x+rw-6].forEach(hx=>{ rr(hx,h/2-9,3,18,1.5); c.fill(); }); }
     });
@@ -2218,7 +2230,7 @@ document.addEventListener('contextmenu',e=>{ if(!e.target.closest('input,textare
 let actRow=null;
 function openInstActions(row){
   actRow=row; const t=track();
-  $('actTitle').textContent = row<0 ? 'Барабаны' : INST[t.parts[row].inst].name;
+  $('actTitle').textContent = row<0 ? (t.dname||'Барабаны') : (t.parts[row].name||INST[t.parts[row].inst].name);
   $('actDel').hidden = row<0; $('actDel').textContent='Удалить инструмент'; $('actDel').classList.remove('arm');
   $('actRepl').textContent = row<0 ? 'Заменить набор ударных…' : 'Заменить инструмент…';
   sheet('actSheet',true);
@@ -2280,9 +2292,10 @@ function trimClip(d){ const s=d.s, na=d.trim==='l'&&d.na!=null?d.na:s.a, nb=d.tr
 const CLIP_ACTS=[['edit','Редактировать ноты'],['cut','Разрезать по курсору'],['copy','Копировать'],['paste','Вставить в курсор'],['del','Удалить кусок'],['wav','Добавить WAV / MP3'],['midi','Загрузить MIDI в эту дорожку']];
 let clipFor=null;
 function openClipMenu(row){ const t=track(), s=st.sel&&st.sel.row===row?st.sel:null; clipFor={row}; aMenu=null;
-  $('clipTitle').textContent=row<0?'Барабаны · '+kit.name:INST[t.parts[row].inst].name;
+  $('clipTitle').textContent=row<0?(t.dname||'Барабаны · '+kit.name):(t.parts[row].name||INST[t.parts[row].inst].name);
   $('clipInfo').textContent=s?'Кусок: '+lcdPos(s.a)+' – '+lcdPos(Math.max(s.a,s.b-1e-3)):'';
   $('clipActs').innerHTML=CLIP_ACTS.map(([k,n])=>`<button class="snd${k==='del'?' danger':''}" data-act="${k}">${n}</button>`).join('')
+    +`<button class="snd" data-act="ren">Переименовать</button><button class="snd" data-act="col">Цвет</button>`
     +`<button class="snd danger" data-act="trk">${row<0?'Очистить всю дорожку ударных':'Удалить дорожку'}</button>`;
   sheet('clipSheet',true); }
 $('stRows').addEventListener('touchstart',e=>{
@@ -2571,7 +2584,7 @@ function aPeaks(buf){
 }
 function aFitBars(t){ let end=0; (t.audio||[]).forEach(a=>a.clips.forEach(k=>{ end=Math.max(end,k.t+k.len); })); const need=Math.ceil(end/barSec()-1e-6), have=Math.round(duration()/barSec()); if(need>have) t.bars=Math.min(999,need); }
 function aHeadHTML(i,a){
-  return `<div class="st-row st-arow" style="--c:${AUDIO_C}"><div class="st-head st-ahead" data-ahead="${i}">
+  return `<div class="st-row st-arow" style="--c:${a.color||AUDIO_C}"><div class="st-head st-ahead" data-ahead="${i}">
     <span class="st-tile"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg></span>
     <span class="st-aname"><span class="nm">${escH(a.name)}</span><span class="cat">Аудио <span class="vl">${fmt(a.buf.duration)}</span></span></span>
     <div class="knob st-knob" data-aknob="${i}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="150" aria-valuenow="${Math.round(a.vol*100)}" style="--a:${a.vol/1.5}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
@@ -2627,8 +2640,8 @@ let aMenu=null;
 function openAudioMenu(i,k){ const a=aClips()[i]; if(!a) return; aMenu={i,k};
   $('clipTitle').textContent='Аудио · '+a.name; const c=a.clips[k];
   $('clipInfo').textContent=c?'Кусок: '+lcdPos(c.t)+', длина '+fmt(c.len):'';
-  const acts = c ? [['asplit','Разрезать по курсору'],['adup','Повторить кусок следом'],['adel','Удалить кусок'],['wav','Добавить WAV / MP3'],['midi','Добавить MIDI-файл'],['atrack','Удалить всю аудиодорожку']]
-                 : [['wav','Добавить WAV / MP3'],['midi','Добавить MIDI-файл'],['atrack','Удалить всю аудиодорожку']];
+  const acts = c ? [['asplit','Разрезать по курсору'],['adup','Повторить кусок следом'],['adel','Удалить кусок'],['wav','Добавить WAV / MP3'],['midi','Добавить MIDI-файл'],['aren','Переименовать'],['acol','Цвет'],['atrack','Удалить всю аудиодорожку']]
+                 : [['wav','Добавить WAV / MP3'],['midi','Добавить MIDI-файл'],['aren','Переименовать'],['acol','Цвет'],['atrack','Удалить всю аудиодорожку']];
   $('clipActs').innerHTML=acts.map(([k,n])=>`<button class="snd${/del|track/.test(k)?' danger':''}" data-act="${k}">${n}</button>`).join('');
   clipFor=null; sheet('clipSheet',true); }
 $('clipClose').addEventListener('click',()=>sheet('clipSheet',false));
@@ -2636,6 +2649,8 @@ $('clipActs').addEventListener('click',e=>{ const b=e.target.closest('[data-act]
   if(act==='trk' && !b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='Точно? Нажмите ещё раз'; return; }
   sheet('clipSheet',false);
   if(act==='trk' && clipFor){ delRow(clipFor.row); return; }
+  if((act==='ren'||act==='col') && clipFor){ openLook(clipFor.row<0?'d':'p'+clipFor.row, act==='ren'); return; }
+  if((act==='aren'||act==='acol') && aMenu){ openLook('a'+aMenu.i, act==='aren'); return; }
   if(act==='wav'){ $('stWav').click(); return; }
   if(act==='midi'){ stFileRow = clipFor ? clipFor.row : null; $('stFile').click(); return; }
   if(clipFor){ const row=clipFor.row;
@@ -2693,13 +2708,13 @@ const IDB=(()=>{ let dbp=null;
   return { get:k=>run('readonly',s=>s.get(k)), set:(k,v)=>run('readwrite',s=>s.put(v,k)), del:k=>run('readwrite',s=>s.delete(k)) }; })();
 const newId = p => p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function aSaveMeta(t){ if(!t || t.demo) return; if(!t.aid){ t.aid=newId('t'); saveLibrary(); }
-  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, lat:a.lat, fx:a.fx, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
+  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, lat:a.lat, fx:a.fx, color:a.color, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
 async function aStoreFile(bytes){ const fid=newId('f'); try{ await IDB.set('f:'+fid, bytes); }catch(e){ toast('Не удалось сохранить аудио в память телефона: оно останется до закрытия'); } return fid; }
 async function aLoadTrack(t){ if(!t || !t.aid || t._aLoaded) return; t._aLoaded=true;
   let meta; try{ meta=await IDB.get('t:'+t.aid); }catch(e){ return; } if(!meta || !meta.length) return;
   initAudio(); const out=[];
   for(const m of meta){ try{ const bytes=await IDB.get('f:'+m.fid); if(!bytes) continue; const buf=await new Promise((res,rej)=>ctx.decodeAudioData(bytes.slice(0),res,rej));
-    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, lat:m.lat, fx:m.fx, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
+    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, lat:m.lat, fx:m.fx, color:m.color, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
   t.audio=out; if(t===track()){ renderStudio(); aRestart(); } }
 
 /* ---------- WAV encoding ---------- */
@@ -2780,7 +2795,7 @@ async function micStop(){ const m=micRec; if(!m) return; micRec=null; document.b
 
 /* ---------- projects screen: opens first, «Новый проект» and the saved projects ---------- */
 function projList(){ return tracks.map((t,i)=>({t,i})).filter(x=>!x.t.demo); }
-function projThumb(t){ const rows=[CATS.drums.c, ...(t.parts||[]).map(p=>CATS[INST[p.inst].cat].c)]; if(t.aid || (t.audio&&t.audio.length)) rows.push(AUDIO_C);
+function projThumb(t){ const rows=[t.dcolor||CATS.drums.c, ...(t.parts||[]).map(p=>p.color||CATS[INST[p.inst].cat].c)]; if(t.aid || (t.audio&&t.audio.length)) rows.push(AUDIO_C);
   return rows.slice(0,5).map((c,j)=>`<span style="--c:${c};--w:${45+((j*37+t.name.length*13)%50)}%;--l:${(j*17)%30}%"></span>`).join(''); }
 function renderProjects(){
   const ps=projList().reverse();
@@ -2817,7 +2832,7 @@ function setOctBase(r){ const t=track(); return st.oct[r] ?? (r<0?36:Math.floor(
 function renderSetSheet(){
   const r=setRow, t=track(), p=r<0?null:t.parts[r]; if(r===null || (r>=0 && !p)){ sheet('setSheet',false); return; }
   const cat=r<0?'drums':INST[p.inst].cat, vol=r<0?(t.dvol??1):p.vol, m=r<0?t.dmute:p.mute, so=r<0?t.dsolo:p.solo;
-  $('setTitle').textContent = r<0 ? 'Барабаны' : INST[p.inst].name;
+  $('setTitle').textContent = r<0 ? (t.dname||'Барабаны') : (p.name||INST[p.inst].name);
   $('setSub').textContent = r<0 ? 'Набор: '+kit.name : CATS[cat].one+' · '+INST[p.inst].d;
   $('setVol').value=Math.round(vol*100); $('setVolOut').textContent=Math.round(vol*100)+'%';
   const o=setOctBase(r); $('setOct').textContent = r<0 ? '' : 'C'+(Math.floor(o/12)-1); $('setOctRow').hidden = r<0;
@@ -2826,7 +2841,7 @@ function renderSetSheet(){
     edit:'<path d="M4 17.2V20h2.8l8.3-8.3-2.8-2.8zM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.3 1.3 2.8 2.8z"/>', eq:'<path d="M4 20V10h3v10zm6.5 0V4h3v16zM17 20v-7h3v7z"/>',
     midi:'<path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5zM15 12v5.3a2.3 2.3 0 1 1-1.5-2.2V12z"/>', m:'<path d="M3 9v6h4l5 5V4L7 9zm13.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/>',
     s:'<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 4a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/>', del:'<path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"/>', kb:'<path d="M2 6h20v12H2zm2 2v8h2v-3h1V8zm4 0v5h1v3h2v-3h1V8zm5 0v5h1v3h2v-3h1V8zm5 0v5h1v3h1V8z"/>'};
-  let h = B('snd',IC.snd, r<0?'Набор':'Звук') + B('m',IC.m,'Заглушить',m) + B('s',IC.s,'Соло',so);
+  let h = B('snd',IC.snd, r<0?'Набор':'Звук') + B('m',IC.m,'Заглушить',m) + B('s',IC.s,'Соло',so) + B('ren',IC.edit,'Имя') + B('col','<circle cx="12" cy="12" r="8"/>','Цвет');
   if(r<0) h += B('mix',IC.mix,'Миксер') + B('edit',IC.edit,'Редактор') + B('eq',IC.eq,'Эквалайзер') + B('kb',IC.kb,'Пэды') + B('midi',IC.midi,'MIDI-файл');
   else h += B('edit',IC.edit,'Пианоролл') + B('kb',IC.kb,'Клавиатура') + B('midi',IC.midi,'MIDI-файл') + B('del',IC.del,'Удалить');
   $('setGrid').innerHTML=h;
@@ -2845,6 +2860,7 @@ $('setGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-set]'
   if(k==='del'){ if(!b.classList.contains('arm')){ b.classList.add('arm'); b.querySelector('span').textContent='Точно?'; return; }
     const tt=ownTrack(); tt.parts.splice(r,1); if(st.armed===r) st.armed=null; else if(st.armed>r) st.armed--; st.sel=null; st.focus=null; sheet('setSheet',false); studioChanged(); toast('Инструмент удалён'); return; }
   sheet('setSheet',false);
+  if(k==='ren'||k==='col'){ openLook(r<0?'d':'p'+r, k==='ren'); return; }
   if(k==='snd'){ if(r<0) openKitSheet(); else openInstSheet(INST[p.inst].cat, r); }
   else if(k==='mix'){ $('mixOpen').click(); }
   else if(k==='eq'){ $('eqOpen').click(); }
@@ -2963,9 +2979,9 @@ function applyStrips(){
 
 /* ---------- track mixer: a strip per track with FX, pan knob, volume fader, mute and solo ---------- */
 function mixTracks(){
-  const t=track(), out=[{key:'d', name:'Барабаны', c:CATS.drums.c}];
-  (t.parts||[]).forEach((p,i)=>out.push({key:'p'+i, name:INST[p.inst].name, c:CATS[INST[p.inst].cat].c}));
-  (t.audio||[]).forEach((a,i)=>out.push({key:'a'+i, name:a.name, c:AUDIO_C}));
+  const t=track(), out=[{key:'d', name:t.dname||'Барабаны', c:rowColor(-1)}];
+  (t.parts||[]).forEach((p,i)=>out.push({key:'p'+i, name:p.name||INST[p.inst].name, c:rowColor(i)}));
+  (t.audio||[]).forEach((a,i)=>out.push({key:'a'+i, name:a.name, c:a.color||AUDIO_C}));
   return out; }
 function tObj(key){ const t=ownTrack(), i=+key.slice(1);
   if(key==='d') return {fx:()=>t.dfx||(t.dfx={...FX_DEF}), vol:()=>t.dvol??1, setVol:v=>t.dvol=v, max:1, m:()=>!!t.dmute, s:()=>!!t.dsolo, tm:()=>t.dmute=!t.dmute, ts:()=>t.dsolo=!t.dsolo};
@@ -3043,6 +3059,28 @@ function showChords(force){ const p=pos(); let i=-1; for(let lo=0,hi=chordList.l
   if(i===chIdx && !force) return; chIdx=i;
   const nm=j=>chordList[j] ? chordList[j].name : '—', cur = i<0 ? (chordList.length?'·':'—') : nm(i), next = i<0 ? nm(0) : nm(i+1);
   ['stChords','stChords2'].forEach(id=>{ const el=$(id); if(!el) return; el.children[0].textContent=i>0?nm(i-1):'—'; el.children[1].textContent=cur; el.children[2].textContent=next; }); }
+
+/* ---------- rename a track and give it a colour ---------- */
+const LOOK_COLS=['#EBC03F','#F7A51C','#F0704E','#E5484D','#E85D9E','#B98CFF','#7C6CF2','#4A9DFF','#3DB7D9','#2EC4A6','#4FC26B','#9BC53D'];
+function rowColor(row){ const t=track(); if(row<0) return t.dcolor||CATS.drums.c; const p=(t.parts||[])[row]; return p ? (p.color||CATS[INST[p.inst].cat].c) : '#888'; }
+let lookKey=null;
+function lookObj(key){ const t=ownTrack(), i=+key.slice(1);
+  if(key==='d') return {name:()=>t.dname||'', def:'Барабаны', setName:v=>t.dname=v||undefined, col:()=>t.dcolor||CATS.drums.c, setCol:v=>t.dcolor=v};
+  if(key[0]==='p'){ const p=t.parts[i]; if(!p) return null; return {name:()=>p.name||'', def:INST[p.inst].name, setName:v=>p.name=v||undefined, col:()=>p.color||CATS[INST[p.inst].cat].c, setCol:v=>p.color=v}; }
+  const a=(t.audio||[])[i]; if(!a) return null; return {name:()=>a.name, def:'Аудио', setName:v=>a.name=v||'Аудио', col:()=>a.color||AUDIO_C, setCol:v=>a.color=v}; }
+function openLook(key, focusName){ const o=lookObj(key); if(!o) return; lookKey=key;
+  $('lookName').value=o.name(); $('lookName').placeholder=o.def;
+  $('lookCols').innerHTML=LOOK_COLS.map(c=>`<button style="--c:${c}" data-col="${c}" aria-label="Цвет ${c}" aria-pressed="${c.toLowerCase()===o.col().toLowerCase()}"></button>`).join('');
+  sheet('lookSheet',true); if(focusName) setTimeout(()=>{ $('lookName').focus(); $('lookName').select(); },60); }
+function lookSaved(){ const t=track(); if(!t.demo){ saveLibrary(); if(t.audio&&t.audio.length) aSaveMeta(t); } renderStudio(); }
+$('lookCols').addEventListener('click',e=>{ const b=e.target.closest('[data-col]'); if(!b) return; const o=lookObj(lookKey); if(!o) return; o.setCol(b.dataset.col);
+  document.querySelectorAll('#lookCols button').forEach(x=>x.setAttribute('aria-pressed',x===b)); lookSaved(); });
+$('lookName').addEventListener('input',()=>{ const o=lookObj(lookKey); if(o){ o.setName($('lookName').value.trim()); } });
+$('lookName').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('lookOk').click(); } });
+$('lookOk').addEventListener('click',()=>{ sheet('lookSheet',false); lookSaved(); });
+$('lookReset').addEventListener('click',()=>{ const o=lookObj(lookKey); if(!o) return; o.setName(''); o.setCol(undefined); if(lookKey[0]==='a'){ const a=track().audio[+lookKey.slice(1)]; delete a.color; } openLook(lookKey); lookSaved(); });
+$('actName').addEventListener('click',()=>{ sheet('actSheet',false); openLook(actRow<0?'d':'p'+actRow, true); });
+$('actColor').addEventListener('click',()=>{ sheet('actSheet',false); openLook(actRow<0?'d':'p'+actRow, false); });
 
 /* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
 const DEMO_SONGS = [
