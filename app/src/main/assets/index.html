@@ -492,12 +492,29 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 #mixer .ms{align-items:center;width:100%}
 #mixer .strip.master{position:static}
 @media (orientation:landscape) and (max-height:560px){ #mixer .fwrap,#mixer input.fader{height:clamp(90px,calc(100dvh - 230px),200px)} #mixer .ms{flex-direction:row;justify-content:center} }
+/* track mixer and FX */
+.tstrips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x proximity}
+.tstrip{flex:1 0 70px;max-width:96px;display:flex;flex-direction:column;align-items:center;gap:6px;background:#29292e;border-radius:10px;padding:8px 4px;border-top:3px solid var(--c);scroll-snap-align:start;min-width:0}
+.tnm{font-size:10.5px;line-height:1.15;text-align:center;height:2.3em;overflow:hidden;width:100%;overflow-wrap:anywhere;color:var(--fg)}
+.tfx{width:100%;max-width:56px;height:26px;border-radius:7px;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-weight:800;font-size:11px;letter-spacing:.06em}
+.tfx.on{color:#111;background:var(--brass);border-color:var(--brass)}
+.tpan{width:34px;height:34px}.tpan .knob-cap{width:26px;height:26px}
+.tpv,.tlv{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tfw{height:clamp(120px,calc(100dvh - 470px),300px);display:flex;justify-content:center;width:100%}
+.tfd{height:clamp(120px,calc(100dvh - 470px),300px);width:30px}
+.tms{display:flex;gap:4px}.tms button{width:26px;height:22px;border-radius:6px;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-size:11px;font-weight:700;padding:0}
+.tms button[aria-pressed="true"]{color:#111;background:var(--brass);border-color:var(--brass)}
+.fxr span{min-width:104px;color:var(--fg)}
+.set-h{margin:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#stLoopTop[aria-pressed="true"]{color:var(--brass)}
+@media (max-width:440px){ #stHome{display:none} }
+@media (orientation:landscape) and (max-height:560px){ .tfw,.tfd{height:clamp(80px,calc(100dvh - 260px),180px)} }
 /* pads panel in the Studio */
 .st-padp .padsec{height:clamp(110px,24vh,190px);min-height:0;display:flex;align-items:center;justify-content:center;margin-top:6px}
 .st-padp .kb-head .cb.tp{width:32px;height:30px}.st-padp .kb-head .cb.tp svg{width:18px;height:18px}
 .pad-hint{font-size:10.5px;color:var(--muted)}
 @media (orientation:landscape) and (max-height:560px){ .st-padp .padsec{height:clamp(70px,28vh,130px);margin-top:3px} }
-.st-bot{grid-template-columns:repeat(4,minmax(0,1fr))}
+.st-bot{grid-template-columns:repeat(5,minmax(0,1fr))}
 .st-bot .st-kbb{justify-content:center}
 @media (max-width:440px){ .st-bot .st-kbb span{display:inline;font-size:11px} .st-bot .st-kbb svg{display:none} }
 .st-bot .st-kbb[aria-pressed="true"]{color:var(--brass);box-shadow:inset 0 0 0 1px rgba(247,165,28,.6)}
@@ -700,7 +717,7 @@ body.mic-on #stPlay{background:var(--rec)}
       <div class="cb-g tpg">
         <button class="cb" id="stHome" aria-label="В начало"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm3.5 7L18 5v14z"/></svg></button>
         <button class="cb tp" id="stPlay" aria-label="Играть"><svg viewBox="0 0 24 24" id="stPlayIcon"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="cb" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button>
+        <button class="cb" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button><button class="cb" id="stLoopTop" aria-label="Зациклить" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
       </div>
       <div class="lcd"><b id="stLcdPos">1.1</b><span class="lcd-s"><output id="stTimeOut">0:00 / 0:00</output><output id="stInfo"></output></span></div>
       <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div>
@@ -722,7 +739,7 @@ body.mic-on #stPlay{background:var(--rec)}
       <button class="ed-b st-kbb" id="stKbBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2zm2 2v8h2v-3h1V8zm4 0v5h1v3h2v-3h1V8zm5 0v5h1v3h2v-3h1V8zm5 0v5h1v3h1V8z"/></svg><span>Клавиатура</span></button>
       <button class="ed-b st-kbb" id="stPadsBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>Пэды</span></button>
       <button class="ed-b st-kbb" id="stLoopBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span>Повтор</span></button>
-      <button class="ed-b st-kbb" id="stMetroBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Метроном</span></button>
+      <button class="ed-b st-kbb" id="stMixBtn"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg><span>Микшер</span></button><button class="ed-b st-kbb" id="stMetroBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Метроном</span></button>
       <button class="ed-b" id="st_cut" hidden>Разрезать</button><button class="ed-b" id="st_copy" hidden>Копировать</button><button class="ed-b" id="st_paste" hidden>Вставить</button><button class="ed-b danger" id="st_del" hidden>Очистить</button>
     </div>
   </div>
@@ -738,6 +755,18 @@ body.mic-on #stPlay{background:var(--rec)}
       <div class="acts-list"><button class="snd" id="actRepl">Заменить инструмент…</button><button class="snd" id="actMidi">Загрузить MIDI-файл в эту дорожку</button><button class="snd danger" id="actDel">Удалить инструмент</button></div>
     </div>
   </div>
+  <div class="mixer" id="tmixSheet" role="dialog" aria-label="Микшер дорожек" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><div class="mh"><h2>Микшер</h2><small>Громкость, баланс и эффекты каждой дорожки</small></div><div class="acts"><button id="tmixClose">Готово</button></div></div>
+      <div class="tstrips" id="tmixStrips"></div>
+    </div>
+  </div>
+  <div class="mixer" id="fxSheet" role="dialog" aria-label="Эффекты дорожки" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><div class="mh"><h2 id="fxTitle">FX</h2><small>Дилей и реверберация общие, ползунок задаёт, сколько дорожки в них уходит</small></div><div class="acts"><button id="fxReset">Сбросить</button><button id="fxClose">Готово</button></div></div>
+      <div id="fxRows"></div>
+    </div>
+  </div>
   <div class="mixer" id="addSheet" role="dialog" aria-label="Добавить инструмент" hidden>
     <div class="mixer-in">
       <div class="mix-head"><h2>Добавить инструмент</h2><div class="acts"><button id="addClose">Закрыть</button></div></div>
@@ -750,6 +779,8 @@ body.mic-on #stPlay{background:var(--rec)}
       <div class="set-row"><span>Громкость</span><input type="range" id="setVol" min="0" max="100" step="1"><output id="setVolOut"></output></div>
       <div class="set-row" id="setOctRow"><span>Октава клавиатуры</span><span class="st-sp"></span><button class="ed-b" id="setOctDn" aria-label="Ниже">−</button><output id="setOct"></output><button class="ed-b" id="setOctUp" aria-label="Выше">+</button></div>
       <div class="mgrid" id="setGrid"></div>
+      <h3 class="set-h">Эффекты</h3>
+      <div id="setFx"></div>
       <button class="snd" id="setSong">Меню песни</button>
     </div>
   </div>
@@ -1087,7 +1118,7 @@ function initAudio(){
   clip.curve=(()=>{ const n=4096, c=new Float32Array(n), k=0.85; for(let i=0;i<n;i++){ const x=(i/(n-1)*2-1)*2, a=Math.abs(x); c[i]=Math.sign(x)*(a<=k ? a : k+(1-k)*Math.tanh((a-k)/(1-k))); } return c; })();
   const pre=ctx.createGain(); pre.gain.value=0.5;   // the curve covers ±2 (input is halved, curve doubles it back)
   clipOut=clip; balNode=ctx.createStereoPanner(); balNode.pan.value=bal; master.connect(balNode).connect(limiter).connect(pre).connect(clip).connect(ctx.destination);
-  buildBuses(); applyFx();
+  buildBuses(); applyFx(); drumFxInit(); applyStrips();
 }
 function buildBuses(){
   Object.values(buses).forEach(b=>b.disconnect());
@@ -1370,13 +1401,13 @@ $('chan').addEventListener('change',()=>{ const was=playing; pause(); chan=track
 function loadLibrary(){
   try{ return (JSON.parse(store.get('tracks1'))||[]).map(t=>({aid:t.aid, name:t.name, bpm:t.bpm, chan:t.chan, saved:true, bars:t.bars, uri:t.uri,
     events:t.ev.map(([t0,ch,n,v,raw])=>({t:t0,ch,n,v,raw:raw??n,cut:HAT_OPEN[raw]})),
-    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts||[],
-    parts:(t.parts||[]).filter(p=>INST_IDS.includes(p.inst)).map(p=>({id:p.id, inst:p.inst, vol:p.vol??0.8, mute:!!p.mute, solo:!!p.solo, cuts:p.cuts||[], notes:p.notes.map(([t,d,n,v])=>({t,d,n,v}))})) })); }catch(e){ return []; }
+    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts||[], dfx:t.dfx,
+    parts:(t.parts||[]).filter(p=>INST_IDS.includes(p.inst)).map(p=>({id:p.id, inst:p.inst, vol:p.vol??0.8, mute:!!p.mute, solo:!!p.solo, cuts:p.cuts||[], fx:p.fx, notes:p.notes.map(([t,d,n,v])=>({t,d,n,v}))})) })); }catch(e){ return []; }
 }
 function saveLibrary(){
   const data=tracks.filter(t=>!t.demo && t.saved).map(t=>({aid:t.aid,name:t.name,bpm:t.bpm,chan:t.chan,bars:t.bars,uri:t.uri,ev:t.events.map(e=>[+e.t.toFixed(4),e.ch,e.n,e.v,e.raw]),
-    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts,
-    parts:(t.parts||[]).map(p=>({id:p.id, inst:p.inst, vol:p.vol, mute:p.mute, solo:p.solo, cuts:p.cuts, notes:p.notes.map(m=>[+m.t.toFixed(4),+m.d.toFixed(4),m.n,m.v])}))}));
+    dvol:t.dvol, dmute:t.dmute, dsolo:t.dsolo, dcuts:t.dcuts, dfx:t.dfx,
+    parts:(t.parts||[]).map(p=>({id:p.id, inst:p.inst, vol:p.vol, mute:p.mute, solo:p.solo, cuts:p.cuts, fx:p.fx, notes:p.notes.map(m=>[+m.t.toFixed(4),+m.d.toFixed(4),m.n,m.v])}))}));
   try{ localStorage.setItem('tracks1',JSON.stringify(data)); return true; }catch(e){ return false; }
 }
 function trackFolder(t){ return t.style ? STYLE_NAME[t.style] : t.demo ? STYLE_NAME.rock : 'Мои дорожки'; }
@@ -1949,10 +1980,10 @@ function anySolo(){ const t=track(); return !!t.dsolo || (t.parts||[]).some(p=>p
 function partLevel(p){ return (p.mute || (anySolo() && !p.solo)) ? 0 : p.vol; }
 function drumLevel(){ const t=track(); return (t.dmute || (anySolo() && !t.dsolo)) ? 0 : (t.dvol??1); }
 function applyLevels(){
-  if(!ctx) return; aApply(); (track().parts||[]).forEach(p=>{ if(p._bus) p._bus.gain.setTargetAtTime(partLevel(p),ctx.currentTime,0.02); });
+  if(!ctx) return; aApply(); applyStrips(); (track().parts||[]).forEach(p=>{ if(p._bus) p._bus.gain.setTargetAtTime(partLevel(p),ctx.currentTime,0.02); });
   if(makeup) makeup.gain.setTargetAtTime(makeupBase*drumLevel(),ctx.currentTime,0.02);
 }
-function partBus(p){ if(!p._bus || p._bus.context!==ctx){ p._bus=ctx.createGain(); p._bus.connect(instOut()); } p._bus.gain.value=partLevel(p); return p._bus; }
+function partBus(p){ if(!p._bus || p._bus.context!==ctx){ p._bus=ctx.createGain(); p._bus.connect(stripFor(p,instOut()).input); applyStrip(p._fx,p.fx); } p._bus.gain.value=partLevel(p); return p._bus; }
 // one sounding note; release(at) lets it fade out
 function instVoice(p, n, v, when){
   const d=INST[p.inst], bs=instBufs[p.inst]; if(!d || !Array.isArray(bs)) return null;
@@ -2021,8 +2052,7 @@ function stAction(kind){
     removeIn(t,row,x,x+st.clip.len); insertNotes(t,row,st.clip.notes,x); addCut(t,row,x); addCut(t,row,x+st.clip.len);
     st.sel=clipAt(row,x+1e-4); seekTo(Math.min(x+st.clip.len, duration())); toast('Вставлено');
   }
-  if(kind==='del'){ removeIn(t,s.row,s.a,s.b); const cs=rowCuts(t,s.row); for(let i=cs.length-1;i>=0;i--) if(cs[i]>=s.a-1e-3 && cs[i]<=s.b+1e-3) cs.splice(i,1); st.sel=null;
-    if(s.row>=0 && t.parts[s.row] && !t.parts[s.row].notes.length){ delRow(s.row); return; } toast('Кусок удалён'); }
+  if(kind==='del'){ removeIn(t,s.row,s.a,s.b); const cs=rowCuts(t,s.row); for(let i=cs.length-1;i>=0;i--) if(cs[i]>=s.a-1e-3 && cs[i]<=s.b+1e-3) cs.splice(i,1); st.sel=null; toast('Кусок удалён'); }
   studioChanged();
 }
 // drag a selected clip sideways (by beats) and onto another instrument
@@ -2056,7 +2086,7 @@ function renderStudio(){
   h+='<div class="st-adds">'+(micRec?`<button class="st-add st-mic" data-addmic="1" style="--c:#FF5A4E"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg><span>Остановить запись</span></button>`:'')+`<button class="st-add st-addone" data-addmenu="1" style="--c:var(--brass)"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg><span>Добавить инструмент</span></button>`+'</div>';
   $('stRows').innerHTML=h;
   $('stKb').hidden=!st.kbOpen; $('stKbBtn').setAttribute('aria-pressed',st.kbOpen); if(st.kbOpen) renderKb();
-  $('stPads').hidden=!st.padsOpen; $('stPadsBtn').setAttribute('aria-pressed',!!st.padsOpen); $('stLoopBtn').setAttribute('aria-pressed',loop); if(st.padsOpen) requestAnimationFrame(fitPads);
+  $('stPads').hidden=!st.padsOpen; $('stPadsBtn').setAttribute('aria-pressed',!!st.padsOpen); $('stLoopBtn').setAttribute('aria-pressed',loop); $('stLoopTop').setAttribute('aria-pressed',loop); if(st.padsOpen) requestAnimationFrame(fitPads);
   aLoadTrack(t);
   setTimeout(drawLanes); stSnap();
 }
@@ -2523,7 +2553,7 @@ function audioStop(){ aSrcs.forEach(s=>{ try{ s.stop(); }catch(_){} }); aSrcs=[]
 // start every clip that sounds at or after song position `from`, with `from` heard at context time `at`
 function audioSchedule(at, from, to){
   if(!ctx) return; to = to ?? (loop ? loopRange()[1] : duration());
-  aClips().forEach(a=>{ if(!a._g){ a._g=ctx.createGain(); a._g.connect(audioOut()); } a._g.gain.value=aLevel(a);
+  aClips().forEach(a=>{ if(!a._g){ a._g=ctx.createGain(); a._g.connect(stripFor(a,audioOut()).input); applyStrip(a._fx,a.fx); } a._g.gain.value=aLevel(a);
     a.clips.forEach(k=>{ const L=Math.min(kLen(k), to-k.t); if(L<=0 || from>=k.t+L) return;
       const off=Math.max(0,from-k.t), when=Math.max(ctx.currentTime, at+Math.max(0,k.t-from)/speed);
       const s=ctx.createBufferSource(); s.buffer=a.buf; s.playbackRate.value=speed; s.connect(a._g);
@@ -2636,7 +2666,7 @@ function setMetro(on){ metro=on; store.set('metro',on?'1':'0'); $('metro').setAt
 $('metro').addEventListener('click',()=>setMetro(!metro));
 $('stMetroBtn').addEventListener('click',()=>setMetro(!metro));
 $('stLoopBtn').addEventListener('click',()=>$('loop').click());
-$('loop').addEventListener('click',()=>{ $('stLoopBtn').setAttribute('aria-pressed',loop); drawLanes(); });
+$('loop').addEventListener('click',()=>{ $('stLoopBtn').setAttribute('aria-pressed',loop); $('stLoopTop').setAttribute('aria-pressed',loop); drawLanes(); });
 setMetro(metro);
 
 /* ---------- pads inside the Studio ---------- */
@@ -2661,13 +2691,13 @@ const IDB=(()=>{ let dbp=null;
   return { get:k=>run('readonly',s=>s.get(k)), set:(k,v)=>run('readwrite',s=>s.put(v,k)), del:k=>run('readwrite',s=>s.delete(k)) }; })();
 const newId = p => p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function aSaveMeta(t){ if(!t || t.demo) return; if(!t.aid){ t.aid=newId('t'); saveLibrary(); }
-  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, lat:a.lat, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
+  IDB.set('t:'+t.aid, (t.audio||[]).map(a=>({name:a.name, vol:a.vol, mute:a.mute, fid:a.fid, lat:a.lat, fx:a.fx, clips:a.clips.map(k=>({...k}))}))).catch(()=>{}); }
 async function aStoreFile(bytes){ const fid=newId('f'); try{ await IDB.set('f:'+fid, bytes); }catch(e){ toast('Не удалось сохранить аудио в память телефона: оно останется до закрытия'); } return fid; }
 async function aLoadTrack(t){ if(!t || !t.aid || t._aLoaded) return; t._aLoaded=true;
   let meta; try{ meta=await IDB.get('t:'+t.aid); }catch(e){ return; } if(!meta || !meta.length) return;
   initAudio(); const out=[];
   for(const m of meta){ try{ const bytes=await IDB.get('f:'+m.fid); if(!bytes) continue; const buf=await new Promise((res,rej)=>ctx.decodeAudioData(bytes.slice(0),res,rej));
-    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, lat:m.lat, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
+    out.push({name:m.name, vol:m.vol??1, mute:!!m.mute, fid:m.fid, lat:m.lat, fx:m.fx, buf, peaks:aPeaks(buf), clips:(m.clips||[]).map(k=>({...k}))}); }catch(e){} }
   t.audio=out; if(t===track()){ renderStudio(); aRestart(); } }
 
 /* ---------- WAV encoding ---------- */
@@ -2798,6 +2828,7 @@ function renderSetSheet(){
   if(r<0) h += B('mix',IC.mix,'Миксер') + B('edit',IC.edit,'Редактор') + B('eq',IC.eq,'Эквалайзер') + B('kb',IC.kb,'Пэды') + B('midi',IC.midi,'MIDI-файл');
   else h += B('edit',IC.edit,'Пианоролл') + B('kb',IC.kb,'Клавиатура') + B('midi',IC.midi,'MIDI-файл') + B('del',IC.del,'Удалить');
   $('setGrid').innerHTML=h;
+  $('setFx').innerHTML=fxRowsHTML(r<0?'d':'p'+r);
 }
 function openSetSheet(r){ setRow=r; renderSetSheet(); sheet('setSheet',true); }
 $('setClose').addEventListener('click',()=>sheet('setSheet',false));
@@ -2887,6 +2918,106 @@ $('addGrid').addEventListener('click',e=>{ const b=e.target.closest('.mbtn'); if
   else if(b.dataset.addmic) micStart();
   else if(b.dataset.addwav) $('stWav').click();
   else if(b.dataset.addfile){ stFileRow=null; $('stFile').click(); } });
+
+/* ---------- per-track effects: compressor, chorus, pan, sends to a shared delay and reverb ---------- */
+const FX_DEF={c:0, h:0, d:0, r:0, pan:0};
+const FX_NAMES=[['c','Компрессор'],['h','Хорус'],['d','Дилей'],['r','Реверберация']];
+let fxDelay=null, fxDelayFb=null, fxRev=null, drumStrip=null;
+function fxBuses(){
+  if(fxDelay && fxDelay.context===ctx) return;
+  const out=eqBands[0]||master;
+  fxDelay=ctx.createDelay(2); fxDelayFb=ctx.createGain(); fxDelayFb.gain.value=0.35;
+  const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=3200;
+  fxDelay.connect(lp).connect(fxDelayFb).connect(fxDelay); lp.connect(out);
+  fxRev=ctx.createConvolver(); fxRev.buffer=impulse(2.4); const rg=ctx.createGain(); rg.gain.value=0.9; fxRev.connect(rg).connect(out);
+}
+function makeStrip(dest){
+  fxBuses();
+  const s={input:ctx.createGain(), comp:ctx.createDynamicsCompressor(), mk:ctx.createGain(), dry:ctx.createGain(), wet:ctx.createGain(), cd:ctx.createDelay(0.05),
+    lfo:ctx.createOscillator(), depth:ctx.createGain(), pan:ctx.createStereoPanner(), dS:ctx.createGain(), rS:ctx.createGain()};
+  s.comp.attack.value=0.005; s.comp.release.value=0.15; s.comp.knee.value=8;
+  s.input.connect(s.comp).connect(s.mk);
+  s.mk.connect(s.dry).connect(s.pan); s.mk.connect(s.cd).connect(s.wet).connect(s.pan);
+  s.cd.delayTime.value=0.018; s.lfo.frequency.value=0.8; s.depth.gain.value=0.004; s.lfo.connect(s.depth).connect(s.cd.delayTime); s.lfo.start();
+  s.pan.connect(dest); s.pan.connect(s.dS).connect(fxDelay); s.pan.connect(s.rS).connect(fxRev);
+  return s;
+}
+function applyStrip(s, fx){
+  if(!s) return; fx={...FX_DEF, ...(fx||{})}; const now=ctx.currentTime, T=(p,v)=>p.setTargetAtTime(v,now,0.03);
+  T(s.comp.threshold.value!==undefined?s.comp.threshold:s.comp.threshold, -fx.c*32); T(s.comp.ratio, 1+fx.c*7); T(s.mk.gain, 1+fx.c*0.9);
+  T(s.wet.gain, fx.h*0.7); T(s.dry.gain, 1-fx.h*0.25);
+  T(s.pan.pan, Math.max(-1,Math.min(1,fx.pan)));
+  T(s.dS.gain, fx.d*0.6); T(s.rS.gain, fx.r*0.8);
+}
+function stripFor(o, dest){ if(!o._fx || o._fx.input.context!==ctx) o._fx=makeStrip(dest); return o._fx; }
+function drumFxInit(){ if(!ctx || !makeup || drumStrip) return; drumStrip=makeStrip(eqBands[0]||master); try{ makeup.disconnect(); }catch(_){} makeup.connect(drumStrip.input); }
+function applyStrips(){
+  if(!ctx) return; drumFxInit(); const t=track();
+  if(fxDelay) fxDelay.delayTime.setTargetAtTime(Math.min(1.5, 0.75*60/(t.bpm||120)), ctx.currentTime, 0.05);
+  applyStrip(drumStrip, t.dfx);
+  (t.parts||[]).forEach(p=>{ if(p._fx) applyStrip(p._fx, p.fx); });
+  (t.audio||[]).forEach(a=>{ if(a._fx) applyStrip(a._fx, a.fx); });
+}
+
+/* ---------- track mixer: a strip per track with FX, pan knob, volume fader, mute and solo ---------- */
+function mixTracks(){
+  const t=track(), out=[{key:'d', name:'Барабаны', c:CATS.drums.c}];
+  (t.parts||[]).forEach((p,i)=>out.push({key:'p'+i, name:INST[p.inst].name, c:CATS[INST[p.inst].cat].c}));
+  (t.audio||[]).forEach((a,i)=>out.push({key:'a'+i, name:a.name, c:AUDIO_C}));
+  return out; }
+function tObj(key){ const t=ownTrack(), i=+key.slice(1);
+  if(key==='d') return {fx:()=>t.dfx||(t.dfx={...FX_DEF}), vol:()=>t.dvol??1, setVol:v=>t.dvol=v, max:1, m:()=>!!t.dmute, s:()=>!!t.dsolo, tm:()=>t.dmute=!t.dmute, ts:()=>t.dsolo=!t.dsolo};
+  if(key[0]==='p'){ const p=t.parts[i]; if(!p) return null; return {fx:()=>p.fx||(p.fx={...FX_DEF}), vol:()=>p.vol, setVol:v=>p.vol=v, max:1, m:()=>!!p.mute, s:()=>!!p.solo, tm:()=>p.mute=!p.mute, ts:()=>p.solo=!p.solo}; }
+  const a=(t.audio||[])[i]; if(!a) return null; return {fx:()=>a.fx||(a.fx={...FX_DEF}), vol:()=>a.vol, setVol:v=>a.vol=v, max:1.5, m:()=>!!a.mute, s:null, tm:()=>a.mute=!a.mute, ts:null, audio:true};
+}
+function fxSaved(){ const t=track(); if(!t.demo){ saveLibrary(); if(t.audio&&t.audio.length) aSaveMeta(t); } }
+function renderTMix(){
+  const rows=mixTracks();
+  $('tmixStrips').innerHTML=rows.map(r=>{ const o=tObj(r.key), fx=o.fx(), v=o.vol(), pa=(fx.pan+1)/2, on=FX_NAMES.some(([k])=>fx[k]>0.001);
+    return `<div class="tstrip" data-k="${r.key}" style="--c:${r.c}">
+      <b class="tnm">${escH(r.name)}</b>
+      <button class="tfx${on?' on':''}" data-fx="${r.key}">FX</button>
+      <div class="knob tpan" data-pk="${r.key}" role="slider" aria-label="Баланс" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="${Math.round(fx.pan*100)}" style="--a:${pa}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
+      <span class="tpv">${panTxt(fx.pan)}</span>
+      <div class="tfw"><input class="fader tfd" type="range" min="0" max="${Math.round(o.max*100)}" value="${Math.round(v*100)}" data-vk="${r.key}" aria-label="Громкость"></div>
+      <span class="tlv">${Math.round(v*100)}%</span>
+      <div class="tms"><button data-tm="${r.key}" aria-pressed="${o.m()}">M</button>${o.s?`<button data-ts="${r.key}" aria-pressed="${o.s()}">S</button>`:''}</div>
+    </div>`; }).join('');
+}
+const panTxt=p=>Math.abs(p)<0.02?'Ц':(p<0?'Л ':'П ')+Math.round(Math.abs(p)*100);
+function openTMix(){ initAudio(); renderTMix(); sheet('tmixSheet',true); }
+$('stMixBtn').addEventListener('click',openTMix);
+$('tmixClose').addEventListener('click',()=>sheet('tmixSheet',false));
+$('tmixStrips').addEventListener('input',e=>{ const f=e.target.closest('[data-vk]'); if(!f) return; const o=tObj(f.dataset.vk); if(!o) return; const v=+f.value/100; o.setVol(v);
+  f.closest('.tstrip').querySelector('.tlv').textContent=Math.round(v*100)+'%'; applyLevels(); });
+$('tmixStrips').addEventListener('change',e=>{ if(e.target.closest('[data-vk]')){ fxSaved(); renderStudio(); } });
+$('tmixStrips').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.fx){ openFx(b.dataset.fx); return; }
+  const k=b.dataset.tm||b.dataset.ts; if(!k) return; const o=tObj(k); if(!o) return; if(b.dataset.tm) o.tm(); else o.ts();
+  applyLevels(); fxSaved(); renderStudio(); renderTMix(); });
+// pan knobs: drag up or down, double tap for centre
+(()=>{ let k=null;
+  $('tmixStrips').addEventListener('pointerdown',e=>{ const el=e.target.closest('[data-pk]'); if(!el) return; e.preventDefault(); const o=tObj(el.dataset.pk); if(!o) return;
+    const now=Date.now(); if(k && k.el===el && now-k.at<300){ o.fx().pan=0; setPanEl(el,0); applyStrips(); fxSaved(); k=null; return; }
+    k={el, o, y:e.clientY, p0:o.fx().pan, at:now}; el.setPointerCapture(e.pointerId); });
+  $('tmixStrips').addEventListener('pointermove',e=>{ if(!k || !k.el.hasPointerCapture(e.pointerId)) return; const p=Math.max(-1,Math.min(1,k.p0+(k.y-e.clientY)/90)); k.o.fx().pan=Math.round(p*50)/50; setPanEl(k.el,k.o.fx().pan); applyStrips(); });
+  $('tmixStrips').addEventListener('pointerup',()=>{ if(k) fxSaved(); });
+})();
+function setPanEl(el,p){ el.style.setProperty('--a',(p+1)/2); el.setAttribute('aria-valuenow',Math.round(p*100)); const v=el.parentNode.querySelector('.tpv'); if(v) v.textContent=panTxt(p); }
+
+/* ---------- FX sheet: one track's compressor, chorus, delay, reverb and pan ---------- */
+let fxKey=null;
+function fxRowsHTML(key){ const o=tObj(key); if(!o) return ''; const fx=o.fx();
+  return FX_NAMES.map(([k,n])=>`<div class="set-row fxr"><span>${n}</span><input type="range" min="0" max="100" value="${Math.round(fx[k]*100)}" data-fxk="${k}" data-fxt="${key}"><output>${Math.round(fx[k]*100)}%</output></div>`).join('')
+    + `<div class="set-row fxr"><span>Баланс</span><input type="range" min="-100" max="100" value="${Math.round(fx.pan*100)}" data-fxk="pan" data-fxt="${key}"><output>${panTxt(fx.pan)}</output></div>`; }
+function openFx(key){ fxKey=key; const r=mixTracks().find(x=>x.key===key); $('fxTitle').textContent='FX · '+(r?r.name:''); $('fxRows').innerHTML=fxRowsHTML(key); sheet('tmixSheet',false); sheet('fxSheet',true); }
+$('fxClose').addEventListener('click',()=>{ sheet('fxSheet',false); openTMix(); });
+$('fxReset').addEventListener('click',()=>{ const o=tObj(fxKey); if(!o) return; Object.assign(o.fx(),FX_DEF); applyStrips(); fxSaved(); $('fxRows').innerHTML=fxRowsHTML(fxKey); });
+document.addEventListener('input',e=>{ const f=e.target.closest('[data-fxk]'); if(!f) return; const o=tObj(f.dataset.fxt); if(!o) return; const k=f.dataset.fxk, v=+f.value/100;
+  o.fx()[k]=v; f.nextElementSibling.textContent = k==='pan' ? panTxt(v) : Math.round(v*100)+'%'; applyStrips(); });
+document.addEventListener('change',e=>{ if(e.target.closest('[data-fxk]')) fxSaved(); });
+
+$('stLoopTop').addEventListener('click',()=>{ $('loop').click(); $('stLoopTop').setAttribute('aria-pressed',loop); $('stLoopBtn').setAttribute('aria-pressed',loop); });
 
 /* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
 const DEMO_SONGS = [
