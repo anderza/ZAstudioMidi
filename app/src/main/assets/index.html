@@ -459,6 +459,18 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
 .mrow{display:flex;gap:10px;align-items:center}
 .mrow select{flex:1;min-width:0;border-radius:10px;background:#1a1a1e;border-color:var(--edge);padding:8px}
 .mrow #balKnob{width:40px;height:40px}
+
+/* audio tracks */
+.st-alane{position:relative;background:#16191f;border:1px solid var(--edge);border-radius:9px;overflow:hidden;min-width:0;cursor:pointer;touch-action:pan-y;-webkit-touch-callout:none;user-select:none}
+.st-ahead{grid-template-columns:36px minmax(0,1fr) 26px}
+.st-aname{grid-area:name;min-width:0;display:flex;flex-direction:column;justify-content:center;align-self:stretch}
+.st-aname .nm{font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-aname .cat{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--c);font-weight:700}
+.st-aname .vl{color:var(--muted);letter-spacing:0;font-weight:600}
+.st-adel{grid-area:knob;width:26px;height:26px;border-radius:50%;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-size:16px;line-height:1;padding:0}
+.st-adel.arm{background:var(--rec);color:#fff;border-color:var(--rec)}
+.st-acts .st-v{width:auto;padding:0 6px;font-variant-numeric:tabular-nums}
+@media (max-width:440px) and (orientation:portrait){ .st-ahead{grid-template-columns:30px minmax(0,1fr) 24px} .st-adel{width:24px;height:24px} }
 /* sheets and editors */
 .mixer{background:#1f1f23;border-top:1px solid #34343a;border-radius:18px 18px 0 0;padding-top:20px}
 .mixer::before{content:"";position:absolute;top:7px;left:50%;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:#4a4a52}
@@ -628,9 +640,9 @@ h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
       <span class="st-sp"></span>
       <button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button>
     </div>
-    <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок, второе нажатие открывает редактор. Выбранный кусок можно перетащить на другой инструмент или по времени. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
+    <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок, второе нажатие открывает редактор. Выбранный кусок можно перетащить на другой инструмент или по времени. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
     <div class="st-tl"><span class="st-corner">Такты</span><div class="st-time"><canvas id="stTime"></canvas></div></div>
-    <div class="st-rows" id="stRows"></div><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
+    <div class="st-rows" id="stRows"></div><input type="file" id="stWav" accept="audio/*,.wav,.wave,.mp3,.ogg,.m4a,.flac" multiple hidden><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
       <div class="kb-head"><b id="kbName"></b><span class="st-sp"></span><button class="ed-b sq" id="kbDown" aria-label="Октава ниже">−</button><output id="kbOct"></output><button class="ed-b sq" id="kbUp" aria-label="Октава выше">+</button></div>
       <div class="kb-keys" id="kbKeys"></div>
@@ -1153,7 +1165,7 @@ function tick(){
     if(mlist.length) scheduleM(now, horizon, D);
     if(horizon<D || !loop || D<=0) break;
     // loop: the next pass starts exactly where this one ends, scheduled ahead like any other note
-    startCtx += (D-startPos)/speed; startPos=0; idx=0; mDone=-1; wrapLen=D;
+    startCtx += (D-startPos)/speed; startPos=0; idx=0; mDone=-1; wrapLen=D; audioSchedule(startCtx,0);
   }
   if(!loop && pos()>=D) stop();
   if(queued.length>64) queued=queued.filter(q=>q.when>now);
@@ -1161,17 +1173,17 @@ function tick(){
 async function play(at){
   initAudio(); if(ctx.state!=='running') await ctx.resume();
   if(track().parts && track().parts.length){ await loadParts(); buildM(); }
-  if(!list.length && !mlist.length){ showNote('В этой дорожке нет нот на выбранном канале. Выберите другой канал ударных.'); return; }
+  if(!list.length && !mlist.length && !aClips().length){ showNote('В этой дорожке нет нот на выбранном канале. Выберите другой канал ударных.'); return; }
   if(startPos>=duration()) startPos=0;
-  startCtx=Math.max(ctx.currentTime+0.02, at||ctx.currentTime+0.05); idx=findIdx(startPos); mDone=startPos-1e-6; wrapLen=0; playing=true;
+  startCtx=Math.max(ctx.currentTime+0.02, at||ctx.currentTime+0.05); idx=findIdx(startPos); mDone=startPos-1e-6; wrapLen=0; playing=true; audioSchedule(startCtx,startPos);
   timer=setInterval(tick,25); tick(); setPlayIcon();
 }
-function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer);
+function pause(){ if(!playing) return; startPos=pos(); playing=false; clearInterval(timer); audioStop();
   const t=ctx.currentTime; queued.forEach(q=>{ if(q.when>t+0.005) try{ q.src.stop(); }catch(_){} }); queued=[]; setPlayIcon(); }
 document.addEventListener('visibilitychange',()=>{ if(playing){ clearInterval(timer); timer=setInterval(tick,25); tick(); } });
 function stop(){ pause(); startPos=0; idx=0; render(); }
 function seekTo(t){ const was=playing; if(was) pause(); startPos=Math.max(0,Math.min(t,duration())); idx=findIdx(startPos); if(was) play(); render(); }
-function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx=findIdx(startPos); wrapLen=0; } speed=s; }
+function setSpeed(s){ if(playing){ startPos=pos(); startCtx=ctx.currentTime; idx=findIdx(startPos); wrapLen=0; } speed=s; if(playing){ audioStop(); audioSchedule(startCtx,startPos); } }
 
 /* ---------- UI ---------- */
 function setStatus(t){ $('status').textContent=t; }
@@ -1843,7 +1855,7 @@ function anySolo(){ const t=track(); return !!t.dsolo || (t.parts||[]).some(p=>p
 function partLevel(p){ return (p.mute || (anySolo() && !p.solo)) ? 0 : p.vol; }
 function drumLevel(){ const t=track(); return (t.dmute || (anySolo() && !t.dsolo)) ? 0 : (t.dvol??1); }
 function applyLevels(){
-  if(!ctx) return; (track().parts||[]).forEach(p=>{ if(p._bus) p._bus.gain.setTargetAtTime(partLevel(p),ctx.currentTime,0.02); });
+  if(!ctx) return; aApply(); (track().parts||[]).forEach(p=>{ if(p._bus) p._bus.gain.setTargetAtTime(partLevel(p),ctx.currentTime,0.02); });
   if(makeup) makeup.gain.setTargetAtTime(makeupBase*drumLevel(),ctx.currentTime,0.02);
 }
 function partBus(p){ if(!p._bus || p._bus.context!==ctx){ p._bus=ctx.createGain(); p._bus.connect(instOut()); } p._bus.gain.value=partLevel(p); return p._bus; }
@@ -1937,7 +1949,8 @@ function renderStudio(){
   $('stInfo').textContent=t.bpm+' BPM · '+bars+' т.';
   let h=headHTML(-1,'drums',kit.name+' · '+(t.def?t.def.n:t.name), t.dvol??1, t.dmute, t.dsolo, st.armed===-1);
   parts.forEach((p,i)=>{ const d=INST[p.inst]; h+=headHTML(i,d.cat,d.name,p.vol,p.mute,p.solo,st.armed===i); });
-  h+='<div class="st-adds">'+Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>`<button class="st-add" data-add="${k}" style="--c:${c.c}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg><span>+ ${c.one}</span></button>`).join('')+`<button class="st-add" data-addfile="1" style="--c:var(--brass)"><svg viewBox="0 0 24 24"><path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5zM15 12v5.3a2.3 2.3 0 1 1-1.5-2.2V12z"/></svg><span>+ MIDI-файл</span></button>`+'</div>';
+  (t.audio||[]).forEach((c,i)=>{ h+=aHeadHTML(i,c); });
+  h+='<div class="st-adds">'+Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>`<button class="st-add" data-add="${k}" style="--c:${c.c}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg><span>+ ${c.one}</span></button>`).join('')+`<button class="st-add" data-addwav="1" style="--c:#4A9DFF"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg><span>+ Аудио (WAV)</span></button><button class="st-add" data-addfile="1" style="--c:var(--brass)"><svg viewBox="0 0 24 24"><path d="M6 2h8l6 6v14H6zm7 1.5V9h5.5zM15 12v5.3a2.3 2.3 0 1 1-1.5-2.2V12z"/></svg><span>+ MIDI-файл</span></button>`+'</div>';
   $('stRows').innerHTML=h;
   $('stKb').hidden=!st.kbOpen; $('stKbBtn').setAttribute('aria-pressed',st.kbOpen); if(st.kbOpen) renderKb();
   setTimeout(drawLanes); stSnap();
@@ -1984,6 +1997,22 @@ function drawLanes(){
     // the selected clip: white frame, like a picked region
     if(s && s.row===row){ c.fillStyle='rgba(255,255,255,.08)'; rr(X(s.a,w)+1,1,W(s.b-s.a,w)-2,h-2,6); c.fill(); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(X(s.a,w)+2,2,W(s.b-s.a,w)-4,h-4,5); c.stroke(); c.lineWidth=1; }
     if(drag && drag.to===row){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-6&&m.t<drag.s.b-1e-6); c.fillStyle='rgba(255,255,255,.1)'; rr(X(drag.s.a+drag.dt,w)+1,1,W(drag.s.b-drag.s.a,w)-2,h-2,6); c.fill(); if(rowKind(row)===rowKind(drag.s.row)) draw(sn,drag.dt,0.8); }
+    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
+  });
+  document.querySelectorAll('#stRows .st-alane').forEach(el=>{
+    const a=aClips()[+el.dataset.alane]; if(!a) return; const [c,w,h]=fit(el.querySelector('canvas'));
+    const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
+    c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
+    const L=aLen(a), x=X(a.t,w)+1, rw=W(L,w)-2, ti=h>46?15:3, fade=aLevel(a)===0?0.45:1;
+    if(rw>1 && x+rw>0 && x<w){
+      c.fillStyle=AUDIO_C; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
+      if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
+        if(rw>34){ c.save(); c.beginPath(); c.rect(x+4,1,rw-8,ti); c.clip(); c.globalAlpha=1; c.fillStyle='rgba(6,12,24,.85)'; c.font='700 10px '+col('--body'); c.fillText(a.name,x+6,ti-3); c.restore(); } }
+      const top=ti+3, mid=(top+h-3)/2, amp=(h-3-top)/2, n=a.peaks.length, frac=L/a.buf.duration;
+      c.fillStyle=AUDIO_C; c.globalAlpha=fade;
+      for(let px=Math.max(0,Math.ceil(x)); px<Math.min(w,x+rw); px++){ const v=a.peaks[Math.min(n-1,Math.floor((px-x)/rw*frac*n))]; const hh=Math.max(1,v*amp*2); c.fillRect(px,mid-hh/2,1,hh); }
+      c.globalAlpha=fade; c.strokeStyle=AUDIO_C; c.lineWidth=1; rr(x+.5,1.5,rw-1,h-3,6); c.stroke(); c.globalAlpha=1;
+    }
     const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
   });
 }
@@ -2320,6 +2349,73 @@ $('prQuant').addEventListener('click',()=>{ const st=prStep(); prPush(); pr.p.no
 $('prClear').addEventListener('click',()=>{ const b=$('prClear'); if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='Точно?'; setTimeout(()=>{ b.classList.remove('arm'); b.textContent='Очистить'; },2500); return; } b.classList.remove('arm'); b.textContent='Очистить'; prPush(); pr.p.notes=[]; prCommit(); });
 window.addEventListener('resize',()=>{ if(pr.open) prLayout(); });
 [['stInfoBtn','stHint'],['prInfo','prHint']].forEach(([b,h])=>$(b).addEventListener('click',()=>{ $(h).hidden=!$(h).hidden; $(b).setAttribute('aria-expanded',!$(h).hidden); setTimeout(()=>{ drawLanes(); prDraw(); }); }));
+
+/* ---------- audio tracks: WAV (and any audio the system can decode) placed on the timeline and played with the song ---------- */
+const AUDIO_C='#4A9DFF', AUDIO_ICON='<path d="M2 11h2v2H2zm3-3h2v8H5zm3-5h2v18H8zm3 6h2v6h-2zm3-4h2v14h-2zm3 3h2v8h-2zm3 2h2v4h-2z"/>';
+let aBus=null, aSrcs=[];
+const aClips = () => (track() && track().audio) || [];
+const escH = s => String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+function audioOut(){ if(!aBus){ aBus=ctx.createGain(); aBus.connect(eqBands[0]||master); } return aBus; }
+function aLevel(c){ return (c.mute || anySolo()) ? 0 : c.vol; }
+function aLen(c){ return Math.max(0, Math.min(c.buf.duration, duration()-c.t)); }
+function audioStop(){ aSrcs.forEach(s=>{ try{ s.stop(); }catch(_){} }); aSrcs=[]; }
+// start every clip that sounds at or after song position `from`, with `from` heard at context time `at`
+function audioSchedule(at, from){
+  if(!ctx) return;
+  aClips().forEach(c=>{ const L=aLen(c); if(L<=0 || from>=c.t+L) return;
+    if(!c._g){ c._g=ctx.createGain(); c._g.connect(audioOut()); } c._g.gain.value=aLevel(c);
+    const off=Math.max(0,from-c.t), when=Math.max(ctx.currentTime, at+Math.max(0,c.t-from)/speed);
+    const s=ctx.createBufferSource(); s.buffer=c.buf; s.playbackRate.value=speed; s.connect(c._g);
+    s.start(when, off, L-off); aSrcs.push(s); s.onended=()=>{ aSrcs=aSrcs.filter(x=>x!==s); }; });
+}
+function aRestart(){ if(playing){ audioStop(); audioSchedule(ctx.currentTime, pos()); } }
+function aApply(){ if(!ctx) return; aClips().forEach(c=>{ if(c._g) c._g.gain.setTargetAtTime(aLevel(c),ctx.currentTime,0.02); }); }
+function aPeaks(buf){
+  const n=2400, d=buf.getChannelData(0), d2=buf.numberOfChannels>1?buf.getChannelData(1):null, step=Math.max(1,Math.floor(d.length/n)), out=new Float32Array(n);
+  let top=1e-4; for(let i=0;i<n;i++){ let m=0; const a=i*step, b=Math.min(d.length,a+step); for(let j=a;j<b;j+=3){ const v=Math.max(Math.abs(d[j]), d2?Math.abs(d2[j]):0); if(v>m) m=v; } out[i]=m; if(m>top) top=m; }
+  for(let i=0;i<n;i++) out[i]=Math.min(1,out[i]/top);   // normalised, so quiet files still show a shape
+  return out;
+}
+function aFitBars(t){ const need=Math.ceil(Math.max(...t.audio.map(c=>c.t+c.buf.duration))/barSec()-1e-6), have=Math.round(duration()/barSec()); if(need>have) t.bars=Math.min(999,need); }
+function aHeadHTML(i,c){
+  return `<div class="st-row st-arow" style="--c:${AUDIO_C}"><div class="st-head st-ahead">
+    <span class="st-tile"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg></span>
+    <span class="st-aname"><span class="nm">${escH(c.name)}</span><span class="cat">Аудио <span class="vl">${fmt(c.buf.duration)}</span></span></span>
+    <button class="st-adel" data-adel="${i}" aria-label="Удалить аудиодорожку">×</button>
+    <span class="st-acts"><button class="st-m" data-amute="${i}" aria-pressed="${!!c.mute}" aria-label="Заглушить">M</button><button class="st-v" data-avol="${i}" aria-label="Громкость">${Math.round(c.vol*100)}%</button></span>
+  </div><div class="st-alane" data-alane="${i}"><canvas></canvas></div></div>`;
+}
+$('stWav').addEventListener('change', async e=>{
+  const fs=[...e.target.files]; e.target.value=''; if(!fs.length) return;
+  initAudio(); let added=0;
+  for(const f of fs){
+    let buf; try{ const ab=await f.arrayBuffer(); buf=await new Promise((res,rej)=>ctx.decodeAudioData(ab,res,rej)); }catch(err){ toast('Не удалось прочитать '+f.name); continue; }
+    const t=ownTrack(); t.audio=t.audio||[];
+    const at=Math.max(0, Math.floor(pos()/barSec()+1e-6)*barSec());   // from the bar under the cursor
+    t.audio.push({name:f.name.replace(/\.[^.]+$/,''), buf, t:at, vol:1, mute:false, peaks:aPeaks(buf)}); aFitBars(t); added++;
+  }
+  if(added){ studioChanged(); aRestart(); toast(added>1?'Добавлено аудиодорожек: '+added:'Аудио добавлено. Его можно двигать пальцем по времени. Аудио живёт до закрытия приложения.'); }
+});
+$('stRows').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.addwav){ $('stWav').click(); return; }
+  const t=track(), A=t.audio||[];
+  if(b.dataset.amute!==undefined){ const c=A[+b.dataset.amute]; if(!c) return; c.mute=!c.mute; b.setAttribute('aria-pressed',c.mute); aApply(); drawLanes(); return; }
+  if(b.dataset.avol!==undefined){ const c=A[+b.dataset.avol]; if(!c) return; const steps=[1,0.8,0.6,0.4,0.2,1.25,1.5]; c.vol=steps[(steps.indexOf(c.vol)+1)%steps.length]; b.textContent=Math.round(c.vol*100)+'%'; aApply(); return; }
+  if(b.dataset.adel!==undefined){ if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='?'; setTimeout(()=>{ b.classList.remove('arm'); b.textContent='×'; },2500); return; }
+    const c=A.splice(+b.dataset.adel,1)[0]; if(c && c._g) try{ c._g.disconnect(); }catch(_){} aRestart(); renderStudio(); return; }
+});
+// audio lanes: tap to move the playhead there, drag the clip to move it in time (snaps to beats)
+(()=>{ let d=null;
+  const at=(el,x)=>{ const r=el.getBoundingClientRect(); return st.x0+Math.max(0,Math.min(1,(x-r.left)/r.width))*vD(); };
+  $('stRows').addEventListener('pointerdown',e=>{ const el=e.target.closest('.st-alane'); if(!el) return; const c=aClips()[+el.dataset.alane]; if(!c) return;
+    const tp=at(el,e.clientX); d={el,c,x:e.clientX,t0:c.t,on:tp>=c.t&&tp<=c.t+aLen(c),moved:false}; el.setPointerCapture(e.pointerId); });
+  $('stRows').addEventListener('pointermove',e=>{ if(!d||!d.on) return; const r=d.el.getBoundingClientRect(), dx=e.clientX-d.x; if(Math.abs(dx)>8) d.moved=true; if(!d.moved) return;
+    d.c.t=Math.max(0, snapBeat(d.t0+dx/r.width*vD())); drawLanes(); });
+  const end=e=>{ if(!d) return; const k=d; d=null;
+    if(k.moved){ const t=ownTrack(); if(t.audio) aFitBars(t); studioChanged(); aRestart(); } else if(e.type==='pointerup'){ seekTo(at(k.el,e.clientX)); drawLanes(); } };
+  $('stRows').addEventListener('pointerup',end); $('stRows').addEventListener('pointercancel',end);
+})();
 
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
