@@ -505,6 +505,14 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 #stLoopTop[aria-pressed="true"]{color:var(--brass)}
 @media (max-width:440px){ #stHome{display:none} }
 @media (orientation:landscape) and (max-height:560px){ .tfw,.tfd{height:clamp(80px,calc(100dvh - 260px),180px)} }
+/* chord window: previous, current (bright), next */
+.chords{display:flex;align-items:center;gap:2px;height:40px;box-sizing:border-box;padding:0 8px;border-radius:9px;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.1);font-variant-numeric:tabular-nums;flex:none}
+.chords span{min-width:2.6em;text-align:center;font-weight:700;white-space:nowrap}
+.chords .chp,.chords .chn{font-size:12px;color:#fff;opacity:.38}
+.chords .chc{font-size:19px;color:#fff;text-shadow:0 0 10px rgba(255,255,255,.55)}
+#stChords2{display:none}
+@media (max-width:440px){ #stChords{display:none} #stChords2{display:flex;height:24px;padding:0 6px;border-radius:6px} #stChords2 .chc{font-size:14px} #stChords2 .chp,#stChords2 .chn{font-size:10px} .st-corner .st-ctl{display:none} }
+@media (orientation:landscape) and (max-height:560px){ .st-top .chords{height:32px} }
 /* pads panel in the Studio */
 .st-padp .padsec{height:clamp(110px,24vh,190px);min-height:0;display:flex;align-items:center;justify-content:center;margin-top:6px}
 .st-padp .kb-head .cb.tp{width:32px;height:30px}.st-padp .kb-head .cb.tp svg{width:18px;height:18px}
@@ -714,12 +722,12 @@ body.mic-on #stPlay{background:var(--rec)}
         <button class="cb" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button><button class="cb" id="stLoopTop" aria-label="Зациклить" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
       </div>
       <div class="lcd"><b id="stLcdPos">1.1</b><span class="lcd-s"><output id="stTimeOut">0:00 / 0:00</output><output id="stInfo"></output></span></div>
-      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div>
+      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div><div class="chords" id="stChords" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div>
       <span class="st-sp"></span>
       <button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button>
     </div>
     <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок (белая рамка), второе нажатие открывает меню куска: редактор нот, разрезать, копировать, вставить, удалить, добавить WAV/MP3 или MIDI. Выбранный кусок тащите за середину: он едет вместе с нотами по времени или на другой инструмент. Тащите за левый или правый край, чтобы обрезать: ноты за рамкой удаляются. Аудиокуски работают так же, обрезка у них обратимая. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
-    <div class="st-tl"><span class="st-corner">Такты</span><div class="st-time"><canvas id="stTime"></canvas></div></div>
+    <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stWav" accept="audio/*,.wav,.wave,.mp3,.ogg,.m4a,.flac" multiple hidden><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
       <div class="kb-head"><b id="kbName"></b><span class="st-sp"></span><button class="ed-b sq" id="kbDown" aria-label="Октава ниже">−</button><output id="kbOct"></output><button class="ed-b sq" id="kbUp" aria-label="Октава выше">+</button></div>
@@ -1421,7 +1429,7 @@ function trackRow(t,i){
     if(t.chan===undefined){ const d=findDrumChannel(t); t.chan=d.ch; t.autoChan=d.auto; } const n=t.events.filter(e=>e.ch===t.chan && e.n>=0).length; const d=t.events.length?t.events[t.events.length-1].t:0;
     return `<li class="track${i===cur?' sel':''}"><button class="pick" data-i="${i}"><span class="t1"></span><span class="t2">${fmt(d)} · ${t.bpm} BPM · ${n} ударов${t.dirty?' <span class="unsaved">· не сохранено</span>':''}</span></button>${t.demo?'':`<button class="rm" data-rm="${i}" aria-label="Убрать">×</button>`}</li>`;
 }
-function select(i){ cur=Math.max(0,Math.min(i,tracks.length-1)); stop(); $('curName').textContent=track().name; renderChannels(); renderTracks(); render(); if(typeof buildM==='function'){ buildM(); applyLevels(); renderStudio(); } }
+function select(i){ setTimeout(()=>buildChords()); cur=Math.max(0,Math.min(i,tracks.length-1)); stop(); $('curName').textContent=track().name; renderChannels(); renderTracks(); render(); if(typeof buildM==='function'){ buildM(); applyLevels(); renderStudio(); } }
 $('tracks').addEventListener('click',e=>{
   const fb=e.target.closest('[data-fold]'); if(fb){ const g=fb.dataset.fold; const was=openFolders.has(g); openFolders.clear(); if(!was) openFolders.add(g); renderTracks(); const h=$('tracks').querySelector(`[data-fold="${g}"]`); if(h) h.scrollIntoView({block:'start'}); return; }
   const rm=e.target.closest('[data-rm]'); if(rm){ const i=+rm.dataset.rm;
@@ -2003,7 +2011,7 @@ function scheduleM(now, horizon, D){
 }
 // changes to a shipped example are kept in the user's own copy
 function ownTrack(){ let t=track(); if(t.demo){ const keep=stU.t===t; t=keepOverdub(); if(keep) stU.t=t; } t.saved=true; return t; }
-function studioChanged(){ const t=track(); if(!t.demo){ t.saved=true; saveLibrary(); if(t.audio||t.aid) aSaveMeta(t); } list=evs(); if(playing) idx=findIdx(Math.max(0, startPos+(ctx.currentTime+LOOKAHEAD-startCtx)*speed)); buildM(); applyLevels(); renderStudio(); }
+function studioChanged(){ const t=track(); setTimeout(buildChords); if(!t.demo){ t.saved=true; saveLibrary(); if(t.audio||t.aid) aSaveMeta(t); } list=evs(); if(playing) idx=findIdx(Math.max(0, startPos+(ctx.currentTime+LOOKAHEAD-startCtx)*speed)); buildM(); applyLevels(); renderStudio(); }
 let stPick=null;   // which part the sound sheet is choosing for
 
 /* rows: -1 is the drum track, 0.. are the parts. Each row can be cut into clips; clips can be copied, pasted, deleted and dragged */
@@ -2086,7 +2094,7 @@ function renderStudio(){
 }
 function drawLanes(){
   if($('studio').hidden) return;
-  markFocus(); stClamp(); stFollow(); const t=track(), D=duration()||1, css=getComputedStyle(document.documentElement), col=k=>css.getPropertyValue(k).trim(), dpr=window.devicePixelRatio||1, bar=barSec(), V=vD(), x0=st.x0, X=(t,w)=>(t-x0)/V*w, W=(len,w)=>len/V*w;
+  markFocus(); showChords(); stClamp(); stFollow(); const t=track(), D=duration()||1, css=getComputedStyle(document.documentElement), col=k=>css.getPropertyValue(k).trim(), dpr=window.devicePixelRatio||1, bar=barSec(), V=vD(), x0=st.x0, X=(t,w)=>(t-x0)/V*w, W=(len,w)=>len/V*w;
   const fit=cv=>{ const w=cv.parentNode.clientWidth, h=cv.parentNode.clientHeight; if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); } const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,w,h); return [c,w,h]; };
   // timeline
   { const [c,w,h]=fit($('stTime')); c.fillStyle=col('--ruler'); c.fillRect(0,0,w,h); c.font='600 10px '+col('--body');
@@ -2158,7 +2166,7 @@ function drawLanes(){
     const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
   });
 }
-function openStudio(){ initAudio(); $('studio').hidden=false; edFullscreen(true); st.sel=null; st.focus=null; st.focusA=null; stClamp(); stRowH(); renderStudio(); loadParts(); }
+function openStudio(){ setTimeout(buildChords); initAudio(); $('studio').hidden=false; edFullscreen(true); st.sel=null; st.focus=null; st.focusA=null; stClamp(); stRowH(); renderStudio(); loadParts(); }
 function closeStudio(){ kbAllOff(); st.armed=null; st.recLive=false; if(countT) cancelCount(); $('studio').hidden=true; edFullscreen(false); $('studioOpen').focus(); }
 $('studioOpen').addEventListener('click',openStudio);
 $('stMenu').addEventListener('click',()=>{ const r=focusRow(); if(r!==null){ openSetSheet(r); return; }
@@ -3012,6 +3020,29 @@ document.addEventListener('input',e=>{ const f=e.target.closest('[data-fxk]'); i
 document.addEventListener('change',e=>{ if(e.target.closest('[data-fxk]')) fxSaved(); });
 
 $('stLoopTop').addEventListener('click',()=>{ $('loop').click(); $('stLoopTop').setAttribute('aria-pressed',loop); $('stLoopBtn').setAttribute('aria-pressed',loop); });
+
+/* ---------- chords: worked out from the instrument notes, half a bar at a time ---------- */
+const CH_NAMES=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const CH_TPL=[['',[0,4,7]],['m',[0,3,7]],['7',[0,4,7,10]],['m7',[0,3,7,10]],['maj7',[0,4,7,11]],['dim',[0,3,6]],['sus4',[0,5,7]],['sus2',[0,2,7]],['5',[0,7]]];
+let chordList=[];   // [{t, name}] where the chord changes
+function buildChords(){
+  const t=track(), parts=(t.parts||[]).filter(p=>!p.mute), D=duration(), seg=barSec()/2, out=[];
+  if(!parts.length || !(D>0)){ chordList=[]; return; }
+  const n=Math.ceil(D/seg-1e-6), w=Array.from({length:n},()=>new Float32Array(12)), lo=Array.from({length:n},()=>[999,0]);
+  parts.forEach(p=>p.notes.forEach(m=>{ if(m.n<0) return; const a=m.t, b=m.t+Math.max(0.05,m.d);
+    for(let k=Math.max(0,Math.floor(a/seg)); k<n && k*seg<b; k++){ const ov=Math.min(b,(k+1)*seg)-Math.max(a,k*seg); if(ov<=0) continue; w[k][m.n%12]+=ov*(m.v||100)/100; if(m.n<lo[k][0]) lo[k]=[m.n,m.n%12]; } }));
+  for(let k=0;k<n;k++){ const v=w[k], tot=v.reduce((x,y)=>x+y,0); if(tot<seg*0.15) continue;
+    let best=null, bs=-1e9;
+    for(let r=0;r<12;r++) for(const [q,iv] of CH_TPL){ const set=iv.map(x=>(r+x)%12); let sc=0; for(let pc=0;pc<12;pc++) sc += set.includes(pc) ? v[pc] : -0.7*v[pc];
+      if(v[r]<tot*0.08) continue; sc += (lo[k][1]===r ? 0.35*tot : 0) - (iv.length===4 ? 0.12*tot : 0) - (q==='5' ? 0.1*tot : 0) - (q.startsWith('sus')? 0.08*tot : 0);
+      if(sc>bs){ bs=sc; best=CH_NAMES[r]+q; } }
+    if(best && (!out.length || out[out.length-1].name!==best)) out.push({t:k*seg, name:best}); }
+  chordList=out; showChords(true); }
+let chIdx=-2;
+function showChords(force){ const p=pos(); let i=-1; for(let lo=0,hi=chordList.length;lo<hi;){ const m=(lo+hi)>>1; if(chordList[m].t<=p+1e-3){ i=m; lo=m+1; } else hi=m; }
+  if(i===chIdx && !force) return; chIdx=i;
+  const nm=j=>chordList[j] ? chordList[j].name : '—', cur = i<0 ? (chordList.length?'·':'—') : nm(i), next = i<0 ? nm(0) : nm(i+1);
+  ['stChords','stChords2'].forEach(id=>{ const el=$(id); if(!el) return; el.children[0].textContent=i>0?nm(i-1):'—'; el.children[1].textContent=cur; el.children[2].textContent=next; }); }
 
 /* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
 const DEMO_SONGS = [
