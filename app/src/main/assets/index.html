@@ -268,7 +268,7 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 .kb-w.on{background:var(--hit)}.kb-b.on{background:var(--brass)}
 .acts-list{display:flex;flex-direction:column;gap:6px}
 .snd.danger{color:#e5484d}.snd.danger.arm{background:#e5484d;color:#fff}
-#actSheet{z-index:41}
+#actSheet,#clipSheet{z-index:41}
 @media (orientation:landscape) and (max-height:560px){ .st-row{height:var(--rh,62px)} .studio{--hw:clamp(170px,26vw,240px)} .kb-keys{height:clamp(56px,17vh,90px);margin-top:3px} .st-kb{padding:4px} .st-bot .ed-b{padding:5px 4px} }
 .pr-name{font-family:var(--display);font-size:16px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .pr-keys{flex:none;width:46px;overflow:hidden;border-right:1px solid var(--line);background:var(--panel-2)}
@@ -644,7 +644,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
       <span class="st-sp"></span>
       <button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button>
     </div>
-    <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок, второе нажатие открывает редактор. Выбранный кусок можно перетащить на другой инструмент или по времени. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
+    <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок (белая рамка), второе нажатие открывает меню куска: редактор нот, разрезать, копировать, вставить, удалить, добавить WAV/MP3 или MIDI. Выбранный кусок тащите за середину: он едет вместе с нотами по времени или на другой инструмент. Тащите за левый или правый край, чтобы обрезать: ноты за рамкой удаляются. Аудиокуски работают так же, обрезка у них обратимая. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
     <div class="st-tl"><span class="st-corner">Такты</span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stWav" accept="audio/*,.wav,.wave,.mp3,.ogg,.m4a,.flac" multiple hidden><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
@@ -657,6 +657,12 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
       <button class="ed-b" id="st_copy">Копировать</button>
       <button class="ed-b" id="st_paste">Вставить</button>
       <button class="ed-b danger" id="st_del">Очистить</button>
+    </div>
+  </div>
+  <div class="mixer" id="clipSheet" role="dialog" aria-label="Действия с куском" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><div class="mh"><h2 id="clipTitle">Кусок</h2><small id="clipInfo"></small></div><div class="acts"><button id="clipClose">Закрыть</button></div></div>
+      <div class="snds" id="clipActs"></div>
     </div>
   </div>
   <div class="mixer" id="actSheet" role="dialog" aria-label="Действия с инструментом" hidden>
@@ -1484,7 +1490,7 @@ function mixTitle(){
 let openSheet=null;
 function sheet(id, open){
   if(open){ if(openSheet) $(openSheet).hidden=true; openSheet=id; } else openSheet=null;
-  $(id).hidden=$('mixBack').hidden=!open; $('mixBack').style.zIndex = open && (id==='instSheet'||id==='actSheet') ? 40 : '';
+  $(id).hidden=$('mixBack').hidden=!open; $('mixBack').style.zIndex = open && (id==='instSheet'||id==='actSheet'||id==='clipSheet') ? 40 : '';
 }
 function openMixer(open){
   sheet('mixer',open);
@@ -1934,7 +1940,10 @@ function moveClip(s, toRow, dt){
   const t=ownTrack();
   if(rowKind(toRow)!==rowKind(s.row)){ toast('Удары и ноты нельзя смешивать: перенос только между инструментами'); return; }
   dt=snapBeat(dt); if(toRow===s.row && Math.abs(dt)<1e-4) return;
-  const ns=removeIn(t,s.row,s.a,s.b); insertNotes(t,toRow,ns,dt); addCut(t,toRow,s.a+dt); addCut(t,toRow,s.b+dt);
+  const ns=removeIn(t,s.row,s.a,s.b), na=s.a+dt, nb=s.b+dt;
+  if(toRow===s.row){ const cs=rowCuts(t,s.row); for(let i=cs.length-1;i>=0;i--) if(Math.abs(cs[i]-s.a)<1e-3||Math.abs(cs[i]-s.b)<1e-3) cs.splice(i,1); }   // the old place joins its neighbours
+  const cs=rowCuts(t,toRow); for(let i=cs.length-1;i>=0;i--) if(cs[i]>na+1e-3 && cs[i]<nb-1e-3) cs.splice(i,1);   // the moved clip stays one piece
+  insertNotes(t,toRow,ns,dt); addCut(t,toRow,na); addCut(t,toRow,nb);
   st.sel=clipAt(toRow,Math.max(0,s.a+dt)+1e-4); studioChanged();
 }
 
@@ -1976,11 +1985,13 @@ function drawLanes(){
     const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
     c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
     const s=st.sel, drag=st.drag&&st.drag.moving?st.drag:null;
+    const mv = drag && !drag.trim && drag.s.row===row && rowKind(drag.to)===rowKind(row) ? drag.s : null;   // the clip being carried away from this row
+    const tr = drag && drag.trim && drag.s.row===row ? drag : null;
     const dim = row<0 ? drumLevel()===0 : partLevel(t.parts[row])===0, fade=dim?0.45:1;
     const ti = h>46 ? 15 : 3, bi = 3;   // region name strip on top, inset at the bottom
     // regions: every clip between cuts that holds notes, as a rounded block in the instrument colour
     const all=rowNotes(t,row), cs=[0,...rowCuts(t,row).filter(x=>x>0&&x<D).sort((a,b)=>a-b),D], label=row<0?kit.name:INST[t.parts[row].inst].name;
-    for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-6&&m.t<b-1e-6)) continue;
+    for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-6&&m.t<b-1e-6)) continue; if(mv && a>=mv.a-1e-6 && b<=mv.b+1e-6) continue;
       const x=X(a,w)+1, rw=W(b-a,w)-2; if(x+rw<0||x>w||rw<1) continue;
       c.fillStyle=cc; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
       if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
@@ -1994,29 +2005,38 @@ function drawLanes(){
         const nh=Math.max(2.5,Math.min(7,(ah-4)/Math.max(12,hi-lo)));
         c.fillStyle=cc; for(const m of ns){ const x=X(m.t+dt,w), mw=Math.max(2,W(m.d,w)-1); if(x+mw<0||x>w) continue; const y=top+(hi-m.n)/(hi-lo)*(ah-nh); c.globalAlpha=alpha*(0.55+0.45*m.v/127); c.fillRect(x,y,mw,nh); } }
       c.globalAlpha=1; };
-    draw(all,0,dim?0.35:1);
-    if(row>=0 && !t.parts[row].notes.length){ c.fillStyle=col('--muted'); c.font='11px '+col('--body'); c.fillText('Пусто: нажмите дважды, чтобы писать ноты',8,h/2+4); }
+    draw(mv ? all.filter(m=>!(m.t>=mv.a-1e-6&&m.t<mv.b-1e-6)) : all, 0, dim?0.35:1);
+    if(row>=0 && !t.parts[row].notes.length){ c.fillStyle=col('--muted'); c.font='11px '+col('--body'); c.fillText('Пусто: нажмите дважды, откроется меню',8,h/2+4); }
     // cuts
     c.strokeStyle='rgba(255,255,255,.3)'; c.setLineDash([3,3]); rowCuts(t,row).forEach(x=>{ const cx=Math.round(X(x,w))+.5; c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,h); c.stroke(); }); c.setLineDash([]);
     // the selected clip: white frame, like a picked region
-    if(s && s.row===row){ c.fillStyle='rgba(255,255,255,.08)'; rr(X(s.a,w)+1,1,W(s.b-s.a,w)-2,h-2,6); c.fill(); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(X(s.a,w)+2,2,W(s.b-s.a,w)-4,h-4,5); c.stroke(); c.lineWidth=1; }
-    if(drag && drag.to===row){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-6&&m.t<drag.s.b-1e-6); c.fillStyle='rgba(255,255,255,.1)'; rr(X(drag.s.a+drag.dt,w)+1,1,W(drag.s.b-drag.s.a,w)-2,h-2,6); c.fill(); if(rowKind(row)===rowKind(drag.s.row)) draw(sn,drag.dt,0.8); }
+    if(s && s.row===row && !mv){ const sa=tr&&tr.na!=null?tr.na:s.a, sb=tr&&tr.nb!=null?tr.nb:s.b;
+      if(tr){ c.fillStyle='rgba(8,8,10,.72)'; if(sa>s.a) c.fillRect(X(s.a,w),0,W(sa-s.a,w),h); if(sb<s.b) c.fillRect(X(sb,w),0,W(s.b-sb,w),h); }
+      c.fillStyle='rgba(255,255,255,.08)'; rr(X(sa,w)+1,1,W(sb-sa,w)-2,h-2,6); c.fill(); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(X(sa,w)+2,2,W(sb-sa,w)-4,h-4,5); c.stroke();
+      c.fillStyle=col('--ph'); [X(sa,w)+3,X(sb,w)-6].forEach(hx=>{ rr(hx,h/2-9,3,18,1.5); c.fill(); }); c.lineWidth=1; }   // edge handles: grab them to trim
+    if(drag && !drag.trim && drag.to===row){ const x=X(drag.s.a+drag.dt,w)+1, rw=W(drag.s.b-drag.s.a,w)-2;
+      if(rowKind(row)===rowKind(drag.s.row)){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-6&&m.t<drag.s.b-1e-6);
+        c.fillStyle=cc; c.globalAlpha=.32; rr(x,1,rw,h-2,6); c.fill(); if(ti>3){ c.globalAlpha=.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill(); } c.globalAlpha=1;
+        draw(sn,drag.dt,1); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(x+1,2,rw-2,h-4,5); c.stroke(); c.lineWidth=1; }
+      else { c.fillStyle='rgba(255,70,60,.14)'; rr(x,1,rw,h-2,6); c.fill(); } }
     const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
   });
   document.querySelectorAll('#stRows .st-alane').forEach(el=>{
-    const a=aClips()[+el.dataset.alane]; if(!a) return; const [c,w,h]=fit(el.querySelector('canvas'));
+    const i=+el.dataset.alane, a=aClips()[i]; if(!a) return; const [c,w,h]=fit(el.querySelector('canvas'));
     const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
     c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
-    const L=aLen(a), x=X(a.t,w)+1, rw=W(L,w)-2, ti=h>46?15:3, fade=aLevel(a)===0?0.45:1;
-    if(rw>1 && x+rw>0 && x<w){
+    const ti=h>46?15:3, fade=aLevel(a)===0?0.45:1, n=a.peaks.length;
+    a.clips.forEach((k,j)=>{ const L=kLen(k), x=X(k.t,w)+1, rw=W(L,w)-2; if(rw<1 || x+rw<0 || x>w) return;
       c.fillStyle=AUDIO_C; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
       if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
         if(rw>34){ c.save(); c.beginPath(); c.rect(x+4,1,rw-8,ti); c.clip(); c.globalAlpha=1; c.fillStyle='rgba(6,12,24,.85)'; c.font='700 10px '+col('--body'); c.fillText(a.name,x+6,ti-3); c.restore(); } }
-      const top=ti+3, mid=(top+h-3)/2, amp=(h-3-top)/2, n=a.peaks.length, frac=L/a.buf.duration;
+      const top=ti+3, mid=(top+h-3)/2, amp=(h-3-top)/2;
       c.fillStyle=AUDIO_C; c.globalAlpha=fade;
-      for(let px=Math.max(0,Math.ceil(x)); px<Math.min(w,x+rw); px++){ const v=a.peaks[Math.min(n-1,Math.floor((px-x)/rw*frac*n))]; const hh=Math.max(1,v*amp*2); c.fillRect(px,mid-hh/2,1,hh); }
+      for(let px=Math.max(0,Math.ceil(x)); px<Math.min(w,x+rw); px++){ const tt=k.off+(px-x)/rw*L, v=a.peaks[Math.max(0,Math.min(n-1,Math.floor(tt/a.buf.duration*n)))]; const hh=Math.max(1,v*amp*2); c.fillRect(px,mid-hh/2,1,hh); }
       c.globalAlpha=fade; c.strokeStyle=AUDIO_C; c.lineWidth=1; rr(x+.5,1.5,rw-1,h-3,6); c.stroke(); c.globalAlpha=1;
-    }
+      if(st.asel && st.asel.i===i && st.asel.k===j){ c.strokeStyle=col('--ph'); c.lineWidth=2; rr(x+1,2,rw-2,h-4,5); c.stroke(); c.lineWidth=1;
+        c.fillStyle=col('--ph'); [x+3,x+rw-6].forEach(hx=>{ rr(hx,h/2-9,3,18,1.5); c.fill(); }); }
+    });
     const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
   });
 }
@@ -2090,14 +2110,36 @@ $('actClose').addEventListener('click',()=>sheet('actSheet',false));
 })();
 // lanes: tap selects a clip, tap on the selected clip opens its editor, dragging a selected clip moves it
 function laneAt(cx,cy){ const el=document.elementFromPoint(cx,cy), lane=el&&el.closest&&el.closest('.st-lane'); if(!lane) return null; const r=lane.getBoundingClientRect(); return {row:+lane.dataset.lane, x:Math.min(duration(),st.x0+Math.max(0,Math.min(1,(cx-r.left)/r.width))*vD()), w:r.width}; }
-function laneDown(cx,cy){ const a=laneAt(cx,cy); if(!a) return false; st.drag={a, cx, cy, s:st.sel && st.sel.row===a.row && a.x>=st.sel.a && a.x<st.sel.b ? st.sel : null, moving:false, to:a.row, dt:0}; return !!st.drag.s; }
+function laneDown(cx,cy){ const a=laneAt(cx,cy); if(!a) return false;
+  // a selected clip: grab its left or right edge to trim it, grab the middle to move it with its notes
+  const sel=st.sel && st.sel.row===a.row ? st.sel : null; let trim=null;
+  if(sel){ const e=Math.min(20/a.w*vD(), (sel.b-sel.a)/3); if(Math.abs(a.x-sel.b)<e) trim='r'; else if(Math.abs(a.x-sel.a)<e) trim='l'; }
+  st.drag={a, cx, cy, s: sel && (trim || (a.x>=sel.a && a.x<sel.b)) ? sel : null, trim, moving:false, to:a.row, dt:0}; return !!st.drag.s; }
 function laneMove(cx,cy){ const d=st.drag; if(!d) return;
   if(!d.s){ if(!d.pan && st.zoom>1 && Math.abs(cx-d.cx)>8 && Math.abs(cx-d.cx)>Math.abs(cy-d.cy)*1.2){ d.pan=true; d.px0=st.x0; } if(d.pan){ st.x0=d.px0-(cx-d.cx)/d.a.w*vD(); stClamp(); st.followOff=Date.now()+2500; drawLanes(); } return; }
-  if(!d.moving && Math.hypot(cx-d.cx,cy-d.cy)<8) return; d.moving=true; const a=laneAt(cx,cy); if(a){ d.to=a.row; } d.dt=snapBeat((cx-d.cx)/d.a.w*vD()); drawLanes(); }
+  if(!d.moving && Math.hypot(cx-d.cx,cy-d.cy)<8) return; d.moving=true;
+  if(d.trim){ const dt=(cx-d.cx)/d.a.w*vD(), bt=Math.min(beatSec(), d.s.b-d.s.a);
+    if(d.trim==='r') d.nb=Math.max(d.s.a+bt, Math.min(d.s.b, snapBeat(d.s.b+dt))); else d.na=Math.min(d.s.b-bt, Math.max(d.s.a, snapBeat(d.s.a+dt)));
+    drawLanes(); return; }
+  const a=laneAt(cx,cy); if(a){ d.to=a.row; } d.dt=snapBeat((cx-d.cx)/d.a.w*vD()); drawLanes(); }
 function laneUp(){ const d=st.drag; st.drag=null; if(!d||d.pan) return;
+  if(d.moving && d.trim){ trimClip(d); return; }
   if(d.moving){ moveClip(d.s, d.to, d.dt); return; }
-  if(d.s){ if(d.a.row<0) openEditor(); else openProll(track().parts[d.a.row]); return; }
-  st.sel=clipAt(d.a.row,d.a.x); drawLanes(); }
+  if(d.s){ openClipMenu(d.a.row); return; }   // second tap on the selected clip: its menu
+  st.asel=null; st.sel=clipAt(d.a.row,d.a.x); drawLanes(); }
+// trimming a clip's edge inwards deletes the notes left outside it
+function trimClip(d){ const t=ownTrack(), s=d.s;
+  if(d.trim==='r' && d.nb!=null && d.nb<s.b-1e-4){ removeIn(t,s.row,d.nb,s.b); addCut(t,s.row,d.nb); st.sel={row:s.row,a:s.a,b:d.nb}; }
+  else if(d.trim==='l' && d.na!=null && d.na>s.a+1e-4){ removeIn(t,s.row,s.a,d.na); addCut(t,s.row,d.na); st.sel={row:s.row,a:d.na,b:s.b}; }
+  else { drawLanes(); return; }
+  studioChanged(); }
+const CLIP_ACTS=[['edit','Редактировать ноты'],['cut','Разрезать по курсору'],['copy','Копировать'],['paste','Вставить в курсор'],['del','Удалить ноты куска'],['wav','Добавить WAV / MP3'],['midi','Загрузить MIDI в эту дорожку']];
+let clipFor=null;
+function openClipMenu(row){ const t=track(), s=st.sel&&st.sel.row===row?st.sel:null; clipFor={row}; aMenu=null;
+  $('clipTitle').textContent=row<0?'Барабаны · '+kit.name:INST[t.parts[row].inst].name;
+  $('clipInfo').textContent=s?'Кусок: '+lcdPos(s.a)+' – '+lcdPos(Math.max(s.a,s.b-1e-3)):'';
+  $('clipActs').innerHTML=CLIP_ACTS.map(([k,n])=>`<button class="snd${k==='del'?' danger':''}" data-act="${k}">${n}</button>`).join('');
+  sheet('clipSheet',true); }
 $('stRows').addEventListener('touchstart',e=>{
   if(e.touches.length===2){ stPinchStart(e.touches); e.preventDefault(); return; }
   if(e.touches.length===1 && e.target.closest('.st-lane') && laneDown(e.touches[0].clientX,e.touches[0].clientY)) e.preventDefault(); },{passive:false});
@@ -2354,39 +2396,41 @@ $('prClear').addEventListener('click',()=>{ const b=$('prClear'); if(!b.classLis
 window.addEventListener('resize',()=>{ if(pr.open) prLayout(); });
 [['stInfoBtn','stHint'],['prInfo','prHint']].forEach(([b,h])=>$(b).addEventListener('click',()=>{ $(h).hidden=!$(h).hidden; $(b).setAttribute('aria-expanded',!$(h).hidden); setTimeout(()=>{ drawLanes(); prDraw(); }); }));
 
-/* ---------- audio tracks: WAV (and any audio the system can decode) placed on the timeline and played with the song ---------- */
+/* ---------- audio tracks: WAV (and any audio the system can decode) placed on the timeline and played with the song ----------
+   track.audio = [{name, buf, peaks, vol, mute, clips:[{t, off, len}]}]: one row per file, cut into clips that can be moved and trimmed */
 const AUDIO_C='#4A9DFF', AUDIO_ICON='<path d="M2 11h2v2H2zm3-3h2v8H5zm3-5h2v18H8zm3 6h2v6h-2zm3-4h2v14h-2zm3 3h2v8h-2zm3 2h2v4h-2z"/>';
 let aBus=null, aSrcs=[];
+st.asel=null;   // selected audio clip {i, k}
 const aClips = () => (track() && track().audio) || [];
 const escH = s => String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 function audioOut(){ if(!aBus){ aBus=ctx.createGain(); aBus.connect(eqBands[0]||master); } return aBus; }
-function aLevel(c){ return (c.mute || anySolo()) ? 0 : c.vol; }
-function aLen(c){ return Math.max(0, Math.min(c.buf.duration, duration()-c.t)); }
+function aLevel(a){ return (a.mute || anySolo()) ? 0 : a.vol; }
+function kLen(k){ return Math.max(0, Math.min(k.len, duration()-k.t)); }
 function audioStop(){ aSrcs.forEach(s=>{ try{ s.stop(); }catch(_){} }); aSrcs=[]; }
 // start every clip that sounds at or after song position `from`, with `from` heard at context time `at`
 function audioSchedule(at, from){
   if(!ctx) return;
-  aClips().forEach(c=>{ const L=aLen(c); if(L<=0 || from>=c.t+L) return;
-    if(!c._g){ c._g=ctx.createGain(); c._g.connect(audioOut()); } c._g.gain.value=aLevel(c);
-    const off=Math.max(0,from-c.t), when=Math.max(ctx.currentTime, at+Math.max(0,c.t-from)/speed);
-    const s=ctx.createBufferSource(); s.buffer=c.buf; s.playbackRate.value=speed; s.connect(c._g);
-    s.start(when, off, L-off); aSrcs.push(s); s.onended=()=>{ aSrcs=aSrcs.filter(x=>x!==s); }; });
+  aClips().forEach(a=>{ if(!a._g){ a._g=ctx.createGain(); a._g.connect(audioOut()); } a._g.gain.value=aLevel(a);
+    a.clips.forEach(k=>{ const L=kLen(k); if(L<=0 || from>=k.t+L) return;
+      const off=Math.max(0,from-k.t), when=Math.max(ctx.currentTime, at+Math.max(0,k.t-from)/speed);
+      const s=ctx.createBufferSource(); s.buffer=a.buf; s.playbackRate.value=speed; s.connect(a._g);
+      s.start(when, k.off+off, L-off); aSrcs.push(s); s.onended=()=>{ aSrcs=aSrcs.filter(x=>x!==s); }; }); });
 }
 function aRestart(){ if(playing){ audioStop(); audioSchedule(ctx.currentTime, pos()); } }
-function aApply(){ if(!ctx) return; aClips().forEach(c=>{ if(c._g) c._g.gain.setTargetAtTime(aLevel(c),ctx.currentTime,0.02); }); }
+function aApply(){ if(!ctx) return; aClips().forEach(a=>{ if(a._g) a._g.gain.setTargetAtTime(aLevel(a),ctx.currentTime,0.02); }); }
 function aPeaks(buf){
-  const n=2400, d=buf.getChannelData(0), d2=buf.numberOfChannels>1?buf.getChannelData(1):null, step=Math.max(1,Math.floor(d.length/n)), out=new Float32Array(n);
+  const n=4000, d=buf.getChannelData(0), d2=buf.numberOfChannels>1?buf.getChannelData(1):null, step=Math.max(1,Math.floor(d.length/n)), out=new Float32Array(n);
   let top=1e-4; for(let i=0;i<n;i++){ let m=0; const a=i*step, b=Math.min(d.length,a+step); for(let j=a;j<b;j+=3){ const v=Math.max(Math.abs(d[j]), d2?Math.abs(d2[j]):0); if(v>m) m=v; } out[i]=m; if(m>top) top=m; }
   for(let i=0;i<n;i++) out[i]=Math.min(1,out[i]/top);   // normalised, so quiet files still show a shape
   return out;
 }
-function aFitBars(t){ const need=Math.ceil(Math.max(...t.audio.map(c=>c.t+c.buf.duration))/barSec()-1e-6), have=Math.round(duration()/barSec()); if(need>have) t.bars=Math.min(999,need); }
-function aHeadHTML(i,c){
+function aFitBars(t){ let end=0; (t.audio||[]).forEach(a=>a.clips.forEach(k=>{ end=Math.max(end,k.t+k.len); })); const need=Math.ceil(end/barSec()-1e-6), have=Math.round(duration()/barSec()); if(need>have) t.bars=Math.min(999,need); }
+function aHeadHTML(i,a){
   return `<div class="st-row st-arow" style="--c:${AUDIO_C}"><div class="st-head st-ahead">
     <span class="st-tile"><svg viewBox="0 0 24 24">${AUDIO_ICON}</svg></span>
-    <span class="st-aname"><span class="nm">${escH(c.name)}</span><span class="cat">Аудио <span class="vl">${fmt(c.buf.duration)}</span></span></span>
+    <span class="st-aname"><span class="nm">${escH(a.name)}</span><span class="cat">Аудио <span class="vl">${fmt(a.buf.duration)}</span></span></span>
     <button class="st-adel" data-adel="${i}" aria-label="Удалить аудиодорожку">×</button>
-    <span class="st-acts"><button class="st-m" data-amute="${i}" aria-pressed="${!!c.mute}" aria-label="Заглушить">M</button><button class="st-v" data-avol="${i}" aria-label="Громкость">${Math.round(c.vol*100)}%</button></span>
+    <span class="st-acts"><button class="st-m" data-amute="${i}" aria-pressed="${!!a.mute}" aria-label="Заглушить">M</button><button class="st-v" data-avol="${i}" aria-label="Громкость">${Math.round(a.vol*100)}%</button></span>
   </div><div class="st-alane" data-alane="${i}"><canvas></canvas></div></div>`;
 }
 $('stWav').addEventListener('change', async e=>{
@@ -2396,30 +2440,66 @@ $('stWav').addEventListener('change', async e=>{
     let buf; try{ const ab=await f.arrayBuffer(); buf=await new Promise((res,rej)=>ctx.decodeAudioData(ab,res,rej)); }catch(err){ toast('Не удалось прочитать '+f.name); continue; }
     const t=ownTrack(); t.audio=t.audio||[];
     const at=Math.max(0, Math.floor(pos()/barSec()+1e-6)*barSec());   // from the bar under the cursor
-    t.audio.push({name:f.name.replace(/\.[^.]+$/,''), buf, t:at, vol:1, mute:false, peaks:aPeaks(buf)}); aFitBars(t); added++;
+    t.audio.push({name:f.name.replace(/\.[^.]+$/,''), buf, vol:1, mute:false, peaks:aPeaks(buf), clips:[{t:at, off:0, len:buf.duration}]}); aFitBars(t); added++;
   }
-  if(added){ studioChanged(); aRestart(); toast(added>1?'Добавлено аудиодорожек: '+added:'Аудио добавлено. Его можно двигать пальцем по времени. Аудио живёт до закрытия приложения.'); }
+  if(added){ studioChanged(); aRestart(); toast(added>1?'Добавлено аудиодорожек: '+added:'Аудио добавлено. Нажмите на кусок, чтобы выбрать, тащите за середину или края. Аудио живёт до закрытия приложения.'); }
 });
 $('stRows').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.addwav){ $('stWav').click(); return; }
   const t=track(), A=t.audio||[];
-  if(b.dataset.amute!==undefined){ const c=A[+b.dataset.amute]; if(!c) return; c.mute=!c.mute; b.setAttribute('aria-pressed',c.mute); aApply(); drawLanes(); return; }
-  if(b.dataset.avol!==undefined){ const c=A[+b.dataset.avol]; if(!c) return; const steps=[1,0.8,0.6,0.4,0.2,1.25,1.5]; c.vol=steps[(steps.indexOf(c.vol)+1)%steps.length]; b.textContent=Math.round(c.vol*100)+'%'; aApply(); return; }
+  if(b.dataset.amute!==undefined){ const a=A[+b.dataset.amute]; if(!a) return; a.mute=!a.mute; b.setAttribute('aria-pressed',a.mute); aApply(); drawLanes(); return; }
+  if(b.dataset.avol!==undefined){ const a=A[+b.dataset.avol]; if(!a) return; const steps=[1,0.8,0.6,0.4,0.2,1.25,1.5]; a.vol=steps[(steps.indexOf(a.vol)+1)%steps.length]; b.textContent=Math.round(a.vol*100)+'%'; aApply(); return; }
   if(b.dataset.adel!==undefined){ if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='?'; setTimeout(()=>{ b.classList.remove('arm'); b.textContent='×'; },2500); return; }
-    const c=A.splice(+b.dataset.adel,1)[0]; if(c && c._g) try{ c._g.disconnect(); }catch(_){} aRestart(); renderStudio(); return; }
+    aDelTrack(+b.dataset.adel); return; }
 });
-// audio lanes: tap to move the playhead there, drag the clip to move it in time (snaps to beats)
-(()=>{ let d=null;
+function aDelTrack(i){ const A=track().audio||[], a=A.splice(i,1)[0]; if(a && a._g) try{ a._g.disconnect(); }catch(_){} st.asel=null; aRestart(); renderStudio(); }
+// audio lanes: tap a clip to select it, tap it again for its menu; drag its middle to move it, its edges to trim; tap empty space to move the playhead
+(()=>{ let d=null, lastEmpty=null;
   const at=(el,x)=>{ const r=el.getBoundingClientRect(); return st.x0+Math.max(0,Math.min(1,(x-r.left)/r.width))*vD(); };
-  $('stRows').addEventListener('pointerdown',e=>{ const el=e.target.closest('.st-alane'); if(!el) return; const c=aClips()[+el.dataset.alane]; if(!c) return;
-    const tp=at(el,e.clientX); d={el,c,x:e.clientX,t0:c.t,on:tp>=c.t&&tp<=c.t+aLen(c),moved:false}; el.setPointerCapture(e.pointerId); });
-  $('stRows').addEventListener('pointermove',e=>{ if(!d||!d.on) return; const r=d.el.getBoundingClientRect(), dx=e.clientX-d.x; if(Math.abs(dx)>8) d.moved=true; if(!d.moved) return;
-    d.c.t=Math.max(0, snapBeat(d.t0+dx/r.width*vD())); drawLanes(); });
+  $('stRows').addEventListener('pointerdown',e=>{ const el=e.target.closest('.st-alane'); if(!el) return; const i=+el.dataset.alane, a=aClips()[i]; if(!a) return;
+    const tp=at(el,e.clientX), w=el.getBoundingClientRect().width, sel=st.asel&&st.asel.i===i?a.clips[st.asel.k]:null; let trim=null;
+    if(sel){ const ee=Math.min(20/w*vD(), kLen(sel)/3); if(Math.abs(tp-(sel.t+kLen(sel)))<ee) trim='r'; else if(Math.abs(tp-sel.t)<ee) trim='l'; }
+    const k = trim ? st.asel.k : a.clips.findIndex(c=>tp>=c.t && tp<=c.t+kLen(c));
+    d={el,i,k,x:e.clientX,w,tp,trim,moved:false,o:k>=0?{...a.clips[k]}:null,wasSel:!!sel && k===st.asel.k}; el.setPointerCapture(e.pointerId); });
+  $('stRows').addEventListener('pointermove',e=>{ if(!d||d.k<0) return; const dx=e.clientX-d.x; if(Math.abs(dx)>8) d.moved=true; if(!d.moved) return;
+    const a=aClips()[d.i], c=a.clips[d.k], o=d.o, dt=dx/d.w*vD(), q=beatSec()/4, sn=x=>Math.round(x/q)*q;
+    if(d.trim==='r') c.len=Math.max(q, Math.min(a.buf.duration-o.off, sn(o.t+o.len+dt)-o.t));
+    else if(d.trim==='l'){ let nt=Math.max(0, o.t-o.off, Math.min(o.t+o.len-q, sn(o.t+dt))); c.off=o.off+(nt-o.t); c.len=o.len-(nt-o.t); c.t=nt; }
+    else c.t=Math.max(0, snapBeat(o.t+dt));
+    st.asel={i:d.i,k:d.k}; st.sel=null; drawLanes(); });
   const end=e=>{ if(!d) return; const k=d; d=null;
-    if(k.moved){ const t=ownTrack(); if(t.audio) aFitBars(t); studioChanged(); aRestart(); } else if(e.type==='pointerup'){ seekTo(at(k.el,e.clientX)); drawLanes(); } };
+    if(k.moved){ aFitBars(ownTrack()); studioChanged(); aRestart(); return; }
+    if(e.type!=='pointerup') return;
+    if(k.k>=0){ if(k.wasSel) openAudioMenu(k.i,k.k); else { st.asel={i:k.i,k:k.k}; st.sel=null; drawLanes(); } return; }
+    const now=Date.now(); if(lastEmpty && lastEmpty.i===k.i && now-lastEmpty.t<400){ lastEmpty=null; openAudioMenu(k.i,-1); return; }
+    lastEmpty={i:k.i,t:now}; st.asel=null; seekTo(k.tp); drawLanes(); };
   $('stRows').addEventListener('pointerup',end); $('stRows').addEventListener('pointercancel',end);
 })();
+let aMenu=null;
+function openAudioMenu(i,k){ const a=aClips()[i]; if(!a) return; aMenu={i,k};
+  $('clipTitle').textContent='Аудио · '+a.name; const c=a.clips[k];
+  $('clipInfo').textContent=c?'Кусок: '+lcdPos(c.t)+', длина '+fmt(c.len):'';
+  const acts = c ? [['asplit','Разрезать по курсору'],['adup','Повторить кусок следом'],['adel','Удалить кусок'],['wav','Добавить WAV / MP3'],['midi','Добавить MIDI-файл'],['atrack','Удалить всю аудиодорожку']]
+                 : [['wav','Добавить WAV / MP3'],['midi','Добавить MIDI-файл'],['atrack','Удалить всю аудиодорожку']];
+  $('clipActs').innerHTML=acts.map(([k,n])=>`<button class="snd${/del|track/.test(k)?' danger':''}" data-act="${k}">${n}</button>`).join('');
+  clipFor=null; sheet('clipSheet',true); }
+$('clipClose').addEventListener('click',()=>sheet('clipSheet',false));
+$('clipActs').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b) return; const act=b.dataset.act; sheet('clipSheet',false);
+  if(act==='wav'){ $('stWav').click(); return; }
+  if(act==='midi'){ stFileRow = clipFor ? clipFor.row : null; $('stFile').click(); return; }
+  if(clipFor){ const row=clipFor.row;
+    if(act==='edit'){ if(row<0) openEditor(); else openProll(track().parts[row]); return; }
+    stAction(act); return; }
+  if(!aMenu) return; const t=ownTrack(), a=(t.audio||[])[aMenu.i]; if(!a) return; const c=a.clips[aMenu.k];
+  if(act==='atrack'){ aDelTrack(aMenu.i); return; }
+  if(!c) return;
+  if(act==='asplit'){ const q=beatSec()/4, x=Math.round(pos()/q)*q; if(x<=c.t+1e-3||x>=c.t+c.len-1e-3){ toast('Поставьте курсор внутрь куска'); return; }
+    a.clips.splice(aMenu.k+1,0,{t:x, off:c.off+(x-c.t), len:c.len-(x-c.t)}); c.len=x-c.t; toast('Разрезано'); }
+  if(act==='adup'){ a.clips.push({t:c.t+c.len, off:c.off, len:c.len}); aFitBars(t); toast('Кусок повторён'); }
+  if(act==='adel'){ a.clips.splice(aMenu.k,1); st.asel=null; if(!a.clips.length){ aDelTrack(aMenu.i); return; } }
+  a.clips.sort((x,y)=>x.t-y.t); st.asel=null; studioChanged(); aRestart();
+});
 
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
