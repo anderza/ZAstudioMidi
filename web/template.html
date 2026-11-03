@@ -534,6 +534,22 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 #addGrid .ic{--ib:var(--c);--id:#2b2b30;width:30px;height:30px}
 @media (orientation:landscape) and (max-height:560px){ .st-tile .ic{width:25px;height:25px} }
 @media (max-width:440px){ .st-tile .ic{width:26px;height:26px} }
+/* the track mixer grows when its top bar is pulled up and shrinks when pushed down */
+#tmixSheet::before{display:none}
+.mx-grip{position:absolute;left:0;right:0;top:0;height:22px;margin:0}
+.mx-grip::before{width:48px}
+#tmixSheet input.fader.tfd{height:100%}
+#tmixSheet.sized .tfw{height:var(--tfh)}
+/* audio → MIDI project: tile and progress card */
+.proj.new .pplus svg{width:30px;height:30px;fill:var(--brass)}
+.proj.new small{color:#8a8a92;font-size:11px;white-space:normal}
+.ana{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.ana[hidden]{display:none}
+.ana-in{background:#24242a;border:1px solid #3a3a42;border-radius:14px;padding:18px 18px 14px;width:min(340px,100%);display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ana-in b{font:600 15px/1.3 var(--body);color:#eee}
+.ana-in small{color:#8a8a92;font-size:12px;line-height:1.35}
+.ana-bar{height:8px;border-radius:4px;background:#111114;overflow:hidden}
+.ana-bar i{display:block;height:100%;width:0;background:var(--brass);border-radius:4px;transition:width .25s}
 /* chord window: previous, current (bright), next */
 .chords{display:flex;align-items:center;gap:2px;height:40px;box-sizing:border-box;padding:0 8px;border-radius:9px;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.1);font-variant-numeric:tabular-nums;flex:none}
 .chords span{min-width:2.6em;text-align:center;font-weight:700;white-space:nowrap}
@@ -739,6 +755,8 @@ body.mic-on #stPlay{background:var(--rec)}
     <div class="proj-top"><span class="itile"><svg viewBox="0 0 108 108"><path d="M37 31.5a1.5 1.5 0 0 1 3 0v45a1.5 1.5 0 0 1-3 0zm15.5 0a1.5 1.5 0 0 1 3 0v45a1.5 1.5 0 0 1-3 0zm15.5 0a1.5 1.5 0 0 1 3 0v45a1.5 1.5 0 0 1-3 0z" fill="#3A3A42"/><rect x="31" y="58" width="15" height="8" rx="3" fill="#EBC03F"/><rect x="46.5" y="38" width="15" height="8" rx="3" fill="#4FC26B"/><rect x="62" y="50" width="15" height="8" rx="3" fill="#4A9DFF"/></svg></span><h1>Za<span>Studio</span></h1><span class="st-sp"></span><small class="copy">© Zapolski Andrei</small></div>
     <div class="proj-hrow"><h2 class="proj-h">Мои проекты</h2><button class="ed-b" id="projImp2">Импорт проекта</button></div>
     <div class="proj-grid" id="projGrid"></div>
+    <input type="file" id="projAudio" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.aac" hidden>
+    <div class="ana" id="anaBox" role="status" aria-live="polite" hidden><div class="ana-in"><b id="anaTxt"></b><div class="ana-bar"><i id="anaBar"></i></div><small>Песня разбирается прямо на телефоне, это займёт до минуты</small></div></div>
   </div>
   <div class="studio" id="studio" role="dialog" aria-label="Студия" hidden>
     <div class="st-top cbar">
@@ -797,6 +815,7 @@ body.mic-on #stPlay{background:var(--rec)}
     </div>
   </div>
   <div class="mixer" id="tmixSheet" role="dialog" aria-label="Микшер дорожек" hidden>
+    <div class="kb-grip mx-grip" id="tmixGrip" role="separator" aria-label="Потяните вверх или вниз, чтобы изменить высоту микшера" title="Тяните вверх или вниз; двойное нажатие возвращает размер"></div>
     <div class="mixer-in">
       <div class="mix-head"><div class="mh"><h2>Микшер</h2><small>Громкость, баланс и эффекты каждой дорожки</small></div><div class="acts"><button id="tmixClose">Готово</button></div></div>
       <div class="tstrips" id="tmixStrips"></div>
@@ -2904,6 +2923,7 @@ function projThumb(t){ const rows=[t.dcolor||CATS.drums.c, ...(t.parts||[]).map(
 function renderProjects(){
   const ps=projList().reverse();
   $('projGrid').innerHTML=`<button class="proj new" data-new="1"><span class="pplus">+</span><b>Новый проект</b></button>`+
+    `<button class="proj new" data-fromaudio="1"><span class="pplus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h2v4H3zm4-4h2v12H7zm4-3h2v18h-2zm4 5h2v8h-2zm4 3h2v2h-2z"/></svg></span><b>Добавить аудиофайл</b><small>и сделать MIDI</small></button>`+
     ps.map(({t,i})=>{ const D=t.bars?t.bars*240/t.bpm:(t.events.length?t.events[t.events.length-1].t:0);
       return `<div class="proj" data-open="${i}" role="button" tabindex="0"><span class="pthumb">${projThumb(t)}</span><b>${escH(t.name)}</b><small>${t.bpm} BPM · ${fmt(D)}</small><button class="pdel" data-pdel="${i}" aria-label="Удалить проект">×</button></div>`; }).join('');
 }
@@ -3239,6 +3259,21 @@ $('projFile').addEventListener('change',e=>{ const f=e.target.files[0]; e.target
   $('studio').addEventListener('dblclick',e=>{ const gr=e.target.closest('[data-grip]'); if(!gr) return; const kb=gr.dataset.grip==='kb'; store.set(kb?'kbH':'padH',''); $('studio').style.removeProperty(kb?'--kbh':'--padh'); if(!kb) fitPads(); drawLanes(); });
 })();
 
+// pull the mixer's top bar up to make the faders taller, push it down to make the mixer smaller
+(()=>{ const sh=$('tmixSheet'), gr=$('tmixGrip'); let g=null;
+  const set=h=>{ if(h){ sh.style.setProperty('--tfh',h+'px'); sh.classList.add('sized'); } else { sh.style.removeProperty('--tfh'); sh.classList.remove('sized'); } };
+  const lim=h=>{ const fw=sh.querySelector('.tfw'), chrome=Math.max(sh.scrollHeight,sh.getBoundingClientRect().height)-(fw?fw.getBoundingClientRect().height:0);
+    return Math.round(Math.max(60, Math.min(window.innerHeight*0.92-chrome, h))); };
+  { const v=parseFloat(store.get('mixH')); if(isFinite(v) && v>0) set(v); }
+  gr.addEventListener('pointerdown',e=>{ e.preventDefault(); const fw=sh.querySelector('.tfw'); g={y:e.clientY, h0:fw?fw.getBoundingClientRect().height:160, h:0}; gr.classList.add('on'); gr.setPointerCapture(e.pointerId); });
+  gr.addEventListener('pointermove',e=>{ if(!g) return; g.h=lim(g.h0+(g.y-e.clientY)); set(g.h); });
+  const end=()=>{ if(!g) return; gr.classList.remove('on'); if(g.h) store.set('mixH',String(g.h)); g=null; };
+  gr.addEventListener('pointerup',end); gr.addEventListener('pointercancel',end);
+  gr.addEventListener('dblclick',()=>{ store.set('mixH',''); set(0); });
+  // a saved height that no longer fits (the phone turned) is trimmed when the mixer opens
+  new MutationObserver(()=>{ if(!sh.hidden && sh.classList.contains('sized')){ const v=parseFloat(sh.style.getPropertyValue('--tfh')); const h=lim(v); if(h!==v) set(h); } }).observe(sh,{attributes:true, attributeFilter:['hidden']});
+})();
+
 /* ---------- a graphic EQ on every track, like the one over the whole mix ---------- */
 let teqKey=null, teqBack=null;
 function teqGains(){ const o=tObj(teqKey); if(!o) return null; const fx=o.fx(); if(!fx.eq) fx.eq=EQ_F.map(()=>0); return fx.eq; }
@@ -3254,6 +3289,140 @@ $('teqStrips').addEventListener('dblclick',e=>{ const f=e.target.closest('[data-
 $('teqPresets').addEventListener('click',e=>{ const b=e.target.closest('[data-p]'); if(!b) return; const g=teqGains(), p=EQ_PRESETS[+b.dataset.p][1]; EQ_F.forEach((f,i)=>g[i]=p[i]||0); applyStrips(); fxSaved(); renderTeq(); });
 $('teqReset').addEventListener('click',()=>{ const g=teqGains(); if(!g) return; g.fill(0); applyStrips(); fxSaved(); renderTeq(); });
 $('teqClose').addEventListener('click',()=>{ sheet('teqSheet',false); if(teqBack==='tmixSheet') openTMix(); });
+
+/* ---------- project from an audio file: tempo, chords, drums, bass and a melody draft, worked out on the phone ---------- */
+function fftMake(N){ const lev=Math.log2(N), rev=new Uint32Array(N), cs=new Float32Array(N/2), sn=new Float32Array(N/2);
+  for(let i=0;i<N;i++){ let r=0; for(let b=0;b<lev;b++) r=(r<<1)|((i>>b)&1); rev[i]=r; }
+  for(let i=0;i<N/2;i++){ cs[i]=Math.cos(2*Math.PI*i/N); sn[i]=-Math.sin(2*Math.PI*i/N); }
+  const win=new Float32Array(N); for(let i=0;i<N;i++) win[i]=0.5-0.5*Math.cos(2*Math.PI*i/(N-1));
+  const re=new Float32Array(N), im=new Float32Array(N), mag=new Float32Array(N/2);
+  return (x,off)=>{ for(let i=0;i<N;i++){ const r=rev[i]; re[r]=(x[off+i]||0)*win[i]; im[r]=0; }
+    for(let size=2;size<=N;size<<=1){ const half=size>>1, step=N/size;
+      for(let i=0;i<N;i+=size) for(let j=0,k=0;j<half;j++,k+=step){ const a=i+j, b=a+half, tr=re[b]*cs[k]-im[b]*sn[k], ti=re[b]*sn[k]+im[b]*cs[k]; re[b]=re[a]-tr; im[b]=im[a]-ti; re[a]+=tr; im[a]+=ti; } }
+    for(let k=0;k<N/2;k++) mag[k]=Math.sqrt(re[k]*re[k]+im[k]*im[k]); return mag; }; }
+const pctl=(a,p)=>{ const s=Float32Array.from(a).sort(); return s.length ? s[Math.min(s.length-1,Math.floor(p*s.length))] : 0; };
+async function analyzeAudio(buf, report){
+  const SR=22050, tick=()=>new Promise(r=>setTimeout(r,0));
+  // mono at 22.05 kHz
+  const off=new OfflineAudioContext(1, Math.max(1,Math.ceil(buf.duration*SR)), SR), src=off.createBufferSource(); src.buffer=buf; src.connect(off.destination); src.start();
+  const x=(await off.startRendering()).getChannelData(0), HOP=512, NS=1024, NL=4096, F=Math.max(1,Math.floor((x.length-NL)/HOP)+1);
+  const fs=fftMake(NS), fl=fftMake(NL), dfS=SR/NS, dfL=SR/NL;
+  const fluxLo=new Float32Array(F), fluxMid=new Float32Array(F), fluxHi=new Float32Array(F), flux=new Float32Array(F);
+  const chroma=new Float32Array(F*12), bassC=new Float32Array(F*12), melP=new Int8Array(F), melS=new Float32Array(F);
+  let prevS=new Float32Array(NS/2), prevL=new Float32Array(NS/2); const fluxTon=new Float32Array(F);
+  // pitch class of each long-FFT bin
+  const pcOf=new Int8Array(NL/2).fill(-1); for(let k=1;k<NL/2;k++){ const f=k*dfL; if(f>=40 && f<=2100) pcOf[k]=((Math.round(69+12*Math.log2(f/440))%12)+12)%12; }
+  const H=[1,.7,.5,.35,.25];
+  for(let i=0;i<F;i++){
+    // short FFT, centred on the long one: onsets in bands
+    // kick and snare: plain (not log) rise below 150 Hz and at 1.5–5 kHz, so loud drum hits beat bass notes and hats; hats: above 6 kHz
+    const ms=fs(x, i*HOP+(NL-NS)/2); let lo=0, ton=0, mid=0, hi=0, tot=0;
+    for(let k=1;k<NS/2;k++){ const m=ms[k], v=Math.log1p(100*m), d=v-prevS[k], dl=m-prevL[k]; prevS[k]=v; prevL[k]=m; const f=k*dfS;
+      if(f<150){ if(dl>0) lo+=dl; continue; } if(f>=1500 && f<5000 && dl>0) mid+=dl; if(d<=0) continue; tot+=d; if(f<1500) ton+=d; else if(f>6000) hi+=d; }
+    fluxLo[i]=lo; fluxTon[i]=ton; fluxMid[i]=mid; fluxHi[i]=hi; flux[i]=tot;
+    // long FFT: chroma, bass chroma and the strongest pitch in the melody range
+    const ml=fl(x, i*HOP);
+    for(let k=2;k<NL/2;k++){ const pc=pcOf[k]; if(pc<0) continue; const v=Math.sqrt(ml[k]), f=k*dfL; if(f<250) bassC[i*12+pc]+=v; if(f>=100) chroma[i*12+pc]+=v; }
+    let bp=0, bs=0; for(let p=55;p<=84;p++){ const f0=440*Math.pow(2,(p-69)/12); let s2=0; for(let h=0;h<5;h++){ const k=Math.round((h+1)*f0/dfL); if(k<NL/2) s2+=H[h]*Math.log1p(10*ml[k]); } if(s2>bs){ bs=s2; bp=p; } }
+    melP[i]=bp; melS[i]=bs;
+    if(i%150===0){ report(0.05+0.7*i/F); await tick(); }
+  }
+  const tOf=i=>(i*HOP+NL/2)/SR, iOf=t=>Math.max(0,Math.min(F-1,Math.round((t*SR-NL/2)/HOP))), hopS=HOP/SR;
+  // onset curve: each band scaled to its own average, so a busy hi-hat does not drown the beat
+  report(0.78); await tick();
+  const mean=a=>{ let s=0; for(let i=0;i<a.length;i++) s+=a[i]; return s/a.length+1e-9; };
+  const local=a=>{ const e=new Float32Array(F); let acc=0; const W=16, q=[]; for(let i=0;i<F;i++){ q.push(a[i]); acc+=a[i]; if(q.length>W) acc-=q.shift(); e[i]=Math.max(0,a[i]-acc/q.length); } return e; };
+  const mLo=mean(fluxLo), mTon=mean(fluxTon), mMid=mean(fluxMid), mHi=mean(fluxHi), od=new Float32Array(F);
+  for(let i=0;i<F;i++) od[i]=fluxLo[i]/mLo+fluxTon[i]/mTon+0.5*fluxMid[i]/mMid+0.5*fluxHi[i]/mHi;
+  const env=local(od), envLo=local(fluxLo.map(v=>v/mLo));
+  const at=(a,p)=>{ const i=Math.floor(p), f=p-i; return i>=0 && i+1<a.length ? a[i]*(1-f)+a[i+1]*f : 0; };
+  // tempo: comb over the onset curve, leaning towards common tempos
+  let best=120, bsc=-1;
+  for(let bpm=70;bpm<=180;bpm+=0.5){ const L=60/bpm/hopS; let sc=0; for(let i=0;i+4*L<F;i+=1) sc+=env[i]*(at(env,i+L)+0.5*at(env,i+2*L)+0.25*at(env,i+4*L));
+    sc*=Math.exp(-0.5*Math.pow(Math.log2(bpm/115)/0.9,2)); if(sc>bsc){ bsc=sc; best=bpm; } }
+  // then tempo and beat phase together over the whole song, which pins the tempo much closer
+  const fit=b2=>{ const P=60/b2/hopS; let bp=0, bs=-1; for(let f=0;f<P;f+=0.5){ let sc=0, n=0; for(let p=f;p<F;p+=P){ sc+=at(env,p)+at(envLo,p); n++; } sc/=n||1; if(sc>bs){ bs=sc; bp=f; } } return [bs,bp]; };
+  let fb=best, fph=0, fsc=-1;
+  for(let b2=best-1.5;b2<=best+1.5+1e-9;b2+=0.05){ const [sc,f]=fit(b2); if(sc>fsc){ fsc=sc; fb=b2; fph=f; } }
+  const bpm = Math.abs(fb-Math.round(fb))<0.2 ? Math.round(fb) : Math.round(fb*10)/10;
+  if(bpm!==fb) fph=fit(bpm)[1];
+  const beat=60/bpm, step=beat/4, bar=beat*4, half=bar/2; let b1=tOf(fph)%beat; if(b1>beat*0.9) b1-=beat;
+  report(0.82); await tick();
+  // which beat is the "one": chords change and the kick lands there
+  const avgAt=(arr,a,b)=>{ const s=new Float32Array(12); for(let i=iOf(Math.max(0,a));i<=iOf(b)&&i<F;i++) for(let c=0;c<12;c++) s[c]+=arr[i*12+c]; const n=Math.hypot(...s)||1; for(let c=0;c<12;c++) s[c]/=n; return s; };
+  const nb=Math.floor((buf.duration-b1)/beat), cc=new Float32Array(nb), lw=new Float32Array(nb);
+  for(let k=1;k<nb;k++){ const t=b1+k*beat, A=avgAt(chroma,t-beat,t), B=avgAt(chroma,t,t+beat); let d=0, ea=0, eb=0; for(let c=0;c<12;c++){ d+=A[c]*B[c]; ea+=A[c]; eb+=B[c]; } cc[k]= ea>0 && eb>0 ? 1-d : 0; const i=iOf(t); lw[k]=Math.max(envLo[Math.max(0,i-1)],envLo[i],envLo[Math.min(F-1,i+1)]); }
+  const mc=mean(cc), ml=mean(lw); let one=0, osc=-1;
+  for(let o=0;o<4;o++){ let sc=0, n=0; for(let k=o;k<nb;k+=4){ sc+=Math.min(3,cc[k]/mc)+0.4*Math.min(3,lw[k]/ml); n++; } sc/=n||1; if(sc>osc){ osc=sc; one=o; } }
+  // the song starts on bar 1; music before the first "one" becomes a pickup bar
+  const d1=b1+one*beat, rms=(a,b)=>{ let s2=0; for(let i=a;i<b;i++) s2+=x[i]*x[i]; return Math.sqrt(s2/Math.max(1,b-a)); };
+  const quiet = d1<0.1*bar || rms(0,Math.floor((d1-0.06)*SR)) < 0.08*rms(0,x.length);   // only silence before it: just trim
+  const t0 = quiet ? d1 : d1-bar, clipT=Math.max(0,-t0), clipOff=Math.max(0,t0);
+  const dur=buf.duration-t0, bars=Math.max(1,Math.ceil(dur/bar-1e-6)), nSteps=Math.round(bars*16);
+  report(0.86); await tick();
+  // drums: band onsets on the sixteenth grid; a hit has to stand out against the loudest ones too
+  const grid=a=>{ const v=new Float32Array(nSteps); for(let j=0;j<nSteps;j++){ const t=t0+j*step; if(t<-0.02) continue; const c=iOf(t); v[j]=Math.max(a[Math.max(0,c-1)],a[c],a[Math.min(F-1,c+1)]); } return v; };
+  const gLo=grid(fluxLo), gMid=grid(fluxMid), gHi=grid(fluxHi), events=[];
+  const hits=(g,key,p,rel,peak)=>{ const top=Math.max(pctl(g,0.98),1e-6), thr=Math.max(pctl(g,p), rel*top, 1e-6);
+    for(let j=0;j<nSteps;j++){ if(g[j]<thr) continue; if(peak && ((j>0&&g[j-1]>g[j]) || (j+1<nSteps&&g[j+1]>g[j]))) continue;
+      events.push({t:+(j*step).toFixed(5), ch:9, n:LANE_KEY[key], raw:LANE_KEY[key], v:Math.round(72+50*Math.min(1,(g[j]-thr)/Math.max(1e-6,top-thr)))}); } };
+  hits(gLo,'k',0.78,0.5,true); hits(gMid,'s',0.85,0.5,true); hits(gHi,'h',0.6,0.25,false);
+  events.sort((a,b)=>a.t-b.t);
+  // chords on each half bar, major or minor, steadied against one-off flickers
+  const TPL=[]; for(let r=0;r<12;r++) for(const min of [0,1]){ const t=new Float32Array(12).fill(-0.25); t[r]=1; t[(r+(min?3:4))%12]=0.8; t[(r+7)%12]=0.8; TPL.push({r,min,t}); }
+  const avg=(arr,a,b)=>avgAt(arr,t0+a,t0+b);
+  const segs=[], en=[]; for(let k=0;k*half<dur;k++){ let e=0, n=0; for(let i=iOf(Math.max(0,t0+k*half));i<=iOf(t0+(k+1)*half)&&i<F;i++){ for(let c=0;c<12;c++) e+=chroma[i*12+c]; n++; } en.push(t0+(k+1)*half<0.05 ? 0 : e/(n||1)); }
+  const enMid=pctl(en,0.5);
+  for(let k=0;k*half<dur;k++){ if(en[k]<0.1*enMid){ segs.push(null); continue; }   // silence: no chord
+    const c=avg(chroma,k*half,(k+1)*half), bc=avg(bassC,k*half,(k+1)*half); let b=null, bs2=-9;
+    for(const T of TPL){ let s2=0; for(let q=0;q<12;q++) s2+=c[q]*T.t[q]; s2+=0.35*bc[T.r]; if(s2>bs2){ bs2=s2; b=T; } } segs.push(b); }
+  const same=(a,b)=>a && b && a.r===b.r && a.min===b.min;
+  for(let k=1;k+1<segs.length;k++){ const a=segs[k-1], b=segs[k], c=segs[k+1]; if(b && same(a,c) && !same(a,b)) segs[k]=a; }
+  report(0.9); await tick();
+  const chordAt=t=>segs[Math.min(segs.length-1,Math.max(0,Math.floor(t/half)))];
+  const near=(pc,lo)=>lo+((pc-lo)%12+12)%12;
+  // keys: chords on beats 1 and 3; strings hold them
+  const keys=[], strs=[], bass=[], mel=[];
+  for(let k=0;k<segs.length;k++){ const T=segs[k], a=k*half; if(!T) continue; if(a>=dur) break; const r=near(T.r,55), tri=[r, r+(T.min?3:4), r+7];
+    tri.forEach(n=>keys.push({t:+a.toFixed(4), d:+(half*0.92).toFixed(4), n, v:84}));
+    if(!same(segs[k-1],T) || k%2===0){ let m=1; while(k+m<segs.length && same(segs[k+m],T) && m<4) m++;
+      const sr=near(T.r,48); [sr, sr+(T.min?3:4), sr+7].forEach(n=>strs.push({t:+a.toFixed(4), d:+(m*half*0.97).toFixed(4), n, v:70})); } }
+  // bass: one note a beat, the chord tone the low end leans to
+  for(let b=0;b*beat<dur;b++){ const a=b*beat, T=chordAt(a+0.01); if(!T) continue; const bc=avg(bassC,a,a+beat); let pc=T.r, bv=bc[T.r];
+    [T.r,(T.r+(T.min?3:4))%12,(T.r+7)%12].forEach(q=>{ if(bc[q]>bv*1.25){ bv=bc[q]; pc=q; } });
+    const lv=gLo[Math.min(nSteps-1,b*4)]/(pctl(gLo,0.98)||1); bass.push({t:+a.toFixed(4), d:+(beat*0.88).toFixed(4), n:near(pc,31), v:Math.round(Math.min(118,88+24*Math.min(1,lv)))}); }
+  // melody draft: the strongest pitch per sixteenth, joined into notes
+  { const sal=new Float32Array(nSteps), pit=new Int16Array(nSteps);
+    for(let j=0;j<nSteps;j++){ if(t0+j*step<0) continue; const h=new Float32Array(96); for(let i=iOf(t0+j*step);i<=iOf(t0+(j+1)*step)&&i<F;i++) h[melP[i]]+=melS[i]; let p=0; for(let q=55;q<=84;q++) if(h[q]>h[p]) p=q; pit[j]=p; sal[j]=h[p]; }
+    const thr=pctl(sal,0.55); let s0=-1;
+    for(let j=0;j<=nSteps;j++){ const on=j<nSteps && sal[j]>=thr && pit[j]>0, keep=on && s0>=0 && pit[j]===pit[s0];
+      if(s0>=0 && !keep){ if(j-s0>=2) mel.push({t:+(s0*step).toFixed(4), d:+((j-s0)*step*0.95).toFixed(4), n:pit[s0], v:92}); s0=-1; }
+      if(on && s0<0) s0=j; } }
+  report(0.96); await tick();
+  return {bpm, bars, t0, clipT, clipOff, events, keys, strs, bass, mel, chords:segs.length};
+}
+async function projFromAudio(file){
+  const box=$('anaBox'), bar=$('anaBar'), txt=$('anaTxt'); box.hidden=false; txt.textContent='Читаю файл…'; bar.style.width='2%';
+  const report=p=>{ bar.style.width=Math.round(p*100)+'%'; txt.textContent = p<0.78 ? 'Слушаю песню… '+Math.round(p*100)+'%' : p<0.9 ? 'Ищу темп и ударные…' : 'Собираю аккорды, бас и мелодию…'; };
+  try{
+    initAudio(); const bytes=await file.arrayBuffer(), buf=await new Promise((res,rej)=>ctx.decodeAudioData(bytes.slice(0),res,rej));
+    const r=await analyzeAudio(buf, report);
+    const id=()=>Math.random().toString(36).slice(2,9), name=file.name.replace(/\.[^.]+$/,'').slice(0,40)||'Песня';
+    const t={name, bpm:r.bpm, bars:r.bars, chan:9, saved:true, events:r.events, dcuts:[], parts:[
+      {id:id(), inst:'bass_finger', vol:0.8, mute:false, solo:false, cuts:[], notes:r.bass},
+      {id:id(), inst:'key_piano', vol:0.55, mute:false, solo:false, cuts:[], notes:r.keys},
+      {id:id(), inst:'str_ens', vol:0.4, mute:false, solo:false, cuts:[], notes:r.strs},
+      {id:id(), inst:'syn_square', vol:0.5, mute:false, solo:false, cuts:[], notes:r.mel, name:'Мелодия (черновик)'} ]};
+    const fid=await aStoreFile(bytes);
+    t.audio=[{name:'Оригинал: '+name, vol:0.9, mute:true, fid, buf, peaks:aPeaks(buf), clips:[{t:r.clipT, off:r.clipOff, len:buf.duration-r.clipOff}]}]; t._aLoaded=true;
+    let nm=name, n=2; while(tracks.some(x=>!x.demo && x.name===nm)) nm=name+' ('+(n++)+')'; t.name=nm;
+    tracks.push(t); saveLibrary(); aSaveMeta(t);
+    box.hidden=true; select(tracks.length-1); closeProjects(); st.x0=0; st.zoom=1; renderStudio(); loadParts();
+    toast('Готово: '+r.bpm+' BPM, '+r.bars+' т. Оригинал лежит на нижней дорожке и пока выключен: нажмите M, чтобы сравнить.');
+  }catch(e){ box.hidden=true; toast('Не получилось разобрать файл: '+(e&&e.message||'неизвестный формат')); }
+}
+$('projGrid').addEventListener('click',e=>{ if(e.target.closest('[data-fromaudio]')) $('projAudio').click(); });
+$('projAudio').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) projFromAudio(f); });
 
 /* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
 const DEMO_SONGS = [
