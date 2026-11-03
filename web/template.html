@@ -1995,7 +1995,7 @@ function stAction(kind){
     removeIn(t,row,x,x+st.clip.len); insertNotes(t,row,st.clip.notes,x); addCut(t,row,x); addCut(t,row,x+st.clip.len);
     st.sel=clipAt(row,x+1e-4); seekTo(Math.min(x+st.clip.len, duration())); toast('Вставлено');
   }
-  if(kind==='del'){ removeIn(t,s.row,s.a,s.b); toast('Кусок очищен'); }
+  if(kind==='del'){ removeIn(t,s.row,s.a,s.b); const cs=rowCuts(t,s.row); for(let i=cs.length-1;i>=0;i--) if(cs[i]>=s.a-1e-3 && cs[i]<=s.b+1e-3) cs.splice(i,1); st.sel=null; toast('Кусок удалён'); }
   studioChanged();
 }
 // drag a selected clip sideways (by beats) and onto another instrument
@@ -2214,12 +2214,13 @@ function trimClip(d){ const s=d.s, na=d.trim==='l'&&d.na!=null?d.na:s.a, nb=d.tr
   for(let i=cs.length-1;i>=0;i--){ const c=cs[i]; if((Math.abs(c-s.a)<1e-3 && Math.abs(na-s.a)>1e-4) || (Math.abs(c-s.b)<1e-3 && Math.abs(nb-s.b)>1e-4) || (c>na+1e-3 && c<nb-1e-3)) cs.splice(i,1); }
   addCut(t,row,na); addCut(t,row,nb);
   st.sel={row, a:na, b:nb, keep}; studioChanged(); }
-const CLIP_ACTS=[['edit','Редактировать ноты'],['cut','Разрезать по курсору'],['copy','Копировать'],['paste','Вставить в курсор'],['del','Удалить ноты куска'],['wav','Добавить WAV / MP3'],['midi','Загрузить MIDI в эту дорожку']];
+const CLIP_ACTS=[['edit','Редактировать ноты'],['cut','Разрезать по курсору'],['copy','Копировать'],['paste','Вставить в курсор'],['del','Удалить кусок'],['wav','Добавить WAV / MP3'],['midi','Загрузить MIDI в эту дорожку']];
 let clipFor=null;
 function openClipMenu(row){ const t=track(), s=st.sel&&st.sel.row===row?st.sel:null; clipFor={row}; aMenu=null;
   $('clipTitle').textContent=row<0?'Барабаны · '+kit.name:INST[t.parts[row].inst].name;
   $('clipInfo').textContent=s?'Кусок: '+lcdPos(s.a)+' – '+lcdPos(Math.max(s.a,s.b-1e-3)):'';
-  $('clipActs').innerHTML=CLIP_ACTS.map(([k,n])=>`<button class="snd${k==='del'?' danger':''}" data-act="${k}">${n}</button>`).join('');
+  $('clipActs').innerHTML=CLIP_ACTS.map(([k,n])=>`<button class="snd${k==='del'?' danger':''}" data-act="${k}">${n}</button>`).join('')
+    +`<button class="snd danger" data-act="trk">${row<0?'Очистить всю дорожку ударных':'Удалить дорожку'}</button>`;
   sheet('clipSheet',true); }
 $('stRows').addEventListener('touchstart',e=>{
   if(e.touches.length===2){ stPinchStart(e.touches); e.preventDefault(); return; }
@@ -2568,7 +2569,10 @@ function openAudioMenu(i,k){ const a=aClips()[i]; if(!a) return; aMenu={i,k};
   $('clipActs').innerHTML=acts.map(([k,n])=>`<button class="snd${/del|track/.test(k)?' danger':''}" data-act="${k}">${n}</button>`).join('');
   clipFor=null; sheet('clipSheet',true); }
 $('clipClose').addEventListener('click',()=>sheet('clipSheet',false));
-$('clipActs').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b) return; const act=b.dataset.act; sheet('clipSheet',false);
+$('clipActs').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b) return; const act=b.dataset.act;
+  if(act==='trk' && !b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='Точно? Нажмите ещё раз'; return; }
+  sheet('clipSheet',false);
+  if(act==='trk' && clipFor){ delRow(clipFor.row); return; }
   if(act==='wav'){ $('stWav').click(); return; }
   if(act==='midi'){ stFileRow = clipFor ? clipFor.row : null; $('stFile').click(); return; }
   if(clipFor){ const row=clipFor.row;
@@ -2818,6 +2822,13 @@ async function calibrate(){
 }
 $('recCal').addEventListener('click',calibrate);
 showRecLat();
+
+// remove a whole instrument track (drums can't go: their track is cleared instead)
+function delRow(r){ const t=ownTrack();
+  if(r<0){ removeIn(t,-1,-1,1e9); rowCuts(t,-1).length=0; st.sel=null; studioChanged(); toast('Дорожка ударных очищена'); return; }
+  if(!t.parts[r]) return; t.parts.splice(r,1);
+  if(st.armed===r) st.armed=null; else if(st.armed>r) st.armed--;
+  st.sel=null; st.focus=null; studioChanged(); toast('Дорожка удалена'); }
 
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio(); openProjects();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
