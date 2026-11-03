@@ -46,7 +46,7 @@ button{cursor:pointer}
 .kit[aria-pressed="true"]{border-color:var(--brass);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
 
 /* pads */
-.pads{display:grid;grid-template-columns:repeat(var(--cols,4),var(--ps,80px));grid-auto-rows:var(--ps,80px);gap:6px}
+.pads{display:grid;grid-template-columns:repeat(var(--cols,4),var(--ps,80px));grid-auto-rows:var(--ph,var(--ps,80px));gap:6px}
 .pad{max-width:100%;-webkit-touch-callout:none;-webkit-user-select:none;touch-action:manipulation;border-radius:3px;background:linear-gradient(#2e323b,#23262e);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px;transition:background .12s,border-color .12s,color .12s,transform .08s;user-select:none}
 .pad.on{background:linear-gradient(var(--hit),var(--brass));border-color:var(--hit);color:var(--brass-ink);transform:scale(.95);transition:none}
 
@@ -515,6 +515,13 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 @media (max-width:370px){ #stUndo{display:none} }
 .proj-hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .proj-hrow .ed-b{padding:7px 12px;font-size:12px}
+/* keyboard and pads can be pulled up */
+.st-kb{position:relative}
+.kb-grip{height:16px;margin:-6px -8px 0;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:ns-resize}
+.kb-grip::before{content:"";width:44px;height:5px;border-radius:3px;background:#5a5a62}
+.kb-grip.on::before{background:var(--brass)}
+#stKb .kb-keys{height:var(--kbh,clamp(80px,16vh,130px))}
+#stPads .padsec{height:var(--padh,clamp(110px,24vh,190px))}
 /* chord window: previous, current (bright), next */
 .chords{display:flex;align-items:center;gap:2px;height:40px;box-sizing:border-box;padding:0 8px;border-radius:9px;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.1);font-variant-numeric:tabular-nums;flex:none}
 .chords span{min-width:2.6em;text-align:center;font-weight:700;white-space:nowrap}
@@ -740,10 +747,12 @@ body.mic-on #stPlay{background:var(--rec)}
     <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stWav" accept="audio/*,.wav,.wave,.mp3,.ogg,.m4a,.flac" multiple hidden><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
+      <div class="kb-grip" data-grip="kb" aria-label="Потяните, чтобы изменить высоту клавиатуры" role="separator"></div>
       <div class="kb-head"><b id="kbName"></b><span class="st-sp"></span><button class="ed-b sq" id="kbDown" aria-label="Октава ниже">−</button><output id="kbOct"></output><button class="ed-b sq" id="kbUp" aria-label="Октава выше">+</button></div>
       <div class="kb-keys" id="kbKeys"></div>
     </div>
     <div class="st-kb st-padp" id="stPads" hidden>
+      <div class="kb-grip" data-grip="pad" aria-label="Потяните, чтобы изменить высоту пэдов" role="separator"></div>
       <div class="kb-head"><button class="cb tp" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button><b>Пэды</b><span class="st-sp"></span><small class="pad-hint">Долгое нажатие: выбор звука</small></div>
       <section class="padsec"><div class="pads" id="pads"></div></section>
     </div>
@@ -1356,7 +1365,8 @@ function fitPads(){ const sec=document.querySelector('.padsec'), W=sec.clientWid
   // 4×2 or, on a tall screen with room to spare, 2×4: whichever gives the bigger square pads
   const wide=Math.min((W-18)/4,(H-6)/2), tall=Math.min((W-6)/2,(H-18)/4), cols=tall>wide*1.08?2:4;
   $('pads').style.setProperty('--cols', cols);
-  $('pads').style.setProperty('--ps', Math.max(52, Math.floor(cols===2?tall:wide))+'px'); }
+  const ps=Math.max(52, Math.floor(cols===2?tall:wide)), rows=cols===2?4:2, ph=Math.max(ps, Math.min(Math.floor((H-6*(rows-1)-4)/rows), Math.round(ps*1.9)));
+  $('pads').style.setProperty('--ps', ps+'px'); $('pads').style.setProperty('--ph', ph+'px'); }
 window.addEventListener('resize', fitPads); requestAnimationFrame(fitPads); setTimeout(fitPads,300);
 
 const PAD_NOTE=[36,38,42,45,49,51,63,56];
@@ -3117,6 +3127,20 @@ $('projSave').addEventListener('click',projSave);
 $('projImp').addEventListener('click',()=>$('projFile').click());
 $('projImp2').addEventListener('click',()=>$('projFile').click());
 $('projFile').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) projImport(f); });
+
+// drag the bar on top of the keyboard / pads to make them taller
+(()=>{ const st0=k=>{ const v=parseFloat(store.get(k)); return isFinite(v)?v:null; };
+  const apply=()=>{ const k=st0('kbH'), p=st0('padH'), el=$('studio'); if(k) el.style.setProperty('--kbh',k+'px'); if(p) el.style.setProperty('--padh',p+'px'); };
+  apply(); let g=null;
+  $('studio').addEventListener('pointerdown',e=>{ const gr=e.target.closest('[data-grip]'); if(!gr) return; e.preventDefault();
+    const kb=gr.dataset.grip==='kb', box=kb?$('kbKeys'):document.querySelector('#stPads .padsec');
+    g={gr, kb, y:e.clientY, h0:box.getBoundingClientRect().height}; gr.classList.add('on'); gr.setPointerCapture(e.pointerId); });
+  $('studio').addEventListener('pointermove',e=>{ if(!g) return; const max=Math.round(window.innerHeight*(g.kb?0.6:0.65)), h=Math.round(Math.max(56,Math.min(max,g.h0+(g.y-e.clientY))));
+    $('studio').style.setProperty(g.kb?'--kbh':'--padh',h+'px'); g.h=h; if(!g.kb && typeof fitPads==='function') fitPads(); drawLanes(); });
+  const end=()=>{ if(!g) return; g.gr.classList.remove('on'); if(g.h) store.set(g.kb?'kbH':'padH',String(g.h)); if(g.kb) renderKb(); g=null; };
+  $('studio').addEventListener('pointerup',end); $('studio').addEventListener('pointercancel',end);
+  $('studio').addEventListener('dblclick',e=>{ const gr=e.target.closest('[data-grip]'); if(!gr) return; const kb=gr.dataset.grip==='kb'; store.set(kb?'kbH':'padH',''); $('studio').style.removeProperty(kb?'--kbh':'--padh'); if(!kb) fitPads(); drawLanes(); });
+})();
 
 /* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
 const DEMO_SONGS = [
