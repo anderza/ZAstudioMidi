@@ -735,6 +735,7 @@ body.mic-on #stPlay{background:var(--rec)}
         <button class="mbtn" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg><span>Отсчёт</span></button>
         <button class="mbtn" id="metro" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Метроном</span></button>
         <button class="mbtn wide" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 18h16v3H4z"/></svg><span>Экспорт песни в WAV</span></button>
+        <button class="mbtn wide" id="exportMidiBtn"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM9 12v6h1.6v-3.6l1.4 2.2 1.4-2.2V18H15v-6h-1.4L12 14.6 10.4 12z"/></svg><span>Экспорт в MIDI-файл</span></button>
         <button class="mbtn wide" id="projOpen"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>Мои проекты</span></button>
       </div>
       <div class="msec">
@@ -756,6 +757,7 @@ body.mic-on #stPlay{background:var(--rec)}
     <div class="proj-hrow"><h2 class="proj-h">Мои проекты</h2><button class="ed-b" id="projImp2">Импорт проекта</button></div>
     <div class="proj-grid" id="projGrid"></div>
     <input type="file" id="projAudio" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.aac" hidden>
+    <input type="file" id="projGP" accept=".gp3,.gp4,.gp5,.gp,.gpx,application/octet-stream" hidden>
     <div class="ana" id="anaBox" role="status" aria-live="polite" hidden><div class="ana-in"><b id="anaTxt"></b><div class="ana-bar"><i id="anaBar"></i></div><small>Песня разбирается прямо на телефоне, это займёт до минуты</small></div></div>
   </div>
   <div class="studio" id="studio" role="dialog" aria-label="Студия" hidden>
@@ -2022,6 +2024,8 @@ const CATS = {
   bass:{name:'Бас', one:'Бас', c:'#F0704E', lo:24, hi:60, base:36},
   keys:{name:'Клавишные', one:'Клавишные', c:'#3DB7D9', lo:28, hi:96, base:60},
   strings:{name:'Струнные', one:'Струнные', c:'#B98CFF', lo:28, hi:96, base:48},
+  guitar:{name:'Гитары', one:'Гитара', c:'#F28DB2', lo:40, hi:88, base:52},
+  winds:{name:'Духовые', one:'Духовые', c:'#36CDB5', lo:48, hi:96, base:67},
 };
 const ICONS = {
   drums:'<path d="M3 10c0-2 4-3.4 9-3.4s9 1.4 9 3.4v6.5c0 2-4 3.5-9 3.5s-9-1.5-9-3.5zm2 0c0 .9 3.1 2 7 2s7-1.1 7-2-3.1-2-7-2-7 1.1-7 2z"/><path d="M6.3 2.6l5.2 5.6-.9.8-5.2-5.6zM17.7 2.6l-5.2 5.6.9.8 5.2-5.6z"/>',
@@ -2087,6 +2091,26 @@ strings:`<g>
     <path class="d" d="M22.4 37h3.2l.8 6h-4.8z" fill="#1A1A1E"/>
     <path class="s" d="M23.2 6v31M24.8 6v31" stroke="#F2F2F2" stroke-width=".45" fill="none"/>
   </g>
+</g>`,
+guitar:`<g transform="rotate(40 24 24)">
+  <path class="b" d="M21.4 .8h5.2l.5 6.4h-6.2z" fill="url(#gWoodD)"/>
+  <path class="s" d="M19.6 2.4h1.6M19.6 5.2h1.6M26.8 2.4h1.6M26.8 5.2h1.6" stroke="url(#gMetal)" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  <rect class="b" x="22.4" y="6.8" width="3.2" height="16" fill="url(#gWoodD)"/>
+  <path class="d" d="M22.4 10.2h3.2M22.4 13.4h3.2M22.4 16.4h3.2M22.4 19.2h3.2" stroke="#D9C9A8" stroke-width=".55" fill="none"/>
+  <path class="b" d="M24 20.6c-4.3 0-7.4 1.8-7.4 5.5 0 2.3 1.5 3.2 1.5 4.6 0 1.5-3.4 2.8-3.4 7.8 0 5.4 4.3 8.9 9.3 8.9s9.3-3.5 9.3-8.9c0-5-3.4-6.3-3.4-7.8 0-1.4 1.5-2.3 1.5-4.6 0-3.7-3.1-5.5-7.4-5.5z" fill="url(#gWood)"/>
+  <circle class="d" cx="24" cy="31.4" r="3.3" fill="#1A1208"/>
+  <rect class="d" x="20.3" y="39.6" width="7.4" height="1.7" rx=".7" fill="#2B1407"/>
+  <path class="s" d="M23.3 7v33M24.7 7v33" stroke="#F2F2F2" stroke-width=".45" fill="none"/>
+</g>`,
+winds:`<g>
+  <path class="b" d="M1.5 21.6h3.2l1.4.8h22v3.2h-22l-1.4.8H1.5z" fill="url(#gBrass)"/>
+  <path class="b" d="M27.6 22.2 37 18.6c3.4-1.4 6.2-3.4 8.4-6.2v23.2c-2.2-2.8-5-4.8-8.4-6.2l-9.4-3.6z" fill="url(#gBrass)"/>
+  <path class="d" d="M44.2 15.2c.9 2.4 1.3 5.6 1.3 8.8s-.4 6.4-1.3 8.8" stroke="#3A2A10" stroke-width="1" fill="none"/>
+  <path class="s" d="M9 25.6v6.6a3 3 0 0 0 3 3h14.6a3 3 0 0 0 3-3v-6.4" stroke="url(#gBrass)" stroke-width="2.2" fill="none"/>
+  <path class="b" d="M13.6 14h3.6v19.4h-3.6zm5.6 0h3.6v19.4h-3.6zm5.6 0h3.6v19.4h-3.6z" fill="url(#gBrass)"/>
+  <path class="b" d="M13 10.6h4.8v3h-4.8zm5.6 0h4.8v3h-4.8zm5.6 0h4.8v3h-4.8z" fill="url(#gMetal)"/>
+  <path class="b" d="M14.2 7.4h2.4v3.4h-2.4zm5.6 0h2.4v3.4h-2.4zm5.6 0h2.4v3.4h-2.4z" fill="url(#gMetal)"/>
+  <path class="d" d="M15.4 16v15.4M21 16v15.4M26.6 16v15.4" stroke="#3A2A10" stroke-width=".7" fill="none"/>
 </g>`,
 audio:`<g>
   <path class="b" d="M4 21h3v6H4zm5-6h3v18H9zm5-9h3v36h-3zm5 11h3v14h-3zm5-8h3v30h-3zm5 6h3v18h-3zm5-3h3v24h-3zm5 7h3v10h-3z" fill="url(#gWave)"/>
@@ -2480,9 +2504,10 @@ $('stUndo').addEventListener('click',()=>{
 
 /* ---------- your own MIDI file into the studio ---------- */
 let stFileRow=null;   // null: the whole file (drums + new instruments), a number: only into that row
-const PROG_INST = pg => pg<4?'key_piano' : pg<8?'key_ep' : pg<16?'key_piano' : pg<24?'key_organ' : pg<32?'key_piano'
+const PROG_INST = pg => pg<4?'key_piano' : pg<8?'key_ep' : pg<16?'key_piano' : pg<24?'key_organ'
+  : pg===24?'gtr_nylon' : pg===25?'gtr_steel' : pg<29?'gtr_clean' : pg<31?'gtr_dist' : pg<32?'gtr_clean'
   : pg===32?'bass_acoustic' : pg===34?'bass_pick' : pg===36||pg===37?'bass_slap' : pg===38?'bass_synth1' : pg===39?'bass_synth2' : pg<40?'bass_finger'
-  : pg<56?'str_ens' : pg<80?'str_ens' : pg===80?'syn_square' : pg===81?'syn_saw' : pg===87?'syn_basslead' : pg<88?'syn_saw' : pg===88?'syn_newage' : pg===89?'syn_warm' : pg<96?'syn_poly' : 'syn_warm';
+  : pg<56?'str_ens' : pg<62?'wind_trumpet' : pg<64?'syn_saw' : pg<68?'wind_sax' : pg<80?'wind_flute' : pg===80?'syn_square' : pg===81?'syn_saw' : pg===87?'syn_basslead' : pg<88?'syn_saw' : pg===88?'syn_newage' : pg===89?'syn_warm' : pg<96?'syn_poly' : 'syn_warm';
 $('stFile').addEventListener('change', async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f) return;
   let m; try{ m=parseMidi(await f.arrayBuffer()); }catch(err){ toast('Не удалось прочитать '+f.name); return; }
@@ -2924,6 +2949,7 @@ function renderProjects(){
   const ps=projList().reverse();
   $('projGrid').innerHTML=`<button class="proj new" data-new="1"><span class="pplus">+</span><b>Новый проект</b></button>`+
     `<button class="proj new" data-fromaudio="1"><span class="pplus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h2v4H3zm4-4h2v12H7zm4-3h2v18h-2zm4 5h2v8h-2zm4 3h2v2h-2z"/></svg></span><b>Добавить аудиофайл</b><small>и сделать MIDI</small></button>`+
+    `<button class="proj new" data-fromgp="1"><span class="pplus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20v1.4H2zm0 4.5h20v1.4H2zm0 4.5h20v1.4H2zm0 4.5h20v1.4H2z" opacity=".55"/><path d="M5 3.4h3.4v4.2H5zm5.5 4.5h3.4v4.2h-3.4zm5.5 4.5h3.4v4.2H16z"/></svg></span><b>Файл Guitar Pro</b><small>табы в MIDI</small></button>`+
     ps.map(({t,i})=>{ const D=t.bars?t.bars*240/t.bpm:(t.events.length?t.events[t.events.length-1].t:0);
       return `<div class="proj" data-open="${i}" role="button" tabindex="0"><span class="pthumb">${projThumb(t)}</span><b>${escH(t.name)}</b><small>${t.bpm} BPM · ${fmt(D)}</small><button class="pdel" data-pdel="${i}" aria-label="Удалить проект">×</button></div>`; }).join('');
 }
@@ -3319,6 +3345,7 @@ async function analyzeAudio(buf, report){
     const ms=fs(x, i*HOP+(NL-NS)/2); let lo=0, ton=0, mid=0, hi=0, tot=0;
     for(let k=1;k<NS/2;k++){ const m=ms[k], v=Math.log1p(100*m), d=v-prevS[k], dl=m-prevL[k]; prevS[k]=v; prevL[k]=m; const f=k*dfS;
       if(f<150){ if(dl>0) lo+=dl; continue; } if(f>=1500 && f<5000 && dl>0) mid+=dl; if(d<=0) continue; tot+=d; if(f<1500) ton+=d; else if(f>6000) hi+=d; }
+    if(i===0) lo=ton=mid=hi=tot=0;   // the first frame has nothing before it to rise from
     fluxLo[i]=lo; fluxTon[i]=ton; fluxMid[i]=mid; fluxHi[i]=hi; flux[i]=tot;
     // long FFT: chroma, bass chroma and the strongest pitch in the melody range
     const ml=fl(x, i*HOP);
@@ -3342,26 +3369,40 @@ async function analyzeAudio(buf, report){
     sc*=Math.exp(-0.5*Math.pow(Math.log2(bpm/115)/0.9,2)); if(sc>bsc){ bsc=sc; best=bpm; } }
   // then tempo and beat phase together over the whole song, which pins the tempo much closer
   const fit=b2=>{ const P=60/b2/hopS; let bp=0, bs=-1; for(let f=0;f<P;f+=0.5){ let sc=0, n=0; for(let p=f;p<F;p+=P){ sc+=at(env,p)+at(envLo,p); n++; } sc/=n||1; if(sc>bs){ bs=sc; bp=f; } } return [bs,bp]; };
-  let fb=best, fph=0, fsc=-1;
-  for(let b2=best-1.5;b2<=best+1.5+1e-9;b2+=0.05){ const [sc,f]=fit(b2); if(sc>fsc){ fsc=sc; fb=b2; fph=f; } }
-  const bpm = Math.abs(fb-Math.round(fb))<0.2 ? Math.round(fb) : Math.round(fb*10)/10;
-  if(bpm!==fb) fph=fit(bpm)[1];
-  const beat=60/bpm, step=beat/4, bar=beat*4, half=bar/2; let b1=tOf(fph)%beat; if(b1>beat*0.9) b1-=beat;
+  let fb=best, fsc=-1;
+  for(let b2=best-1.5;b2<=best+1.5+1e-9;b2+=0.05){ const [sc]=fit(b2); if(sc>fsc){ fsc=sc; fb=b2; } }
+  // follow the beats one by one, so a live band that speeds up or slows down stays in step:
+  // the best path through the onsets whose steps keep close to that tempo
+  const P0=60/fb/hopS, ls=new Float32Array(F); { let q=0; for(let i=0;i<F;i++) q+=env[i]*env[i]; const sd=Math.sqrt(q/F)||1;
+    for(let i=0;i<F;i++) ls[i]=(0.25*(env[i-2]||0)+0.5*(env[i-1]||0)+env[i]+0.5*(env[i+1]||0)+0.25*(env[i+2]||0))/sd+0.5*envLo[i]/(mean(envLo)*4); }
+  const C=new Float32Array(F), back=new Int32Array(F).fill(-1);
+  for(let i=0;i<F;i++){ let bv=-1e9, bj=-1; for(let j=Math.max(0,Math.round(i-2*P0)); j<=i-Math.round(P0/2); j++){ const v=C[j]-100*Math.pow(Math.log((i-j)/P0),2); if(v>bv){ bv=v; bj=j; } }
+    C[i]=ls[i]+(bj>=0?bv:0); back[i]=bj; if(i%2000===0) await tick(); }
+  let e0=F-1; for(let i=Math.max(0,F-Math.ceil(P0));i<F;i++) if(C[i]>C[e0]) e0=i;
+  const bt=[]; for(let i=e0;i>=0;i=back[i]) if(i>1 && i<F-2) bt.unshift(tOf(i));   // beats pinned to the very edges are guesses: extrapolate there instead
+  if(bt.length<2) bt.splice(0,bt.length,0,60/fb);
+  const nbt=bt.length, per=k=>{ const a=Math.max(0,Math.min(nbt-2,k)); return bt[a+1]-bt[a]; };
+  const Bq=q=>{ if(nbt<2) return q*60/fb; if(q<=0) return bt[0]+q*per(0); if(q>=nbt-1) return bt[nbt-1]+(q-nbt+1)*per(nbt-2); const k=Math.floor(q); return bt[k]+(q-k)*(bt[k+1]-bt[k]); };
+  const mb = nbt>8 ? 60*(nbt-1)/(bt[nbt-1]-bt[0]) : fb;
+  const bpm = Math.abs(mb-Math.round(mb))<0.2 ? Math.round(mb) : Math.round(mb*10)/10;
+  const beat=60/bpm, step=beat/4, bar=beat*4, half=bar/2;
   report(0.82); await tick();
   // which beat is the "one": chords change and the kick lands there
   const avgAt=(arr,a,b)=>{ const s=new Float32Array(12); for(let i=iOf(Math.max(0,a));i<=iOf(b)&&i<F;i++) for(let c=0;c<12;c++) s[c]+=arr[i*12+c]; const n=Math.hypot(...s)||1; for(let c=0;c<12;c++) s[c]/=n; return s; };
-  const nb=Math.floor((buf.duration-b1)/beat), cc=new Float32Array(nb), lw=new Float32Array(nb);
-  for(let k=1;k<nb;k++){ const t=b1+k*beat, A=avgAt(chroma,t-beat,t), B=avgAt(chroma,t,t+beat); let d=0, ea=0, eb=0; for(let c=0;c<12;c++){ d+=A[c]*B[c]; ea+=A[c]; eb+=B[c]; } cc[k]= ea>0 && eb>0 ? 1-d : 0; const i=iOf(t); lw[k]=Math.max(envLo[Math.max(0,i-1)],envLo[i],envLo[Math.min(F-1,i+1)]); }
+  const cc=new Float32Array(nbt), lw=new Float32Array(nbt);
+  for(let k=1;k+1<nbt;k++){ const t=bt[k], A=avgAt(chroma,bt[k-1],t), B=avgAt(chroma,t,bt[k+1]); let d=0, ea=0, eb=0; for(let c=0;c<12;c++){ d+=A[c]*B[c]; ea+=A[c]; eb+=B[c]; } cc[k]= ea>0 && eb>0 ? 1-d : 0; const i=iOf(t); lw[k]=Math.max(envLo[Math.max(0,i-1)],envLo[i],envLo[Math.min(F-1,i+1)]); }
   const mc=mean(cc), ml=mean(lw); let one=0, osc=-1;
-  for(let o=0;o<4;o++){ let sc=0, n=0; for(let k=o;k<nb;k+=4){ sc+=Math.min(3,cc[k]/mc)+0.4*Math.min(3,lw[k]/ml); n++; } sc/=n||1; if(sc>osc){ osc=sc; one=o; } }
+  for(let o=0;o<4;o++){ let sc=0, n=0; for(let k=o;k<nbt;k+=4){ sc+=Math.min(3,cc[k]/mc)+0.4*Math.min(3,lw[k]/ml); n++; } sc/=n||1; if(sc>osc){ osc=sc; one=o; } }
   // the song starts on bar 1; music before the first "one" becomes a pickup bar
-  const d1=b1+one*beat, rms=(a,b)=>{ let s2=0; for(let i=a;i<b;i++) s2+=x[i]*x[i]; return Math.sqrt(s2/Math.max(1,b-a)); };
+  const d1=Bq(one), rms=(a,b)=>{ let s2=0; for(let i=a;i<b;i++) s2+=x[i]*x[i]; return Math.sqrt(s2/Math.max(1,b-a)); };
   const quiet = d1<0.1*bar || rms(0,Math.floor((d1-0.06)*SR)) < 0.08*rms(0,x.length);   // only silence before it: just trim
-  const t0 = quiet ? d1 : d1-bar, clipT=Math.max(0,-t0), clipOff=Math.max(0,t0);
-  const dur=buf.duration-t0, bars=Math.max(1,Math.ceil(dur/bar-1e-6)), nSteps=Math.round(bars*16);
+  const k0 = quiet ? one : one-4, aT=t=>Bq(k0+t/beat);   // project time → time in the recording
+  const t0=aT(0), clipT=Math.max(0,-t0), clipOff=Math.max(0,t0);
+  let qEnd; { const T=buf.duration; if(nbt<2 || T>=bt[nbt-1]) qEnd=(nbt-1)+(T-(bt[nbt-1]||0))/per(nbt-2); else if(T<=bt[0]) qEnd=(T-bt[0])/per(0); else { let k=0; while(bt[k+1]<T) k++; qEnd=k+(T-bt[k])/(bt[k+1]-bt[k]); } }
+  const dur=Math.max(beat,(qEnd-k0)*beat), bars=Math.max(1,Math.ceil(dur/bar-1e-6)), nSteps=Math.round(bars*16);
   report(0.86); await tick();
   // drums: band onsets on the sixteenth grid; a hit has to stand out against the loudest ones too
-  const grid=a=>{ const v=new Float32Array(nSteps); for(let j=0;j<nSteps;j++){ const t=t0+j*step; if(t<-0.02) continue; const c=iOf(t); v[j]=Math.max(a[Math.max(0,c-1)],a[c],a[Math.min(F-1,c+1)]); } return v; };
+  const grid=a=>{ const v=new Float32Array(nSteps); for(let j=0;j<nSteps;j++){ const t=aT(j*step); if(t<-0.02) continue; const c=iOf(t); v[j]=Math.max(a[Math.max(0,c-1)],a[c],a[Math.min(F-1,c+1)]); } return v; };
   const gLo=grid(fluxLo), gMid=grid(fluxMid), gHi=grid(fluxHi), events=[];
   const hits=(g,key,p,rel,peak)=>{ const top=Math.max(pctl(g,0.98),1e-6), thr=Math.max(pctl(g,p), rel*top, 1e-6);
     for(let j=0;j<nSteps;j++){ if(g[j]<thr) continue; if(peak && ((j>0&&g[j-1]>g[j]) || (j+1<nSteps&&g[j+1]>g[j]))) continue;
@@ -3370,8 +3411,8 @@ async function analyzeAudio(buf, report){
   events.sort((a,b)=>a.t-b.t);
   // chords on each half bar, major or minor, steadied against one-off flickers
   const TPL=[]; for(let r=0;r<12;r++) for(const min of [0,1]){ const t=new Float32Array(12).fill(-0.25); t[r]=1; t[(r+(min?3:4))%12]=0.8; t[(r+7)%12]=0.8; TPL.push({r,min,t}); }
-  const avg=(arr,a,b)=>avgAt(arr,t0+a,t0+b);
-  const segs=[], en=[]; for(let k=0;k*half<dur;k++){ let e=0, n=0; for(let i=iOf(Math.max(0,t0+k*half));i<=iOf(t0+(k+1)*half)&&i<F;i++){ for(let c=0;c<12;c++) e+=chroma[i*12+c]; n++; } en.push(t0+(k+1)*half<0.05 ? 0 : e/(n||1)); }
+  const avg=(arr,a,b)=>avgAt(arr,aT(a),aT(b));
+  const segs=[], en=[]; for(let k=0;k*half<dur;k++){ let e=0, n=0; for(let i=iOf(Math.max(0,aT(k*half)));i<=iOf(aT((k+1)*half))&&i<F;i++){ for(let c=0;c<12;c++) e+=chroma[i*12+c]; n++; } en.push(aT((k+1)*half)<0.05 ? 0 : e/(n||1)); }
   const enMid=pctl(en,0.5);
   for(let k=0;k*half<dur;k++){ if(en[k]<0.1*enMid){ segs.push(null); continue; }   // silence: no chord
     const c=avg(chroma,k*half,(k+1)*half), bc=avg(bassC,k*half,(k+1)*half); let b=null, bs2=-9;
@@ -3381,10 +3422,12 @@ async function analyzeAudio(buf, report){
   report(0.9); await tick();
   const chordAt=t=>segs[Math.min(segs.length-1,Math.max(0,Math.floor(t/half)))];
   const near=(pc,lo)=>lo+((pc-lo)%12+12)%12;
-  // keys: chords on beats 1 and 3; strings hold them
+  // guitar: each chord strummed down, down, up over two beats; strings hold the chords
   const keys=[], strs=[], bass=[], mel=[];
-  for(let k=0;k<segs.length;k++){ const T=segs[k], a=k*half; if(!T) continue; if(a>=dur) break; const r=near(T.r,55), tri=[r, r+(T.min?3:4), r+7];
-    tri.forEach(n=>keys.push({t:+a.toFixed(4), d:+(half*0.92).toFixed(4), n, v:84}));
+  const strum=(ns,at,len,v,up)=>(up?[...ns].reverse():ns).forEach((n,i)=>keys.push({t:+(at+i*0.012).toFixed(4), d:+Math.max(0.05,len-i*0.012).toFixed(4), n, v:Math.max(40,v-i*3)}));
+  for(let k=0;k<segs.length;k++){ const T=segs[k], a=k*half; if(!T) continue; if(a>=dur) break;
+    const r=near(T.r,40), th=T.min?3:4, voic=[r, r+7, r+12, r+12+th, r+19, r+24].filter(n=>n<=76);
+    strum(voic,a,beat*0.95,96,false); strum(voic.slice(1),a+beat,beat*0.45,84,false); strum(voic.slice(2),a+beat*1.5,beat*0.45,72,true);
     if(!same(segs[k-1],T) || k%2===0){ let m=1; while(k+m<segs.length && same(segs[k+m],T) && m<4) m++;
       const sr=near(T.r,48); [sr, sr+(T.min?3:4), sr+7].forEach(n=>strs.push({t:+a.toFixed(4), d:+(m*half*0.97).toFixed(4), n, v:70})); } }
   // bass: one note a beat, the chord tone the low end leans to
@@ -3393,7 +3436,7 @@ async function analyzeAudio(buf, report){
     const lv=gLo[Math.min(nSteps-1,b*4)]/(pctl(gLo,0.98)||1); bass.push({t:+a.toFixed(4), d:+(beat*0.88).toFixed(4), n:near(pc,31), v:Math.round(Math.min(118,88+24*Math.min(1,lv)))}); }
   // melody draft: the strongest pitch per sixteenth, joined into notes
   { const sal=new Float32Array(nSteps), pit=new Int16Array(nSteps);
-    for(let j=0;j<nSteps;j++){ if(t0+j*step<0) continue; const h=new Float32Array(96); for(let i=iOf(t0+j*step);i<=iOf(t0+(j+1)*step)&&i<F;i++) h[melP[i]]+=melS[i]; let p=0; for(let q=55;q<=84;q++) if(h[q]>h[p]) p=q; pit[j]=p; sal[j]=h[p]; }
+    for(let j=0;j<nSteps;j++){ if(aT(j*step)<0) continue; const h=new Float32Array(96); for(let i=iOf(aT(j*step));i<=iOf(aT((j+1)*step))&&i<F;i++) h[melP[i]]+=melS[i]; let p=0; for(let q=55;q<=84;q++) if(h[q]>h[p]) p=q; pit[j]=p; sal[j]=h[p]; }
     const thr=pctl(sal,0.55); let s0=-1;
     for(let j=0;j<=nSteps;j++){ const on=j<nSteps && sal[j]>=thr && pit[j]>0, keep=on && s0>=0 && pit[j]===pit[s0];
       if(s0>=0 && !keep){ if(j-s0>=2) mel.push({t:+(s0*step).toFixed(4), d:+((j-s0)*step*0.95).toFixed(4), n:pit[s0], v:92}); s0=-1; }
@@ -3410,9 +3453,9 @@ async function projFromAudio(file){
     const id=()=>Math.random().toString(36).slice(2,9), name=file.name.replace(/\.[^.]+$/,'').slice(0,40)||'Песня';
     const t={name, bpm:r.bpm, bars:r.bars, chan:9, saved:true, events:r.events, dcuts:[], parts:[
       {id:id(), inst:'bass_finger', vol:0.8, mute:false, solo:false, cuts:[], notes:r.bass},
-      {id:id(), inst:'key_piano', vol:0.55, mute:false, solo:false, cuts:[], notes:r.keys},
-      {id:id(), inst:'str_ens', vol:0.4, mute:false, solo:false, cuts:[], notes:r.strs},
-      {id:id(), inst:'syn_square', vol:0.5, mute:false, solo:false, cuts:[], notes:r.mel, name:'Мелодия (черновик)'} ]};
+      {id:id(), inst:'gtr_steel', vol:0.7, mute:false, solo:false, cuts:[], notes:r.keys, name:'Аккорды (гитара)'},
+      {id:id(), inst:'str_ens', vol:0.3, mute:false, solo:false, cuts:[], notes:r.strs},
+      {id:id(), inst:'wind_flute', vol:0.55, mute:false, solo:false, cuts:[], notes:r.mel, name:'Мелодия (черновик)'} ]};
     const fid=await aStoreFile(bytes);
     t.audio=[{name:'Оригинал: '+name, vol:0.9, mute:true, fid, buf, peaks:aPeaks(buf), clips:[{t:r.clipT, off:r.clipOff, len:buf.duration-r.clipOff}]}]; t._aLoaded=true;
     let nm=name, n=2; while(tracks.some(x=>!x.demo && x.name===nm)) nm=name+' ('+(n++)+')'; t.name=nm;
@@ -3423,6 +3466,168 @@ async function projFromAudio(file){
 }
 $('projGrid').addEventListener('click',e=>{ if(e.target.closest('[data-fromaudio]')) $('projAudio').click(); });
 $('projAudio').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) projFromAudio(f); });
+
+/* ---------- Guitar Pro files (.gp3, .gp4, .gp5): the tabs become a MIDI project and a .mid file ---------- */
+function parseGP(buf){
+  const d=new DataView(buf), u8=new Uint8Array(buf); let p=0;
+  const dec=new TextDecoder('windows-1251');   // Guitar Pro keeps text in the system code page; Russian tabs use 1251
+  const need=n=>{ if(p+n>u8.length) throw new Error('файл обрезан'); };
+  const U8=()=>{ need(1); return d.getUint8(p++); }, I8=()=>{ need(1); return d.getInt8(p++); };
+  const I16=()=>{ need(2); const v=d.getInt16(p,true); p+=2; return v; }, I32=()=>{ need(4); const v=d.getInt32(p,true); p+=4; return v; };
+  const skip=n=>{ need(n); p+=n; };
+  const bstr=count=>{ const size=U8(); need(count); const s=dec.decode(u8.subarray(p,p+Math.min(size,count))); p+=count; return s.trim(); };   // length byte, then a fixed-size field
+  const istr=()=>{ const n=I32(); need(n); const s=dec.decode(u8.subarray(p,p+n)); p+=n; return s; };
+  const ibstr=()=>{ const n=I32(); return n>0 ? bstr(n-1) : ''; };
+  const ver=bstr(30), vm=ver.match(/(\d)\.(\d\d)/);
+  if(!/GUITAR PRO/i.test(ver) || !vm) throw new Error('это не файл Guitar Pro 3–5');
+  const V=+vm[1], v500=V===5 && vm[2]==='00', v5x=V===5 && !v500;
+  if(V<3 || V>5) throw new Error('версия '+vm[0]+' не поддерживается');
+  // song information
+  const title=ibstr(); ibstr(); const artist=ibstr(); ibstr(); ibstr(); if(V===5) ibstr(); ibstr(); ibstr(); ibstr();
+  for(let i=I32();i>0;i--) ibstr();
+  if(V<5) U8();                                            // triplet feel
+  if(V>=4){ I32(); for(let i=0;i<5;i++){ I32(); istr(); } } // lyrics
+  if(V===5){ if(v5x) skip(4+4+11); skip(8+16+4+2); for(let i=0;i<10;i++) ibstr(); ibstr(); }   // master effect, page setup, tempo name
+  const tempo=I32(); if(v5x) U8();
+  if(V===5){ I8(); I32(); } else if(V===4){ I32(); I8(); } else I32();   // key
+  const chans=[]; for(let i=0;i<64;i++){ chans.push({prog:I32()}); skip(8); }
+  if(V===5){ skip(38); I32(); }                             // directions, master reverb
+  const nM=I32(), nT=I32();
+  if(nM<1 || nM>4096 || nT<1 || nT>64) throw new Error('странный размер песни');
+  // measure headers: time signature, repeats, alternate endings
+  const H=[]; let prev=null;
+  for(let i=0;i<nM;i++){
+    if(V===5 && i>0) skip(1);
+    const f=U8(), h={num:prev?prev.num:4, den:prev?prev.den:4, open:!!(f&4), close:-1, alt:0, tempos:[]};
+    if(f&1) h.num=I8(); if(f&2) h.den=I8(); if(f&8) h.close=I8();
+    if(V<5){
+      if(f&16){ const v=U8(); let ex=0; for(let j=H.length-1;j>=0;j--){ if(H[j].open) break; ex|=H[j].alt; } h.alt=((1<<v)-1)^ex; }
+      if(f&32){ ibstr(); skip(4); } if(f&64) skip(2);
+    } else {
+      if(f&32){ ibstr(); skip(4); } if(f&64) skip(2); if(f&16) h.alt=U8();
+      if(h.close>-1) h.close--; if(f&3) skip(4); if(!(f&16)) skip(1); U8();
+    }
+    if(!(h.num>0)) h.num=4; if(!(h.den>0)) h.den=4;
+    H.push(h); prev=h;
+  }
+  // tracks: name, tuning, capo, MIDI channel and its instrument
+  const T=[];
+  for(let i=0;i<nT;i++){
+    if(V===5 && (i===0 || v500)) skip(1);
+    const f=U8(), name=bstr(40), ns=I32(), tun=[]; for(let s=0;s<7;s++){ const v=I32(); if(s<ns) tun.push(v); }
+    I32(); const ci=I32()-1; I32(); I32(); const capo=I32(); skip(4);
+    if(V===5){ skip(2+3+12+12+12); if(v500) skip(3); else { skip(4+4); ibstr(); ibstr(); } }
+    T.push({name, tun, capo:Math.max(0,Math.min(24,capo)), perc:!!(f&1) || (ci>=0 && ci%16===9), prog:Math.max(0,(chans[ci]||{prog:0}).prog), raw:[]});
+  }
+  if(V===5) skip(v500?2:1);
+  // reading the content of beats and notes; most effects are skipped over
+  const bend=()=>{ I8(); I32(); const n=I32(); skip(n*9); };
+  const chord=()=>{ const nf=U8();
+    if(!nf){ ibstr(); if(I32()) skip(24); return; }
+    if(V===3){ skip(1+3+20+1); bstr(22); skip(12+4+24+4+24+7+1); }
+    else { skip(1+3+3+8+1); bstr(22); skip(3+4+28+1+15+7+1+7+1); } };
+  const beatFx=()=>{ if(V===3){ const f1=U8(); if(f1&32){ U8(); I32(); } if(f1&64) skip(2); return; }
+    const f1=I8(), f2=I8(); if(f1&32) I8(); if(f2&4) bend(); if(f1&64) skip(2); if(f2&2) I8(); };
+  const mix=()=>{ let tempo;
+    if(V<5){ I8(); const vs=[I8(),I8(),I8(),I8(),I8(),I8()]; tempo=I32(); vs.forEach(v=>{ if(v>=0) I8(); }); if(tempo>=0) I8(); if(V===4) I8(); return tempo; }
+    I8(); skip(12); skip(v500?3:4); if(v500) skip(1);
+    const vs=[I8(),I8(),I8(),I8(),I8(),I8()]; ibstr(); tempo=I32();
+    vs.forEach(v=>{ if(v>=0) I8(); }); if(tempo>=0){ I8(); if(v5x) U8(); }
+    I8(); I8(); if(v5x){ ibstr(); ibstr(); }
+    return tempo; };
+  const noteFx=()=>{ if(V===3){ const f=U8(); if(f&1) bend(); if(f&16) skip(4); return; }
+    const f1=I8(), f2=I8(); if(f1&1) bend(); if(f1&16) skip(V===5?5:4); if(f2&4) I8(); if(f2&8) I8();
+    if(f2&16){ const ht=I8(); if(V===5){ if(ht===2) skip(3); else if(ht===3) skip(1); } } if(f2&32) skip(2); };
+  const TUP={3:2/3,5:4/5,6:4/6,7:4/7,9:8/9,10:8/10,11:8/11,12:8/12,13:8/13};
+  const beat=(tr,m,vo,tk)=>{
+    const f=U8(); let status=1; if(f&64) status=U8();
+    let dur=3840/Math.pow(2,I8()+2); if(f&1) dur*=1.5; if(f&32){ const r=TUP[I32()]; if(r) dur*=r; }
+    if(f&2) chord(); if(f&4) ibstr(); if(f&8) beatFx();
+    if(f&16){ const tp=mix(); if(tp>0 && !H[m].tempos.some(x=>x.tk===tk)) H[m].tempos.push({tk, bpm:tp}); }
+    const sf=U8();
+    for(let s=1;s<=tr.tun.length;s++) if(sf&(1<<(7-s))){
+      const nf=U8(); let type=1, vel=95, fret=0;
+      if(nf&32) type=U8();
+      if(V<5 && (nf&1)) skip(2);
+      if(nf&16) vel=Math.max(1,Math.min(127,16*I8()-1));
+      if(nf&32) fret=I8();
+      if(nf&128) skip(2);
+      if(V===5){ if(nf&1) skip(8); U8(); }
+      if(nf&8) noteFx();
+      if(status!==0 && type!==3 && fret>=0) tr.raw.push({m, tk, dur, vo, s, type, n: tr.perc ? fret : tr.tun[s-1]+tr.capo+fret, v:vel});
+    }
+    if(V===5){ const f2=I16(); if(f2&2048) U8(); }
+    return status===0 ? 0 : dur; };
+  for(let m=0;m<nM;m++) for(const tr of T){
+    for(let vo=0;vo<(V===5?2:1);vo++){ let tk=0; const nb=I32(); if(nb<0 || nb>512) throw new Error('ошибка в такте '+(m+1)); for(let b=0;b<nb;b++) tk+=beat(tr,m,vo,tk); }
+    if(V===5 && p<u8.length) U8();   // line break marker (the very last one may be missing)
+  }
+  // play order: repeats and alternate endings
+  const order=[]; { let i=0, start=0, pass=1, back=false; const done={};
+    while(i<nM && order.length<8192){ const h=H[i];
+      if(h.open && !back){ start=i; pass=1; } back=false;
+      if(h.alt && !(h.alt&(1<<(pass-1)))){ i++; continue; }
+      order.push(i);
+      if(h.close>0){ const c=done[i]||0; if(c<h.close){ done[i]=c+1; pass++; i=start; back=true; continue; } done[i]=0; }
+      i++; } }
+  // ticks → seconds through the tempo changes
+  const len=m=>3840*H[m].num/H[m].den, at=[]; let acc=0; order.forEach(m=>{ at.push(acc); acc+=len(m); });
+  const tmap=[{tk:0, s:0, bpm:tempo>0?tempo:120}];
+  order.forEach((m,k)=>H[m].tempos.slice().sort((a,b)=>a.tk-b.tk).forEach(x=>{ const T0=at[k]+x.tk, l=tmap[tmap.length-1]; if(T0<=l.tk){ l.bpm=x.bpm; return; } tmap.push({tk:T0, s:l.s+(T0-l.tk)/960*60/l.bpm, bpm:x.bpm}); }));
+  const sec=tk=>{ let i=tmap.length-1; while(i>0 && tmap[i].tk>tk) i--; const l=tmap[i]; return l.s+(tk-l.tk)/960*60/l.bpm; };
+  const tracks=T.map(tr=>{ const byM={}; tr.raw.forEach(r=>(byM[r.m]||(byM[r.m]=[])).push(r)); const last={}, out=[];
+    order.forEach((m,k)=>(byM[m]||[]).forEach(r=>{ const a=at[k]+r.tk, key=r.vo*16+r.s;
+      if(r.type===2 && last[key] && !tr.perc){ last[key].e=a+r.dur; return; }
+      const nt={a, e:a+r.dur, n:r.n, v:r.v}; out.push(nt); last[key]=nt; }));
+    const notes=out.filter(x=>x.n>=0 && x.n<128).map(x=>({t:sec(x.a), d:Math.max(0.03, sec(x.e)-sec(x.a)), n:x.n, v:x.v})).sort((a,b)=>a.t-b.t);
+    return {name:tr.name, perc:tr.perc, prog:tr.prog, notes}; });
+  return {title, artist, tempo:tmap[0].bpm, tempoChanges:tmap.length-1, tracks, end:sec(acc), version:vm[0], rest:u8.length-p, measures:nM, played:order.length};
+}
+
+/* the whole project as a Standard MIDI File: tempo, drums on channel 10, each instrument on its own channel */
+const INST_PROG={key_piano:0, key_ep:4, key_organ:17, bass_acoustic:32, bass_finger:33, bass_pick:34, bass_slap:36, bass_synth1:38, bass_synth2:39, str_ens:48,
+  syn_square:80, syn_saw:81, syn_basslead:87, syn_newage:88, syn_warm:89, syn_poly:90, gtr_nylon:24, gtr_steel:25, gtr_clean:27, gtr_dist:30, wind_trumpet:56, wind_sax:65, wind_flute:73};
+function projMidi(t){
+  const ppq=480, tk=s=>Math.max(0,Math.round(s*t.bpm/60*ppq)), vlq=v=>{ const b=[v&127]; while(v>>=7) b.unshift((v&127)|128); return b; };
+  const txt=s=>[...new TextEncoder().encode(s||'')].slice(0,120);
+  const chunk=evs=>{ evs.sort((a,b)=>a[0]-b[0] || a[1]-b[1]); const out=[]; let last=0; for(const e of evs){ out.push(...vlq(e[0]-last), ...e.slice(2)); last=e[0]; } out.push(0,0xFF,0x2F,0);
+    return [0x4D,0x54,0x72,0x6B, (out.length>>>24)&255,(out.length>>16)&255,(out.length>>8)&255,out.length&255, ...out]; };
+  const us=Math.round(60e6/t.bpm), name=txt(t.name), trks=[];
+  trks.push(chunk([[0,0,0xFF,0x03,name.length,...name],[0,0,0xFF,0x51,3,(us>>16)&255,(us>>8)&255,us&255],[0,0,0xFF,0x58,4,4,2,24,8]]));
+  const notesTrack=(ch,prog,label,ns)=>{ const nm=txt(label), ev=[[0,0,0xFF,0x03,nm.length,...nm]]; if(prog!==null) ev.push([0,1,0xC0|ch,prog]);
+    ns.forEach(x=>{ const a=tk(x.t), b=Math.max(a+1,tk(x.t+x.d)), n=Math.max(0,Math.min(127,x.n|0)), v=Math.max(1,Math.min(127,x.v|0)); ev.push([a,3,0x90|ch,n,v],[b,2,0x80|ch,n,0]); });
+    trks.push(chunk(ev)); };
+  const ev=(t.events||[]).filter(e=>e.ch===undefined || e.ch===t.chan || e.ch===9);
+  if(ev.length) notesTrack(9,null,t.dname||'Ударные',ev.map(e=>({t:e.t, d:0.12, n:e.raw??e.n, v:e.v})));
+  let ch=0; (t.parts||[]).forEach(p=>{ if(!p.notes.length) return; if(ch===9) ch++; if(ch>15) return; notesTrack(ch, INST_PROG[p.inst]??0, p.name||INST[p.inst].name, p.notes); ch++; });
+  const n=trks.length, head=[0x4D,0x54,0x68,0x64,0,0,0,6,0,1,(n>>8)&255,n&255,(ppq>>8)&255,ppq&255];
+  return new Uint8Array([...head, ...trks.flat()]).buffer;
+}
+function saveMidi(t){ const name=(t.name||'song').replace(/[\\/:*?"<>|]/g,'_')+'.mid'; return {name, ok:saveBig(name, projMidi(t), 'audio/midi')}; }
+
+async function projFromGP(file){
+  let s; try{ s=parseGP(await file.arrayBuffer()); }
+  catch(e){ toast(/\.(gpx|gp)$/i.test(file.name) ? 'Файлы .gp и .gpx (Guitar Pro 6–8) пока не читаются: сохраните песню в Guitar Pro как .gp5' : 'Не получилось прочитать файл Guitar Pro: '+(e&&e.message||'неизвестный формат')); return; }
+  initAudio();
+  const id=()=>Math.random().toString(36).slice(2,9), base=(s.title||file.name.replace(/\.[^.]+$/,'')).slice(0,40)||'Табы';
+  const t={name:base, bpm:Math.max(30,Math.min(300,Math.round(s.tempo)||120)), chan:9, saved:true, events:[], dcuts:[], parts:[]};
+  for(const tr of s.tracks){ if(!tr.notes.length) continue;
+    if(tr.perc) t.events.push(...tr.notes.map(x=>({t:+x.t.toFixed(5), ch:9, n:gmNote(x.n), raw:x.n, v:x.v, cut:HAT_OPEN[x.n]})).filter(x=>x.n>=0));
+    else t.parts.push({id:id(), inst:PROG_INST(tr.prog), vol:0.8, mute:false, solo:false, cuts:[], name:tr.name||undefined,
+      notes:tr.notes.map(x=>({t:+x.t.toFixed(4), d:+x.d.toFixed(4), n:x.n, v:x.v}))}); }
+  if(!t.events.length && !t.parts.length){ toast('В файле нет нот'); return; }
+  t.events.sort((a,b)=>a.t-b.t); t.bars=Math.max(1,Math.min(512,Math.ceil(s.end/(240/t.bpm)-1e-6)));
+  let nm=base, n=2; while(tracks.some(x=>!x.demo && x.name===nm)) nm=base+' ('+(n++)+')'; t.name=nm;
+  tracks.push(t); saveLibrary();
+  select(tracks.length-1); closeProjects(); st.x0=0; st.zoom=1; renderStudio(); loadParts();
+  const mf=saveMidi(t), parts=t.parts.length+(t.events.length?1:0);
+  toast('Готово: '+parts+(parts===1?' дорожка':parts<5?' дорожки':' дорожек')+', '+t.bpm+' BPM'+(s.tempoChanges?' (темп в песне меняется)':'')+'. '+
+    (mf.ok ? (window.AndroidBridge?'MIDI-файл сохранён в «Загрузки»: ':'MIDI-файл готов: ')+mf.name : mf.ok===false ? 'MIDI-файл сохранить не удалось' : ''));
+}
+$('projGrid').addEventListener('click',e=>{ if(e.target.closest('[data-fromgp]')) $('projGP').click(); });
+$('projGP').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) projFromGP(f); });
+$('exportMidiBtn').addEventListener('click',()=>{ const t=track(); if(!(t.events||[]).length && !(t.parts||[]).some(p=>p.notes.length)){ toast('В песне нет нот'); return; }
+  const r=saveMidi(t); if(r.ok) toast(window.AndroidBridge?'Сохранено в «Загрузки»: '+r.name:'Файл '+r.name+' готов'); else if(r.ok===false) toast('Не удалось сохранить MIDI'); });
 
 /* ---------- demo projects (written for this app): rock, ballad, punk rock, added once to «Мои проекты» ---------- */
 const DEMO_SONGS = [
