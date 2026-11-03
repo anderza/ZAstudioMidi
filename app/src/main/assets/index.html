@@ -3282,6 +3282,17 @@ const DEMO_SONGS = [
       {bars:4, ch:'F G C C', dr:{k:'x-------x-------', e:'----x-------x---', r:'x---x---x---x---'}, p:{keys:'arp', bass:'root', str:'pad', cello:'long', pad:'pad'}, end:true},
     ],
     inst:{keys:'key_piano', ep:'key_ep', bass:'bass_finger', str:'str_ens', str2:'str_ens', cello:'str_ens', pad:'syn_warm', lead:'syn_newage'} },
+  { name:'Демо: Калифорнийский рок', bpm:96, key:'Dm',
+    sections:[
+      {bars:4, ch:'Dm Bb Dm Bb', dr:null, p:{gtrc:'pick'}},
+      {bars:8, ch:'Dm Bb Dm Bb Gm Bb C C', dr:{k:'x------x--x-----', s:'----X--o-o--X--o', h:'x-x-x-x-x-x-x-x-'}, p:{gtrc:'pick', bass:'groove'}},
+      {bars:8, ch:'F C Gm Dm F C Bb C', dr:{k:'x------x--x---x-', s:'----X--o----X---', r:'x-x-x-x-x-x-x-x-'}, p:{gtrc:'pick', bass:'groove', str:'pad', lead:'melody', ep:'block'}},
+      {bars:8, ch:'Dm Bb Dm Bb Gm Bb C C', dr:{k:'x------x--x-----', s:'----X--o-o--X--o', h:'x-x-x-x-x-x-x-x-'}, p:{gtrc:'pick', bass:'groove', ep:'stab'}},
+      {bars:4, ch:'Bb C Dm Dm', dr:{k:'x-------x-------', s:'----X-------X---', h:'x---x---x---x---'}, p:{gtrc:'pick', bass:'long', organ:'pad', str:'pad'}},
+      {bars:8, ch:'F C Gm Dm F C Bb C', dr:{k:'x------x--x---x-', s:'----X--o----X---', r:'x-x-x-x-x-x-x-x-'}, p:{gtrc:'pick', bass:'groove', str:'pad', lead:'melody', ep:'block', organ:'pad'}},
+      {bars:4, ch:'Dm Bb C Dm', dr:{k:'x------x--x-----', s:'----X-------X---', h:'x-x-x-x-x-x-x-x-'}, p:{gtrc:'pick', bass:'groove', str:'pad'}, end:true},
+    ],
+    inst:{gtrc:'syn_poly', bass:'bass_finger', ep:'key_ep', organ:'key_organ', str:'str_ens', lead:'syn_square'} },
   { name:'Демо: Панк-рок', bpm:176, key:'D',
     sections:[
       {bars:4, ch:'D D G A', dr:{k:'x-------x-------', s:'----X-------X---', c:'x-------x-------'}, p:{gtr:'power8', bass:'eighth'}},
@@ -3314,7 +3325,7 @@ function buildDemo(sp){
       } else if(si===0 && i===sec.bars-1){ D(t0+12*step,'s',70); D(t0+14*step,'s',84); D(t0+15*step,'s',96); }
       const endBar = sec.end && last;   // the final bar rings out: one long chord
       for(const [k,style] of Object.entries(sec.p)){
-        const lo = {bass:28, gtr:40, lead:64, organ:52, keys:55, str:48, str2:67, cello:36, pad:52, ep:55}[k] || 52;
+        const lo = {bass:28, gtr:40, gtrc:50, lead:64, organ:52, keys:55, str:48, str2:67, cello:36, pad:52, ep:55}[k] || 52;
         if(endBar){ if(k==='bass') N(k,t0,bar*0.95,near(c.r,lo),100); else if(k!=='lead') triad(c,lo).forEach(n=>N(k,t0,bar*0.95,n,88)); continue; }
         if(style==='eighth'){ const r=near(c.r,lo); for(let j=0;j<8;j++) N(k,t0+j*2*step,step*1.8,(j===7&&i%2)?r+7:r,j%2?92:110); }
         else if(style==='long'){ N(k,t0,bar*0.97,near(c.r,lo),k==='cello'?82:92); }
@@ -3324,6 +3335,10 @@ function buildDemo(sp){
         else if(style==='pad'){ triad(c,lo).forEach(n=>N(k,t0,bar*0.98,n,k==='organ'?70:78)); }
         else if(style==='block'){ [0,8].forEach(j=>triad(c,lo).forEach(n=>N(k,t0+j*step,step*7,n,84))); }
         else if(style==='stab'){ [2,6,10,14].forEach(j=>triad(c,lo).forEach(n=>N(k,t0+j*step,step*1.2,n,90))); }
+        else if(style==='pick'){ const [a,b2,c2]=triad(c,lo), lowR=near(c.r,lo-10);   // fingerpicked: thumb on the root, fingers on the chord tones
+          [[0,lowR,100],[2,c2,70],[3,b2,64],[4,a+12,78],[6,c2,66],[7,b2,62],[8,lowR,92],[10,c2,70],[11,a+12,74],[12,b2+12,70],[14,c2,66],[15,a+12,60]].forEach(([j,n,v])=>N(k,t0+j*step,step*(j%4===0?3.6:1.8),n,v)); }
+        else if(style==='groove'){ const r=near(c.r,lo);   // melodic bass: root, octave pop, fifth, a passing note into the next bar
+          [[0,r,112,3],[3,r,84,1],[4,r+12,98,1.5],[6,r+7,90,1.5],[8,r,104,2],[10,r+12,92,1],[11,r+10,80,1],[12,r+7,96,2],[14,r+5,84,1],[15,r+2,78,1]].forEach(([j,n,v,d])=>N(k,t0+j*step,step*d*0.9,n,v)); }
         else if(style==='arp'){ const [a,b2,c2]=triad(c,lo), seq=[a-12,a,b2,c2,a+12,c2,b2,a]; seq.forEach((n,j)=>N(k,t0+j*2*step,step*3.6,n,j===0?92:76)); }
         else if(style==='melody' || style==='melodySlow'){
           // chord tones on a two-bar rhythm, rising then falling
@@ -3338,12 +3353,14 @@ function buildDemo(sp){
   ev.sort((a,b)=>a.t-b.t);
   const order=Object.keys(sp.inst).filter(k=>parts[k]);
   return {name:sp.name, bpm:sp.bpm, bars:b0, chan:9, saved:true, events:ev, dcuts:[],
-    parts:order.map((k,i)=>({id:'demo'+i+Math.random().toString(36).slice(2,6), inst:sp.inst[k], vol:{bass:0.85,gtr:0.62,lead:0.7,organ:0.45,keys:0.6,str:0.5,str2:0.5,cello:0.6,pad:0.4,ep:0.5}[k]??0.6, mute:false, solo:false, cuts:[], notes:parts[k].sort((a,b)=>a.t-b.t)}))};
+    parts:order.map((k,i)=>({id:'demo'+i+Math.random().toString(36).slice(2,6), inst:sp.inst[k], vol:{bass:0.85,gtr:0.62,gtrc:0.6,lead:0.62,organ:0.45,keys:0.6,str:0.5,str2:0.5,cello:0.6,pad:0.4,ep:0.5}[k]??0.6, mute:false, solo:false, cuts:[], notes:parts[k].sort((a,b)=>a.t-b.t)}))};
 }
 if(store.get('demos1')!=='1'){ DEMO_SONGS.forEach(sp=>tracks.push(buildDemo(sp))); if(saveLibrary()){ store.set('demos1','1'); store.set('demos2','1'); } }
 // the ballad was rewritten (longer, more strings and bass): the old copy is replaced once, with all its instruments back
 if(store.get('demos2')!=='1'){ const sp=DEMO_SONGS.find(x=>x.name==='Демо: Баллада'), nb=buildDemo(sp), i=tracks.findIndex(t=>!t.demo && t.name===sp.name);
   if(i>=0) tracks[i]=nb; else tracks.push(nb); if(saveLibrary()) store.set('demos2','1'); }
+// a demo added later: put it in once, for those who already have the others
+if(store.get('demos3')!=='1'){ const sp=DEMO_SONGS.find(x=>x.name==='Демо: Калифорнийский рок'); if(!tracks.some(t=>!t.demo && t.name===sp.name)) tracks.push(buildDemo(sp)); if(saveLibrary()) store.set('demos3','1'); }
 
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio(); openProjects();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
