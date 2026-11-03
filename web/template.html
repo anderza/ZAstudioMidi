@@ -101,6 +101,7 @@ header h1{display:flex;align-items:center;gap:10px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px);background:var(--panel-2);border:1px solid var(--brass);border-radius:4px;padding:8px 12px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .countbig{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:40;font:700 38vmin/1 var(--display);color:var(--hit);text-shadow:0 6px 30px rgba(0,0,0,.6)}
 .snds{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.snds h4{grid-column:1/-1;margin:8px 0 0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--c,var(--muted))}
 .snd{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:8px;text-align:left;font-size:13px;font-weight:600}
 .snd small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
 .snd[aria-pressed="true"]{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass)}
@@ -715,7 +716,7 @@ body.mic-on #stPlay{background:var(--rec)}
   <div class="mixer" id="actSheet" role="dialog" aria-label="Действия с инструментом" hidden>
     <div class="mixer-in">
       <div class="mix-head"><h2 id="actTitle">Инструмент</h2><div class="acts"><button id="actClose">Закрыть</button></div></div>
-      <div class="acts-list"><button class="snd" id="actMidi">Загрузить MIDI-файл в эту дорожку</button><button class="snd danger" id="actDel">Удалить инструмент</button></div>
+      <div class="acts-list"><button class="snd" id="actRepl">Заменить инструмент…</button><button class="snd" id="actMidi">Загрузить MIDI-файл в эту дорожку</button><button class="snd danger" id="actDel">Удалить инструмент</button></div>
     </div>
   </div>
   <div class="mixer" id="setSheet" role="dialog" aria-label="Настройки инструмента" hidden>
@@ -2147,7 +2148,7 @@ $('stRows').addEventListener('click',e=>{
 // long press on an instrument opens its actions
 let stLong=null, stLongUntil=0;
 $('stRows').addEventListener('pointerdown',e=>{
-  const h=e.target.closest('.st-name'); if(!h) return; const row=+h.dataset.pick; const x=e.clientX, y=e.clientY;
+  const hd=e.target.closest('.st-head[data-head]'); if(!hd || e.target.closest('.knob,.st-acts')) return; const row=+hd.dataset.head; const x=e.clientX, y=e.clientY;
   stLong={timer:setTimeout(()=>{ stLongUntil=Date.now()+600; stLong=null; openInstActions(row); },550), x, y};
 });
 ['pointerup','pointercancel','pointerleave'].forEach(k=>$('stRows').addEventListener(k,()=>{ if(stLong){ clearTimeout(stLong.timer); stLong=null; } }));
@@ -2158,6 +2159,7 @@ function openInstActions(row){
   actRow=row; const t=track();
   $('actTitle').textContent = row<0 ? 'Барабаны' : INST[t.parts[row].inst].name;
   $('actDel').hidden = row<0; $('actDel').textContent='Удалить инструмент'; $('actDel').classList.remove('arm');
+  $('actRepl').textContent = row<0 ? 'Заменить набор ударных…' : 'Заменить инструмент…';
   sheet('actSheet',true);
 }
 $('actDel').addEventListener('click',()=>{ const b=$('actDel'); if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='Точно удалить?'; return; }
@@ -2829,6 +2831,14 @@ function delRow(r){ const t=ownTrack();
   if(!t.parts[r]) return; t.parts.splice(r,1);
   if(st.armed===r) st.armed=null; else if(st.armed>r) st.armed--;
   st.sel=null; st.focus=null; studioChanged(); toast('Дорожка удалена'); }
+
+// replace an instrument with any other one, grouped by kind
+$('actRepl').addEventListener('click',()=>{ const r=actRow; sheet('actSheet',false); if(r<0){ openKitSheet(); return; }
+  const t=track(), p=t.parts[r]; if(!p) return; stPick={cat:INST[p.inst].cat, i:r};
+  $('instTitle').textContent='Заменить: '+INST[p.inst].name;
+  $('insts').innerHTML=Object.entries(CATS).filter(([k])=>k!=='drums').map(([k,c])=>`<h4 style="--c:${c.c}">${c.name||c.one}</h4>`+
+    Object.entries(INST).filter(([,d])=>d.cat===k).map(([id,d])=>`<button class="snd" data-inst="${id}" aria-pressed="${id===p.inst}">${d.name}<small>${d.d}</small></button>`).join('')).join('');
+  sheet('instSheet',true); });
 
 setupMix(); renderKits(); showRoom(); renderMixer(); select(0); requestAnimationFrame(frame); openStudio(); openProjects();
 loadKit().catch(()=>setStatus('Нажмите «Играть»'));
