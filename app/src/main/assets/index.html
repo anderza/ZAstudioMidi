@@ -7,10 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Manrope:wght@400;600;700&display=swap">
 <style>
-/* Layout: one narrow column, like a drum module: kit selector, pads, transport, then the track list. */
+/* Layout: a studio-style control bar on top (views, transport, LCD), the instrument header, kits, the pads, then the song strip. */
 :root{
-  --bg:#15171c; --panel:#1e2128; --panel-2:#272b34; --line:#343945;
-  --fg:#ece8df; --muted:#9a9ca3; --brass:#d9a441; --brass-ink:#1a1407; --hit:#f3d27a; --warn:#e07a5f;
+  --bg:#131315; --panel:#242428; --panel-2:#2f2f35; --line:#3d3d45; --edge:#0c0c0e;
+  --fg:#f3f3f6; --muted:#9c9ca6; --brass:#f7a51c; --brass-ink:#1d1200; --hit:#ffd27a; --warn:#ff6b57; --rec:#ff3b30;
+  --chrome-hi:#46464d; --chrome-lo:#2b2b30; --lcd:#0a0c10; --lcd-fg:#eaf1ff; --lcd-dim:#9fb0c6; --ruler:#1c1c20; --ph:#ffffff;
   --display:"Oswald","Arial Narrow","Roboto Condensed",sans-serif;
   --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   color-scheme:dark;
@@ -18,7 +19,7 @@
 html,body{background:var(--bg);color:var(--fg)}
 [hidden]{display:none!important}
 body{margin:0;font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
-.app{max-width:560px;margin:0 auto;padding-block:calc(18px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;box-sizing:border-box;min-height:100vh;min-height:100dvh}
+.app{max-width:560px;margin:0 auto;padding-block:calc(10px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;box-sizing:border-box;min-height:100vh;min-height:100dvh}
 .padsec{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;min-height:130px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:.02em;margin:0;text-transform:uppercase;text-wrap:balance}
@@ -215,42 +216,11 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 .strip.off .fwrap,.strip.off .lv{opacity:.4}
 @media (max-width:340px){.sliders{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.pad,.pad.on{transition:none;transform:none}}
-/* landscape phones: pads big on the left, everything else small in a column on the right */
-@media (orientation:landscape) and (max-height:560px){
-  .app{max-width:none;min-height:0;height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(236px,32vw,330px);grid-template-rows:repeat(5,auto) 1fr;column-gap:14px;row-gap:6px;padding-block:max(6px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-bottom,0px));overflow:hidden}
-  .app>header,.app>.about,.app>section{grid-column:2}
-  .app>.padsec{grid-column:1;grid-row:1 / -1;align-items:center;justify-content:center;min-height:0}
-  .studio-btn{padding:4px;font-size:12px}
-  .app>.about{max-height:40vh;overflow-y:auto;font-size:11px;padding:6px 8px}
-  h1{font-size:18px}h1 .info{transform:scale(.8)}
-  .status{font-size:10px}
-  header{gap:6px}
-  .kits{gap:4px}.kit{padding:4px 2px;font-size:10.5px}
-  .trackbar{gap:4px}.trk{height:28px;padding:3px 6px;font-size:12px}.trk svg{width:16px;height:16px}
-  .trackbar .ctl{width:28px;height:28px}.trackbar .ctl svg{width:16px;height:16px}
-  .transport{padding:6px 8px;gap:5px}
-  .transport .row{gap:5px}
-  .transport .play{width:32px;height:32px}.transport .play svg{width:18px;height:18px}
-  .transport .row>.ctl{width:30px;height:30px}.transport .row>.ctl svg{width:16px;height:16px}
-  .row .time{font-size:10px}
-  .sliders{gap:2px 10px}.field label,.field output{font-size:10px}
-  .row2{gap:5px}.row2 select{padding:3px;font-size:11px}.row2 .mixbtn{padding:2px 8px;font-size:11px}.row2 .mixbtn svg{width:14px;height:14px}
-  .pad{font-size:13px}
-}
 .eqb{font:700 14px/1 var(--display);letter-spacing:.04em}
 .bal{display:flex;align-items:center;gap:4px;flex:none;margin-left:auto}
 #balKnob{width:38px;height:38px;cursor:ew-resize;background:conic-gradient(from 225deg,var(--line) 0 135deg,var(--brass) 135deg 137deg,var(--line) 137deg 270deg,transparent 0)}
 #balKnob .knob-cap{width:28px;height:28px}
 #balOut{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted);min-width:3ch;text-align:center}
-@media (orientation:landscape) and (max-height:560px){ .eqb{font-size:11px} #balKnob{width:30px;height:30px} #balKnob .knob-cap{width:22px;height:22px} #balOut{font-size:10px} }
-@media not ((orientation:landscape) and (max-height:560px)){
-  .transport .row{gap:6px}
-  .transport .play{width:min(40px,10.5vw);height:min(40px,10.5vw)}.transport .play svg{width:20px;height:20px}
-  .transport .row>.ctl{width:min(36px,9.5vw);height:min(36px,9.5vw)}.transport .row>.ctl svg{width:18px;height:18px}
-  .eqb{font-size:12px}
-  #balKnob{width:min(36px,9.5vw);height:min(36px,9.5vw)} #balKnob .knob-cap{width:72%;height:72%}
-  .bal{gap:3px}
-}
 .studio-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--panel);border:1px solid var(--brass);border-radius:3px;padding:6px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
 .studio-btn svg{width:18px;height:18px;fill:currentColor}
 .studio{position:fixed;inset:0;z-index:18;background:var(--bg);display:flex;flex-direction:column;gap:6px;box-sizing:border-box;height:100%;height:100dvh;padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
@@ -307,35 +277,231 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
 #instSheet{z-index:41}
 .brand{display:flex;flex-direction:column;gap:1px;min-width:0}
 .copy{font-size:10px;line-height:1.2;color:var(--muted);letter-spacing:.02em;white-space:nowrap}
+/* ===== Studio skin: graphite chrome, control bar with an LCD, coloured regions (layout ideas from mobile DAWs, own visuals) ===== */
+html,body{background:radial-gradient(120% 60% at 50% 0,#1e1e22 0,var(--bg) 70%) fixed,var(--bg)}
+.app{gap:10px}
+.app>*{flex:none}
+.app>.padsec{flex:1 1 0}
+button{transition:background .12s,color .12s,box-shadow .12s}
+
+/* control bar */
+.cbar{display:flex;align-items:center;gap:6px;padding:6px;border-radius:14px;background:linear-gradient(var(--chrome-hi),var(--chrome-lo));border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 6px 18px rgba(0,0,0,.45);min-width:0}
+.cb-g{display:flex;align-items:center;gap:3px;flex:none}
+.cb{width:38px;height:38px;border-radius:10px;border:0;background:transparent;color:#e8e8ec;display:grid;place-items:center;padding:0;flex:none;font:700 18px/1 var(--body)}
+.cb svg{width:22px;height:22px;fill:currentColor}
+.cb:active{background:rgba(255,255,255,.14)}
+.cb[aria-pressed="true"]{color:var(--brass);background:rgba(247,165,28,.16)}
+.cb:disabled{opacity:.32;cursor:default}
+.cb b{font:700 19px/1 var(--display);color:var(--hit)}
+.cb.tp{background:linear-gradient(#5a5a62,#3b3b42);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 3px rgba(0,0,0,.55);color:#fff}
+.cb.tp svg{width:24px;height:24px}
+.cb.tp:active{background:linear-gradient(#3b3b42,#4a4a52)}
+.cb.sm{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.06)}
+#rec svg{fill:var(--rec)}
+#rec[aria-pressed="true"]{background:var(--rec);border:0}
+#rec[aria-pressed="true"] svg{fill:#fff}
+.lcd{flex:1 1 auto;min-width:0;height:40px;box-sizing:border-box;border-radius:9px;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;gap:10px;padding:0 10px;color:var(--lcd-fg);font-variant-numeric:tabular-nums;overflow:hidden}
+.lcd b{font:500 23px/1 var(--display);letter-spacing:.05em;flex:none;min-width:2.4ch;text-align:right}
+.lcd-s{display:flex;flex-direction:column;font-size:10.5px;line-height:1.3;color:var(--lcd-dim);white-space:nowrap;overflow:hidden;min-width:0}
+.lcd-s>*{overflow:hidden;text-overflow:ellipsis}
+.lcd output{color:inherit}
+
+/* instrument header */
+.ihead{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;background:linear-gradient(#2c2c31,#232327);border:1px solid var(--edge);border-radius:14px;padding:7px 10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.itile{width:40px;height:40px;border-radius:10px;background:linear-gradient(#f4cd55,#c99b22);display:grid;place-items:center;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 2px 6px rgba(0,0,0,.4)}
+.itile svg{width:26px;height:26px;fill:rgba(30,20,0,.82)}
+.brand{flex:1;min-width:0;gap:0}
+h1{font-size:17px;letter-spacing:.04em;line-height:1.15}
+.status{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.ihead .eqb{width:44px;height:34px}
+.ihead .bal{margin-left:0}
+#balKnob{width:36px;height:36px}
+.copy{text-align:center;opacity:.7}
+
+/* buttons and knobs */
+.ctl{border-radius:10px;border:1px solid var(--edge);background:linear-gradient(#3b3b42,#2d2d32);box-shadow:inset 0 1px 0 rgba(255,255,255,.09);color:#e8e8ec}
+.ctl:active{background:linear-gradient(#2d2d32,#38383e)}
+.ctl[aria-pressed="true"]{color:var(--brass);border-color:var(--edge);box-shadow:inset 0 0 0 1px rgba(247,165,28,.6)}
+.knob-cap{background:radial-gradient(circle at 42% 32%,#75757e,#38383f 55%,#232327 80%);box-shadow:0 2px 6px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.2)}
+.knob-ind{background:#fff}
+.info{border-color:var(--muted);color:var(--fg);flex:none}
+.info[aria-expanded="true"]{background:var(--fg);border-color:var(--fg);color:#111}
+:focus-visible{outline-color:var(--brass)}
+.about{border-radius:12px;background:#202024;border-color:var(--edge)}
+
+/* kits: a row of pills */
+.kits{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:1px}
+.kits::-webkit-scrollbar{display:none}
+.kit{flex:none;border-radius:999px;padding:7px 14px;background:#29292e;border:1px solid #3a3a42;font:700 12.5px/1.2 var(--body);letter-spacing:0;text-transform:none;color:#c4c4cc}
+.kit[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:#141416;box-shadow:none}
+
+/* pads: rubber pads with a colour per drum, they light up on hit */
+.padsec{justify-content:center}
+.pads{gap:8px}
+.pad{--pc:#f7a51c;border-radius:14px;background:linear-gradient(165deg,#3c3c43,#27272c 70%);border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -4px 0 var(--pc),0 4px 10px rgba(0,0,0,.45);color:#dcdce2;font-size:12.5px;font-weight:700}
+.pad:nth-child(1){--pc:#ff7a45}.pad:nth-child(2){--pc:#ffc53d}.pad:nth-child(3){--pc:#7bd65a}.pad:nth-child(4){--pc:#36cfc9}
+.pad:nth-child(5){--pc:#4aa8ff}.pad:nth-child(6){--pc:#9b6bff}.pad:nth-child(7){--pc:#ff5fae}.pad:nth-child(8){--pc:#ffa940}
+.pad.on{background:var(--pc);border-color:var(--pc);color:#121214;box-shadow:0 0 22px var(--pc),inset 0 1px 0 rgba(255,255,255,.5)}
+
+/* song strip */
+.song{display:flex;flex-direction:column;gap:8px;background:linear-gradient(#26262b,#1f1f23);border:1px solid var(--edge);border-radius:14px;padding:9px}
+.trackbar .ctl{width:38px;height:38px}
+.trk{height:38px;border-radius:10px;background:#1a1a1e;border-color:var(--edge);box-shadow:inset 0 1px 3px rgba(0,0,0,.6)}
+.song select{border-radius:10px;background:#1a1a1e;border-color:var(--edge);padding:7px 8px}
+.sliders{gap:6px 14px}
+.song input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:22px}
+.song input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:#4a4a53}
+.song input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border-radius:50%;background:radial-gradient(circle at 45% 35%,#fff,#d7d7dc);box-shadow:0 1px 4px rgba(0,0,0,.6)}
+.song input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#4a4a53}
+.song input[type=range]::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:#f0f0f3}
+.song .seek{height:26px}
+.song .seek::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 1px,transparent 1px 12.5%),#16161a;box-shadow:inset 0 1px 2px rgba(0,0,0,.8)}
+.song .seek::-webkit-slider-thumb{width:4px;height:22px;margin-top:-7px;border-radius:2px;background:var(--ph);box-shadow:0 0 6px rgba(255,255,255,.5)}
+
+@media (max-width:370px){
+  .cb{width:34px;height:34px}.cb.tp{width:36px}.lcd b{font-size:19px}.lcd{gap:6px;padding:0 6px}
+  .ihead{gap:7px;padding:6px 8px}.itile{width:34px;height:34px}
+}
+
+/* landscape phones: control bar across the top, pads on the left, everything else in a column on the right */
+@media (orientation:landscape) and (max-height:560px){
+  .app{max-width:none;min-height:0;height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(250px,36vw,360px);grid-template-rows:auto auto auto auto auto 1fr;column-gap:12px;row-gap:6px;padding-block:max(6px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-bottom,0px));overflow:hidden}
+  .app>.cbar{grid-column:1 / -1;padding:4px 6px}
+  .app>.ihead,.app>.about,.app>.kitsec,.app>.song,.app>.copy{grid-column:2}
+  .app>.padsec{grid-column:1;grid-row:2 / -1;min-height:0;align-items:center;justify-content:center}
+  .app>.copy{align-self:end;font-size:9px}
+  .app>.about{max-height:40vh;overflow-y:auto;font-size:11px;padding:6px 8px}
+  .cb{width:34px;height:34px}.cb.tp{width:38px}.lcd{height:34px;flex:0 1 260px}.lcd b{font-size:20px}
+  .cbar>.tpg{margin-left:auto}.cbar>.cb-g:last-child{margin-right:auto}
+  .ihead{padding:4px 8px;gap:8px}.itile{width:30px;height:30px;border-radius:8px}.itile svg{width:20px;height:20px}
+  h1{font-size:14px}.status{font-size:10.5px}.ihead .eqb{width:38px;height:28px;font-size:11px}#balKnob{width:28px;height:28px}#balKnob .knob-cap{width:21px;height:21px}#balOut{font-size:10px}
+  .kits{flex-wrap:wrap;gap:4px}.kit{padding:4px 9px;font-size:11px}
+  .song{padding:6px;gap:4px;border-radius:12px}
+  .trackbar{gap:4px}.trk{height:30px;padding:3px 8px;font-size:12px}.trk svg{width:16px;height:16px}
+  .trackbar .ctl{width:30px;height:30px}.trackbar .ctl svg{width:16px;height:16px}
+  .song .seek{height:20px}.song input[type=range]{height:18px}
+  .sliders{gap:0 10px}.field label,.field output{font-size:10px}
+  .song select{padding:3px 6px;font-size:11px}
+  .pad{font-size:13px}
+}
+
+/* studio (tracks view) */
+.studio{background:var(--bg);gap:6px}
+.st-top.cbar{overflow-x:auto;scrollbar-width:none;flex:none}
+.st-top.cbar::-webkit-scrollbar{display:none}
+.st-top .lcd{flex:0 1 230px;min-width:120px}
+.st-top .bars{gap:4px}
+.st-top .tpg{margin-left:auto}
+.st-tl{gap:4px}
+.st-corner{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-left:8px}
+.st-time{height:24px;border:1px solid var(--edge);border-radius:7px;background:var(--ruler)}
+.st-rows{gap:4px}
+.st-row{gap:4px}
+.st-head{display:grid;grid-template-columns:36px minmax(0,1fr) 30px;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"tile name knob" "tile acts knob";gap:3px 7px;align-items:center;background:linear-gradient(#303036,#26262b);border:1px solid var(--edge);border-left:1px solid var(--edge);border-radius:10px;padding:5px 6px 5px 6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.st-tile{grid-area:tile;width:36px;height:36px;border-radius:9px;background:var(--c);display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 2px 5px rgba(0,0,0,.45)}
+.st-tile svg{width:22px;height:22px;fill:rgba(12,12,14,.78)}
+.st-name{grid-area:name;align-self:stretch;justify-content:center;padding:0;gap:0}
+.st-name .nm{font-size:12.5px;display:block;width:100%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.st-name .cat{font-size:9.5px;letter-spacing:.08em}
+.st-name .vl{color:var(--muted);letter-spacing:0;font-weight:600}
+.st-knob{grid-area:knob}
+.st-acts{grid-area:acts;flex-direction:row;justify-content:flex-start;gap:4px}
+.st-acts button{flex:none;width:26px;height:20px;border-radius:6px;border:1px solid var(--edge);background:#1d1d21;color:#b8b8c0;font-size:10.5px}
+.st-acts .st-m[aria-pressed="true"]{color:#0c1a2a;background:#5ab0ff;border-color:#5ab0ff}
+.st-acts .st-s[aria-pressed="true"]{color:#1d1500;background:#ffd23f;border-color:#ffd23f}
+.st-acts .st-r{color:var(--rec)}.st-acts .st-r[aria-pressed="true"]{color:#fff;background:var(--rec);border-color:var(--rec)}
+.st-lane{background:#1a1a1e;border:1px solid var(--edge);border-radius:9px}
+.st-row:nth-child(even) .st-lane{background:#1d1d22}
+.st-add{border-radius:10px;border-width:1.5px;background:rgba(255,255,255,.02)}
+.st-bot{gap:6px}
+.st-bot .ed-b{border-radius:10px;padding:8px 4px;background:linear-gradient(#38383e,#2b2b30);border-color:var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);font-weight:600}
+.st-kbb[aria-pressed="true"]{color:var(--brass);box-shadow:inset 0 0 0 1px rgba(247,165,28,.6)}
+.st-kb{background:linear-gradient(#2c2c31,#1f1f23);border:1px solid var(--edge);border-radius:12px;padding:6px 8px 8px}
+.kb-keys{gap:0}
+.kb-w{background:linear-gradient(#fafafa,#e3e3e6 85%,#cfcfd4);border:1px solid #16161a;border-radius:0 0 7px 7px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
+.kb-b{background:linear-gradient(#3d3d44,#121215 80%);border-radius:0 0 5px 5px;box-shadow:inset 0 -2px 0 rgba(255,255,255,.12),0 2px 3px rgba(0,0,0,.5)}
+.kb-w.on{background:linear-gradient(#ffe2a0,var(--hit))}.kb-b.on{background:var(--brass)}
+@media (orientation:landscape) and (max-height:560px){ .st-top.cbar{padding:3px 6px} .st-top .cb{width:32px;height:32px} .st-top .lcd{height:32px} .st-head{grid-template-columns:30px minmax(0,1fr) 28px;padding:4px 5px} .st-tile{width:30px;height:30px;border-radius:8px} .st-tile svg{width:18px;height:18px} .st-acts button{height:18px} }
+
+
+/* narrow portrait phones: LCD stacks its lines, the bars get tighter */
+@media (max-width:440px) and (orientation:portrait){
+  .cbar{gap:4px;padding:5px}.cb-g{gap:2px}
+  .cb{width:34px;height:34px}.cb.tp{width:38px;height:36px}.cb.sm{width:28px;height:28px}
+  .lcd{flex-direction:column;justify-content:center;align-items:center;gap:1px;padding:0 6px;height:40px}
+  .lcd b{font-size:17px;min-width:0;text-align:center}
+  .lcd-s{flex-direction:row;gap:6px;font-size:10px;line-height:1.1;max-width:100%}.lcd-s>*{min-width:0;flex:0 1 auto;white-space:nowrap}
+  .st-top .lcd{min-width:84px}.st-top .st-sp{display:none}
+  .studio{--hw:clamp(150px,46vw,230px)}
+  .st-head{grid-template-columns:30px minmax(0,1fr) 28px;gap:3px 5px;padding:4px 5px}
+  .st-tile{width:30px;height:30px;border-radius:8px}.st-tile svg{width:19px;height:19px}
+  .st-acts{gap:3px}.st-acts button{width:24px}
+}
+/* sheets and editors */
+.mixer{background:#1f1f23;border-top:1px solid #34343a;border-radius:18px 18px 0 0;padding-top:20px}
+.mixer::before{content:"";position:absolute;top:7px;left:50%;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:#4a4a52}
+.mix-head button{border-radius:8px;padding:5px 10px;background:linear-gradient(#3a3a40,#2c2c31);border-color:var(--edge)}
+.strip{border-radius:10px;background:#29292e}
+.snd{border-radius:10px;background:#29292e}
+.snd[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg);color:var(--fg);background:#3a3a41}
+.add{border-radius:10px}
+.track{border-radius:10px}
+.fold{border-radius:10px}
+.editor{background:var(--bg)}
+.ed-b{border-radius:7px;padding:4px 8px;border-color:var(--edge);background:linear-gradient(#38383e,#2b2b30)}
+.ed-b.primary{background:var(--brass);border-color:var(--brass)}
+.ed-grid{border-radius:10px;border-color:var(--edge)}
+.ed-top input{border-radius:8px}
+.toast{border-radius:12px;border-color:#4a4a52;background:#2a2a2f}
 </style>
 
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="brand">
-      <h1>ZAstudio<span>Midi</span> <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button></h1>
-      <small class="copy">© Zapolski Andrei · dionys@yandex.ru</small>
+  <section class="cbar" aria-label="Транспорт">
+    <div class="cb-g">
+      <button class="cb" id="studioOpen" aria-label="Студия: дорожки" title="Студия"><svg viewBox="0 0 24 24"><path d="M3 4h18v3H3zm0 6.5h12v3H3zM3 17h15v3H3z"/></svg></button>
+      <button class="cb" id="mixOpen" aria-label="Миксер" aria-haspopup="dialog" title="Миксер"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg></button>
     </div>
-    <div class="status" id="status">Загрузка сэмплов…</div>
+    <div class="cb-g tpg">
+      <button class="cb tp" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="cb tp" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button>
+    </div>
+    <div class="lcd" aria-live="off"><b id="lcdPos">1.1</b><span class="lcd-s"><span id="time">0:00 / 0:00</span><span id="lcdTempo">♩ —</span></span></div>
+    <div class="cb-g">
+      <button class="cb" id="loop" aria-label="Повтор" aria-pressed="false" title="Повтор"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+      <button class="cb" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт" title="Отсчёт"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg></button>
+    </div>
+  </section>
+
+  <header class="ihead">
+    <span class="itile"><svg viewBox="0 0 24 24"><path d="M3 10c0-2 4-3.4 9-3.4s9 1.4 9 3.4v6.5c0 2-4 3.5-9 3.5s-9-1.5-9-3.5zm2 0c0 .9 3.1 2 7 2s7-1.1 7-2-3.1-2-7-2-7 1.1-7 2z"/><path d="M6.3 2.6l5.2 5.6-.9.8-5.2-5.6zM17.7 2.6l-5.2 5.6.9.8 5.2-5.6z"/></svg></span>
+    <div class="brand">
+      <h1>ZAstudio<span>Midi</span></h1>
+      <div class="status" id="status">Загрузка сэмплов…</div>
+    </div>
+    <button class="ctl eqb" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog">EQ</button>
+    <div class="bal"><div class="knob" id="balKnob" role="slider" tabindex="0" aria-label="Баланс лево-право" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="knob-cap"><span class="knob-ind"></span></div></div><output id="balOut">Ц</output></div>
+    <button class="info" id="aboutInfo" aria-label="Подсказки" aria-expanded="false" aria-controls="about">i</button>
   </header>
 
   <div class="about" id="about" hidden>
     <b>Пэды</b>: нажатие играет звук. Долгое нажатие на «Бочка», «Малый», «Томы», «Крэш» или «Райд» открывает выбор звука.
-    <b>Часы</b>: отсчёт 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
+    <b>Верхняя панель</b>: слева Студия (все дорожки и инструменты) и Миксер, в центре Играть и Запись, табло показывает такт.долю, время и темп, справа Повтор и Отсчёт.
+    <b>Отсчёт</b>: 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. Нажмите ещё раз, чтобы отменить отсчёт.
     <b>EQ</b>: эквалайзер на весь звук. <b>Красная кнопка</b>: запись с пэдов. Если трек играет, удары записываются прямо в него поверх его нот; если стоит, получается новая дорожка. Второе нажатие сохраняет. Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 35. <b>Крутилка Л/П</b>: баланс влево-вправо, двойное нажатие возвращает в центр.
   </div>
 
-  <section>
+  <section class="kitsec">
     <div class="kits" id="kits" role="group" aria-label="Установка"></div>
   </section>
 
   <section class="padsec">
-    <button class="studio-btn" id="studioOpen"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zm2 2v10h3V7zm5 0v10h4V7zm6 0v10h3V7z"/></svg>Студия</button>
     <div class="pads" id="pads"></div>
   </section>
 
-  <section class="trksec">
+  <section class="song">
+    <span class="name" id="curName" hidden>—</span>
     <div class="trackbar">
       <button class="ctl" id="prevTrk" aria-label="Предыдущая готовая дорожка"><svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z"/></svg></button>
       <button class="trk" id="trkOpen" aria-haspopup="dialog"><span class="tn" id="trkName">—</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></button>
@@ -344,33 +510,15 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
       <button class="ctl" id="add" aria-label="Добавить MIDI-дорожку"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
     </div>
     <input type="file" id="file" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" multiple hidden>
-  </section>
-
-  <section class="transport">
-    <span class="name" id="curName" hidden>—</span>
-    <div class="row">
-      <button class="play" id="play" aria-label="Играть"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg></button>
-      <button class="ctl" id="count" aria-label="Отсчёт на 3 в темпе дорожки и старт"><svg viewBox="0 0 24 24"><path d="M9 1h6v2H9zm2 7h2v6h-2zm8-1.4 1.4-1.4 1.4 1.4-1.4 1.4A9 9 0 1 1 12 4a8.9 8.9 0 0 1 5.6 2zM12 20a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg></button>
-      <button class="ctl" id="loop" aria-label="Повтор" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
-      <button class="ctl eqb" id="eqOpen" aria-label="Эквалайзер" aria-haspopup="dialog">EQ</button>
-      <button class="ctl" id="rec" aria-label="Запись с пэдов" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/></svg></button>
-      <div class="bal"><div class="knob" id="balKnob" role="slider" tabindex="0" aria-label="Баланс лево-право" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="knob-cap"><span class="knob-ind"></span></div></div><output id="balOut">Ц</output></div>
-    </div>
-    <div class="row">
-      <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Позиция">
-      <span class="time" id="time">0:00 / 0:00</span>
-    </div>
+    <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Позиция">
     <div class="sliders">
       <div class="field"><label for="tempo">Темп</label><input id="tempo" type="range" min="50" max="150" step="5" value="100"><output id="tempoOut">100%</output></div>
       <div class="field"><label for="vol">Громк.</label><input id="vol" type="range" min="0" max="100" value="80"><output id="volOut">80%</output></div>
     </div>
-    <div class="row2">
-      <select id="chan" aria-label="Канал ударных"></select>
-      <button class="mixbtn" id="mixOpen" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg>Миксер</button>
-    </div>
+    <select id="chan" aria-label="Канал ударных"></select>
     <div class="note" id="note" hidden></div>
   </section>
-
+  <small class="copy">© Zapolski Andrei · dionys@yandex.ru</small>
 
   <div class="mix-back" id="mixBack" hidden></div>
   <div class="mixer" id="trkSheet" role="dialog" aria-label="Дорожки" hidden>
@@ -452,19 +600,23 @@ input.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margi
   </div>
 
   <div class="studio" id="studio" role="dialog" aria-label="Студия" hidden>
-    <div class="st-top">
-      <h2 class="st-title">Студия</h2>
-      <button class="ctl sm" id="stPlay" aria-label="Играть"><svg viewBox="0 0 24 24" id="stPlayIcon"><path d="M8 5v14l11-7z"/></svg></button>
-      <button class="ctl sm" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button>
-      <button class="ctl sm" id="stHome" aria-label="В начало"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm3.5 7L18 5v14z"/></svg></button>
-      <button class="ctl sm" id="stUndo" aria-label="Отменить действие" disabled><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.6 0-5 1-6.9 2.6L2 7v9h9l-3.6-3.6c1.4-1.2 3.2-1.9 5.1-1.9 3.5 0 6.5 2.3 7.6 5.5l2.4-.8C21.1 11 17.2 8 12.5 8z"/></svg></button>
-      <span class="ed-f"><output id="stInfo"></output><button class="ed-b sq" id="stBarMinus" aria-label="Убрать такт">−</button><button class="ed-b sq" id="stBarPlus" aria-label="Добавить такт">+</button></span>
+    <div class="st-top cbar">
+      <div class="cb-g">
+        <button class="cb" id="stClose" aria-label="Закрыть студию" title="К пэдам"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg></button>
+        <button class="cb" id="stUndo" aria-label="Отменить действие" disabled><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.6 0-5 1-6.9 2.6L2 7v9h9l-3.6-3.6c1.4-1.2 3.2-1.9 5.1-1.9 3.5 0 6.5 2.3 7.6 5.5l2.4-.8C21.1 11 17.2 8 12.5 8z"/></svg></button>
+      </div>
+      <div class="cb-g tpg">
+        <button class="cb" id="stHome" aria-label="В начало"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm3.5 7L18 5v14z"/></svg></button>
+        <button class="cb tp" id="stPlay" aria-label="Играть"><svg viewBox="0 0 24 24" id="stPlayIcon"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="cb" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button>
+      </div>
+      <div class="lcd"><b id="stLcdPos">1.1</b><span class="lcd-s"><output id="stTimeOut">0:00 / 0:00</output><output id="stInfo"></output></span></div>
+      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div>
       <span class="st-sp"></span>
       <button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button>
-      <button class="ctl sm" id="stClose" aria-label="Закрыть студию"><svg viewBox="0 0 24 24"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4z"/></svg></button>
     </div>
     <div class="ed-hint" id="stHint" hidden>Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок, второе нажатие открывает редактор. Выбранный кусок можно перетащить на другой инструмент или по времени. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
-    <div class="st-tl"><output id="stTimeOut">0:00 / 0:00</output><div class="st-time"><canvas id="stTime"></canvas></div></div>
+    <div class="st-tl"><span class="st-corner">Такты</span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
       <div class="kb-head"><b id="kbName"></b><span class="st-sp"></span><button class="ed-b sq" id="kbDown" aria-label="Октава ниже">−</button><output id="kbOct"></output><button class="ed-b sq" id="kbUp" aria-label="Октава выше">+</button></div>
@@ -1031,7 +1183,7 @@ $('kits').addEventListener('click', async e=>{
 
 $('pads').innerHTML = GROUPS.map((g,i)=>`<button class="pad" data-g="${i}">${g.name}</button>`).join('');
 // square pads, as big as the free space allows
-function fitPads(){ const sec=document.querySelector('.padsec'), W=sec.clientWidth, H=sec.clientHeight-$('studioOpen').offsetHeight-8;
+function fitPads(){ const sec=document.querySelector('.padsec'), W=sec.clientWidth, H=sec.clientHeight;
   // 4×2 or, on a tall screen with room to spare, 2×4: whichever gives the bigger square pads
   const wide=Math.min((W-18)/4,(H-6)/2), tall=Math.min((W-6)/2,(H-18)/4), cols=tall>wide*1.08?2:4;
   $('pads').style.setProperty('--cols', cols);
@@ -1232,7 +1384,7 @@ $('loop').addEventListener('click',()=>{ loop=!loop; $('loop').setAttribute('ari
 let seeking=false;
 $('seek').addEventListener('input',()=>{ seeking=true; $('time').textContent=fmt($('seek').value/1000*duration())+' / '+fmt(duration()); });
 $('seek').addEventListener('change',()=>{ seeking=false; seekTo($('seek').value/1000*duration()); });
-$('tempo').addEventListener('input',()=>{ $('tempoOut').textContent=$('tempo').value+'%'; setSpeed($('tempo').value/100); });
+$('tempo').addEventListener('input',()=>{ $('tempoOut').textContent=$('tempo').value+'%'; setSpeed($('tempo').value/100); render(); });
 function setVol(v){ $('vol').value=v; $('volOut').textContent=v+'%'; const mf=$('fader-m'); if(mf){ mf.value=v; $('lv-m').textContent=v+'%'; } if(master) master.gain.value=v/100; store.set('vol',v); }
 $('vol').addEventListener('input',()=>setVol(+$('vol').value));
 
@@ -1614,7 +1766,11 @@ $('edExport').addEventListener('click',()=>{
 function render(){
   const d=duration(), p=Math.min(pos(),d);
   if(!seeking){ $('seek').value = d? Math.round(p/d*1000):0; $('time').textContent=fmt(p)+' / '+fmt(d); }
+  $('lcdPos').textContent=lcdPos(p);
+  const tr=track(), bpm=tr&&tr.bpm?Math.round(tr.bpm*$('tempo').value/100):0; $('lcdTempo').textContent=bpm?'♩ '+bpm:'♩ —';
 }
+// LCD in the control bar: bar.beat of a position (4/4, the track's own tempo)
+function lcdPos(p){ const t=track(); if(!t||!t.bpm) return '1.1'; const b=240/t.bpm; return (Math.floor(p/b+1e-6)+1)+'.'+(Math.floor((p%b)/(b/4)+1e-6)+1); }
 const pads=[...document.querySelectorAll('.pad')], padOff=new Array(pads.length).fill(0);
 function frame(){
   if(ctx){
@@ -1642,11 +1798,11 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden && ctx &&
 { const v=+store.get('vol'); if(store.get('vol')!==null && v>=0 && v<=100) setVol(v); }
 /* ---------- studio: instruments next to the drum track (bass, synths, keys, strings), each with its own MIDI part ---------- */
 const CATS = {
-  drums:{name:'Барабаны', c:'#E2A83A', base:36},
-  synth:{name:'Синтезаторы', one:'Синтезатор', c:'#7C9CFF', lo:36, hi:96, base:60},
-  bass:{name:'Бас', one:'Бас', c:'#E5484D', lo:24, hi:60, base:36},
-  keys:{name:'Клавишные', one:'Клавишные', c:'#4CC38A', lo:28, hi:96, base:60},
-  strings:{name:'Струнные', one:'Струнные', c:'#C08CFF', lo:28, hi:96, base:48},
+  drums:{name:'Барабаны', c:'#EBC03F', base:36},
+  synth:{name:'Синтезаторы', one:'Синтезатор', c:'#4FC26B', lo:36, hi:96, base:60},
+  bass:{name:'Бас', one:'Бас', c:'#F0704E', lo:24, hi:60, base:36},
+  keys:{name:'Клавишные', one:'Клавишные', c:'#3DB7D9', lo:28, hi:96, base:60},
+  strings:{name:'Струнные', one:'Струнные', c:'#B98CFF', lo:28, hi:96, base:48},
 };
 const ICONS = {
   drums:'<path d="M3 10c0-2 4-3.4 9-3.4s9 1.4 9 3.4v6.5c0 2-4 3.5-9 3.5s-9-1.5-9-3.5zm2 0c0 .9 3.1 2 7 2s7-1.1 7-2-3.1-2-7-2-7 1.1-7 2z"/><path d="M6.3 2.6l5.2 5.6-.9.8-5.2-5.6zM17.7 2.6l-5.2 5.6.9.8 5.2-5.6z"/>',
@@ -1755,8 +1911,9 @@ function moveClip(s, toRow, dt){
 function headHTML(row, cat, nm, lvl, m, so, r){
   const vol=Math.round(lvl*100);
   return `<div class="st-row" data-row="${row}" style="--c:${CATS[cat].c}"><div class="st-head" data-head="${row}">
-    <div class="st-ic"><svg viewBox="0 0 24 24">${ICONS[cat]}</svg><div class="knob st-knob" data-knob="${row}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${vol}" style="--a:${lvl}"><div class="knob-cap"><span class="knob-ind"></span></div></div></div>
-    <button class="st-name" data-pick="${row}"><span class="cat">${CATS[cat].one||CATS[cat].name}</span><span class="nm">${nm}</span><span class="vl">${vol}%</span></button>
+    <span class="st-tile"><svg viewBox="0 0 24 24">${ICONS[cat]}</svg></span>
+    <button class="st-name" data-pick="${row}"><span class="nm">${nm}</span><span class="cat">${CATS[cat].one||CATS[cat].name} <span class="vl">${vol}%</span></span></button>
+    <div class="knob st-knob" data-knob="${row}" role="slider" tabindex="0" aria-label="Громкость" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${vol}" style="--a:${lvl}"><div class="knob-cap"><span class="knob-ind"></span></div></div>
     <span class="st-acts"><button class="st-m" data-mute="${row}" aria-pressed="${!!m}" aria-label="Заглушить">M</button><button class="st-s" data-solo="${row}" aria-pressed="${!!so}" aria-label="Соло">S</button><button class="st-r" data-arm="${row}" aria-pressed="${!!r}" aria-label="Запись с клавиатуры">R</button></span>
   </div><div class="st-lane" data-lane="${row}"><canvas></canvas></div></div>`;
 }
@@ -1776,31 +1933,44 @@ function drawLanes(){
   stClamp(); stFollow(); const t=track(), D=duration()||1, css=getComputedStyle(document.documentElement), col=k=>css.getPropertyValue(k).trim(), dpr=window.devicePixelRatio||1, bar=barSec(), V=vD(), x0=st.x0, X=(t,w)=>(t-x0)/V*w, W=(len,w)=>len/V*w;
   const fit=cv=>{ const w=cv.parentNode.clientWidth, h=cv.parentNode.clientHeight; if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); } const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,w,h); return [c,w,h]; };
   // timeline
-  { const [c,w,h]=fit($('stTime')); c.fillStyle=col('--panel-2'); c.fillRect(0,0,w,h); c.font='10px '+col('--body');
-    const step=Math.max(1,Math.ceil(28/(w*bar/V)));
-    for(let b=0;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<-30||x>w+1) continue; c.fillStyle=col('--line'); c.fillRect(x,b%step?h-6:0,1,b%step?6:h); if(b%step===0){ c.fillStyle=col('--muted'); c.fillText(String(b+1),x+3,11); } }
-    c.fillStyle=col('--brass'); c.globalAlpha=0.35; c.fillRect(0,h-4,Math.max(0,X(Math.min(pos(),D),w)),4); c.globalAlpha=1;
+  { const [c,w,h]=fit($('stTime')); c.fillStyle=col('--ruler'); c.fillRect(0,0,w,h); c.font='600 10px '+col('--body');
+    const step=Math.max(1,Math.ceil(28/(w*bar/V))), beat=bar/4;
+    if(W(beat,w)>7) for(let k=0;k*beat<D;k++){ if(k%4===0) continue; const x=Math.round(X(k*beat,w))+.5; if(x<0||x>w) continue; c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(x,h-4,1,4); }
+    for(let b=0;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<-30||x>w+1) continue; c.fillStyle='rgba(255,255,255,.32)'; c.fillRect(x,b%step?h-7:h-11,1,b%step?7:11); if(b%step===0){ c.fillStyle=col('--fg'); c.globalAlpha=.75; c.fillText(String(b+1),x+3,11); c.globalAlpha=1; } }
     if(st.zoom>1){ c.fillStyle=col('--fg'); c.globalAlpha=0.3; c.fillRect(x0/D*w,h-2,V/D*w,2); c.globalAlpha=1; }
-    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--hit'); c.beginPath(); c.moveTo(px-5,0); c.lineTo(px+5,0); c.lineTo(px,7); c.fill(); c.fillRect(px-1,0,2,h);
-    $('stTimeOut').textContent=fmt(Math.min(pos(),D))+' / '+fmt(D); }
+    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.beginPath(); c.moveTo(px-6,0); c.lineTo(px+6,0); c.lineTo(px+6,5); c.lineTo(px,11); c.lineTo(px-6,5); c.fill(); c.fillRect(px-1,0,2,h);
+    $('stTimeOut').textContent=fmt(Math.min(pos(),D))+' / '+fmt(D); $('stLcdPos').textContent=lcdPos(Math.min(pos(),D)); }
   document.querySelectorAll('#stRows .st-lane').forEach(el=>{
     const row=+el.dataset.lane, [c,w,h]=fit(el.querySelector('canvas')), cc=row<0?CATS.drums.c:CATS[INST[t.parts[row].inst].cat].c;
-    c.strokeStyle='rgba(255,255,255,.07)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
+    const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
+    c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
     const s=st.sel, drag=st.drag&&st.drag.moving?st.drag:null;
-    if(s && s.row===row){ c.fillStyle='rgba(243,210,122,.13)'; c.fillRect(X(s.a,w),0,W(s.b-s.a,w),h); c.strokeStyle=col('--hit'); c.lineWidth=1.5; c.strokeRect(X(s.a,w)+.75,.75,W(s.b-s.a,w)-1.5,h-1.5); }
-    const dim = row<0 ? drumLevel()===0 : partLevel(t.parts[row])===0;
+    const dim = row<0 ? drumLevel()===0 : partLevel(t.parts[row])===0, fade=dim?0.45:1;
+    const ti = h>46 ? 15 : 3, bi = 3;   // region name strip on top, inset at the bottom
+    // regions: every clip between cuts that holds notes, as a rounded block in the instrument colour
+    const all=rowNotes(t,row), cs=[0,...rowCuts(t,row).filter(x=>x>0&&x<D).sort((a,b)=>a-b),D], label=row<0?kit.name:INST[t.parts[row].inst].name;
+    for(let i=0;i<cs.length-1;i++){ const a=cs[i], b=cs[i+1]; if(!all.some(m=>m.t>=a-1e-6&&m.t<b-1e-6)) continue;
+      const x=X(a,w)+1, rw=W(b-a,w)-2; if(x+rw<0||x>w||rw<1) continue;
+      c.fillStyle=cc; c.globalAlpha=fade*.26; rr(x,1,rw,h-2,6); c.fill();
+      if(ti>3){ c.globalAlpha=fade*.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill();
+        if(rw>34){ c.save(); c.beginPath(); c.rect(x+4,1,rw-8,ti); c.clip(); c.globalAlpha=1; c.fillStyle='rgba(10,10,12,.82)'; c.font='700 10px '+col('--body'); c.fillText(label,x+6,ti-3); c.restore(); } }
+      c.globalAlpha=fade; c.strokeStyle=cc; c.lineWidth=1; rr(x+.5,1.5,rw-1,h-3,6); c.stroke(); c.globalAlpha=1; }
     const draw=(ns,dt,alpha)=>{
+      const top=ti+2, ah=h-top-bi-2;
       if(row<0){ const r=n=>[49,57,55,52,51,53,59].includes(n)?0:[42,44,46].includes(n)?1:[38,37,40,39].includes(n)?2:(n>=41&&n<=50)?3:4;
-        c.fillStyle=cc; for(const e of ns){ const x=X(e.t+dt,w); if(x<-4||x>w) continue; const y=4+r(e.n)*(h-8)/5; c.globalAlpha=alpha*(0.35+0.65*e.v/127); c.fillRect(x,y,Math.max(1.5,W(D,w)/400),(h-8)/5-1); } }
+        c.fillStyle=cc; for(const e of ns){ const x=X(e.t+dt,w); if(x<-4||x>w) continue; const y=top+r(e.n)*ah/5; c.globalAlpha=alpha*(0.4+0.6*e.v/127); c.fillRect(x,y,Math.max(1.5,W(D,w)/400),ah/5-1); } }
       else { const all=t.parts[row].notes; if(!all.length) return; let lo=Math.min(...all.map(m=>m.n)), hi=Math.max(...all.map(m=>m.n)); if(hi-lo<12){ const m=(lo+hi)/2; lo=m-6; hi=m+6; }
-        c.fillStyle=cc; for(const m of ns){ const x=X(m.t+dt,w), mw=Math.max(2,W(m.d,w)-1); if(x+mw<0||x>w) continue; const y=4+(hi-m.n)/(hi-lo)*(h-12); c.globalAlpha=alpha*(0.5+0.5*m.v/127); c.fillRect(x,y,mw,Math.max(3,Math.min(8,(h-12)/Math.max(12,hi-lo)))); } }
+        const nh=Math.max(2.5,Math.min(7,(ah-4)/Math.max(12,hi-lo)));
+        c.fillStyle=cc; for(const m of ns){ const x=X(m.t+dt,w), mw=Math.max(2,W(m.d,w)-1); if(x+mw<0||x>w) continue; const y=top+(hi-m.n)/(hi-lo)*(ah-nh); c.globalAlpha=alpha*(0.55+0.45*m.v/127); c.fillRect(x,y,mw,nh); } }
       c.globalAlpha=1; };
-    draw(rowNotes(t,row),0,dim?0.3:1);
+    draw(all,0,dim?0.35:1);
     if(row>=0 && !t.parts[row].notes.length){ c.fillStyle=col('--muted'); c.font='11px '+col('--body'); c.fillText('Пусто: нажмите дважды, чтобы писать ноты',8,h/2+4); }
     // cuts
-    c.strokeStyle=col('--brass'); c.setLineDash([3,3]); rowCuts(t,row).forEach(x=>{ const cx=Math.round(X(x,w))+.5; c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,h); c.stroke(); }); c.setLineDash([]);
-    if(drag && drag.to===row){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-6&&m.t<drag.s.b-1e-6); c.fillStyle='rgba(255,255,255,.08)'; c.fillRect(X(drag.s.a+drag.dt,w),0,W(drag.s.b-drag.s.a,w),h); if(rowKind(row)===rowKind(drag.s.row)){ const tmp=row<0?null:t.parts[row]; draw(sn,drag.dt,0.8); } }
-    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--hit'); c.fillRect(px-1,0,2,h);
+    c.strokeStyle='rgba(255,255,255,.3)'; c.setLineDash([3,3]); rowCuts(t,row).forEach(x=>{ const cx=Math.round(X(x,w))+.5; c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,h); c.stroke(); }); c.setLineDash([]);
+    // the selected clip: white frame, like a picked region
+    if(s && s.row===row){ c.fillStyle='rgba(255,255,255,.08)'; rr(X(s.a,w)+1,1,W(s.b-s.a,w)-2,h-2,6); c.fill(); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(X(s.a,w)+2,2,W(s.b-s.a,w)-4,h-4,5); c.stroke(); c.lineWidth=1; }
+    if(drag && drag.to===row){ const sn=rowNotes(t,drag.s.row).filter(m=>m.t>=drag.s.a-1e-6&&m.t<drag.s.b-1e-6); c.fillStyle='rgba(255,255,255,.1)'; rr(X(drag.s.a+drag.dt,w)+1,1,W(drag.s.b-drag.s.a,w)-2,h-2,6); c.fill(); if(rowKind(row)===rowKind(drag.s.row)) draw(sn,drag.dt,0.8); }
+    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
   });
 }
 function openStudio(){ initAudio(); $('studio').hidden=false; edFullscreen(true); st.sel=null; stClamp(); stRowH(); renderStudio(); loadParts(); }
