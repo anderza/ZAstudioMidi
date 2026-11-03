@@ -518,7 +518,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 .swatches button{aspect-ratio:1/1;border-radius:50%;border:2px solid transparent;background:var(--c);box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}
 .swatches button[aria-pressed="true"]{border-color:#fff}
 /* project save / import */
-@media (max-width:440px){ #stInfoBtn{display:none} .st-top.cbar{gap:3px;padding:5px 4px} .st-top .lcd{min-width:54px;padding:0 4px} .st-top .lcd-s{display:none} .st-top .cb{width:30px} .st-top .cb.tp{width:32px} .st-top .cb-g{gap:1px} }
+@media (max-width:440px){ #stInfoBtn{display:none} #projImp{display:none} .st-top.cbar{gap:3px;padding:5px 4px} .st-top .lcd{min-width:54px;padding:0 4px} .st-top .lcd-s{display:none} .st-top .cb{width:30px} .st-top .cb.tp{width:32px} .st-top .cb-g{gap:1px} }
 @media (max-width:370px){ #stUndo{display:none} }
 .proj-hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .proj-hrow .ed-b{padding:7px 12px;font-size:12px}
@@ -568,7 +568,8 @@ body.mic-on #stPlay{background:var(--rec)}
 .pthumb span{display:block;height:5px;border-radius:2px;background:var(--c);width:var(--w);margin-left:var(--l);opacity:.92}
 .pdel{position:absolute;right:-6px;top:-6px;min-width:22px;height:22px;border-radius:11px;border:1px solid var(--edge);background:#1d1d21;color:var(--muted);font-size:12px;line-height:1;padding:0 5px;z-index:1}
 .pdel.arm{background:var(--rec);color:#fff;border-color:var(--rec);font-size:9px}
-.st-head.focus{outline:2px solid var(--c);outline-offset:-2px}
+.st-head.focus{outline:2.5px solid var(--c);outline-offset:-1px;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 14px color-mix(in srgb,var(--c) 55%,transparent),inset 0 1px 0 rgba(255,255,255,.07);background:linear-gradient(color-mix(in srgb,var(--c) 18%,#303036),#26262b)}
+.st-row.focus .st-lane,.st-row.focus .st-alane{box-shadow:inset 0 0 0 2px var(--c)}
 .set-row{display:flex;align-items:center;gap:10px;margin:4px 0 12px;font-size:13px;color:var(--muted)}
 .set-row input[type=range]{flex:1;accent-color:var(--brass)}
 .set-row output{min-width:44px;text-align:center;color:var(--fg);font-weight:600}
@@ -750,7 +751,7 @@ body.mic-on #stPlay{background:var(--rec)}
       <div class="lcd"><b id="stLcdPos">1.1</b><span class="lcd-s"><output id="stTimeOut">0:00 / 0:00</output><output id="stInfo"></output></span></div>
       <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div><div class="chords" id="stChords" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div>
       <span class="st-sp"></span>
-      <button class="cb" id="projSave" aria-label="Сохранить проект в файл" title="Сохранить проект"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zm2 2v5h9V5zm5 8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></button><button class="cb" id="projImp" aria-label="Импорт проекта из файла" title="Импорт проекта"><svg viewBox="0 0 24 24"><path d="M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 18h16v3H4z"/></svg></button><button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button><input type="file" id="projFile" accept=".zastudio,.json,application/json" hidden>
+      <button class="cb" id="projSave" aria-label="Сохранить проект в файл" title="Сохранить проект"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zm2 2v5h9V5zm5 8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></button><button class="cb" id="projList" aria-label="Мои проекты" title="Мои проекты"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg></button><button class="cb" id="projImp" aria-label="Импорт проекта из файла" title="Импорт проекта"><svg viewBox="0 0 24 24"><path d="M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 18h16v3H4z"/></svg></button><button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button><input type="file" id="projFile" accept=".zastudio,.json,application/json" hidden>
     </div>
     <div class="ed-hint" id="stHint" hidden>Кнопка ☰ слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок (белая рамка), второе нажатие открывает меню куска: редактор нот, разрезать, копировать, вставить, удалить, добавить WAV/MP3 или MIDI. Выбранный кусок тащите за середину: он едет вместе с нотами по времени или на другой инструмент. Тащите за левый или правый край, чтобы обрезать: ноты за рамкой удаляются. Аудиокуски работают так же, обрезка у них обратимая. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
     <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
@@ -2851,11 +2852,13 @@ $('projOpen').addEventListener('click',()=>{ sheet('menuSheet',false); openProje
 function focusRow(){ const t=track(), r = st.sel ? st.sel.row : (st.focusA!=null ? null : st.focus);
   if(r===null || r===undefined) return null; if(r<0) return -1; return t.parts && t.parts[r] ? r : null; }
 function markFocus(){ const r=focusRow(), A=aClips(), fa = st.focusA!=null && A[st.focusA] ? st.focusA : null;
-  document.querySelectorAll('#stRows .st-head').forEach(h=>h.classList.toggle('focus', (h.dataset.head!==undefined && r!==null && +h.dataset.head===r) || (h.dataset.ahead!==undefined && fa!==null && +h.dataset.ahead===fa))); }
+  document.querySelectorAll('#stRows .st-head').forEach(h=>{ const on=(h.dataset.head!==undefined && r!==null && +h.dataset.head===r) || (h.dataset.ahead!==undefined && fa!==null && +h.dataset.ahead===fa);
+    h.classList.toggle('focus', on); h.parentNode.classList.toggle('focus', on); }); }
 $('stRows').addEventListener('pointerdown',e=>{ const row=e.target.closest('.st-row');
   const ah=row && row.querySelector('[data-ahead]');
-  if(row && row.dataset.row!==undefined){ st.focus=+row.dataset.row; st.focusA=null; }
-  else if(ah){ st.focusA=+ah.dataset.ahead; st.focus=null; st.sel=null; }
+  const onHead=!!e.target.closest('.st-head');
+  if(row && row.dataset.row!==undefined){ const r=+row.dataset.row; st.focus=r; st.focusA=null; if(onHead){ if(st.sel && st.sel.row!==r) st.sel=null; if(st.asel) st.asel=null; setTimeout(drawLanes); } }
+  else if(ah){ st.focusA=+ah.dataset.ahead; st.focus=null; st.sel=null; if(onHead && st.asel && st.asel.i!==st.focusA) st.asel=null; setTimeout(drawLanes); }
   else if(!e.target.closest('.st-adds')){ st.focus=null; st.focusA=null; }
   markFocus(); }, true);
 let setRow=null;
@@ -3145,6 +3148,7 @@ async function projImport(file){
   closeProjects(); select(tracks.length-1); openStudio(); toast('Проект открыт: '+name);
 }
 $('projSave').addEventListener('click',projSave);
+$('projList').addEventListener('click',()=>{ sheet(openSheet||'menuSheet',false); openProjects(); });
 $('projImp').addEventListener('click',()=>$('projFile').click());
 $('projImp2').addEventListener('click',()=>$('projFile').click());
 $('projFile').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) projImport(f); });
