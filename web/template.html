@@ -715,7 +715,7 @@ body.mic-on #stPlay{background:var(--rec)}
         <b>Студия</b>: слева инструменты, справа их дорожки. Сверху ☰ (это меню), отмена, ⏮ ▶ ■, табло (такт.доля, время, темп) и такты −/+.
         <b>Песня</b>: стрелки листают готовые биты, нажатие на название открывает список, карандаш открывает редактор ударных, плюс добавляет MIDI-файл.
         <b>Отсчёт</b>: 1, 2, 3 в темпе дорожки, на следующую долю трек начинает играть. <b>EQ</b>: эквалайзер на весь звук. <b>Крутилка Л/П</b>: баланс, двойное нажатие возвращает в центр.
-        Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM, лицензия MIT. Работает без интернета, в приложении играет и в фоне. Версия 35.
+        Играются ноты ударных по стандарту General MIDI (обычно 10-й канал). Сэмплы: FluidR3 GM (лицензия MIT), гитары и басы из Musyng Kite (лицензия CC BY-SA 3.0). Работает без интернета, в приложении играет и в фоне. Версия 35.
       </div>
       <div class="msec">
         <h3>Песня</h3>
@@ -887,7 +887,7 @@ body.mic-on #stPlay{background:var(--rec)}
 
 <script>
 const KITDATA = /*__KITDATA__*/;
-// melodic instruments for the studio (FluidR3 GM, MIT): id -> {cat, name, d, rel, z:[[lowKey, highKey, pitchCents, rate, loopStart, loopEnd, mp3 base64]]}
+// melodic instruments for the studio (FluidR3 GM, MIT; guitars and basses from Musyng Kite, CC BY-SA 3.0): id -> {cat, name, d, rel, z:[[lowKey, highKey, pitchCents, rate, loopStart, loopEnd, mp3 base64]]}
 const INST = /*__INSTDATA__*/;
 const INST_IDS = Object.keys(INST);
 
