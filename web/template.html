@@ -1136,7 +1136,7 @@ function makeExample(def){
 let chans=[], buses={}, noteChan={};   // current kit's channel list, id -> close bus, note -> channel id
 let mixAll = (()=>{ try{ return JSON.parse(store.get('mix5'))||{}; }catch(e){ return {}; } })();
 let mix;   // settings of the current kit: {lv:{id:%}, mute:{id:bool}, solo:{id:bool}}
-let balNode=null, clipOut=null, eqBands=[], sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
+let balNode=null, clipOut=null, eqBands=[], eqIn=null, kitIn=null, sat, makeup, limiter, ctx=null, master, comp, eqLow, eqMid, eqHigh, conv, restBus, ohIn, ohHp, ohOut, ambIn, ambOut;
 const decoded = {};              // sample hash -> AudioBuffer
 let kit = KITS.find(k=>k.id===store.get('kit')) || KITS[0];   // KITS[0] is the default kit
 let roomSize = kit.fx.revLen;   // seconds of reverb tail
@@ -1170,33 +1170,51 @@ function initAudio(){
   master=ctx.createGain(); master.gain.value=$('vol').value/100;
   makeup=ctx.createGain(); limiter=ctx.createDynamicsCompressor();
   limiter.threshold.value=-2; limiter.knee.value=0; limiter.ratio.value=20; limiter.attack.value=0.002; limiter.release.value=0.08;
-  sat=ctx.createWaveShaper(); sat.oversample='4x';
-  eqLow.connect(eqMid).connect(eqHigh).connect(sat).connect(comp).connect(makeup);
+  sat=ctx.createWaveShaper(); sat.oversample='2x';
+  kitIn=ctx.createGain(); sat.connect(comp).connect(makeup);   // kitIn → kit tone bands that are not flat → sat (see wireKit)
   // user's graphic EQ over the whole mix
-  let prev=makeup; eqBands=EQ_F.map((f,i)=>{ const b=ctx.createBiquadFilter(); b.type=i===0?'lowshelf':i===EQ_F.length-1?'highshelf':'peaking'; b.frequency.value=f; b.Q.value=1.1; b.gain.value=eqGain[i]||0; prev.connect(b); prev=b; return b; });
-  prev.connect(master);
-  restBus=ctx.createGain(); restBus.connect(eqLow);
+  eqIn=ctx.createGain(); makeup.connect(eqIn);
+  eqBands=EQ_F.map((f,i)=>{ const b=ctx.createBiquadFilter(); b.type=i===0?'lowshelf':i===EQ_F.length-1?'highshelf':'peaking'; b.frequency.value=f; b.Q.value=1.1; b.gain.value=eqGain[i]||0; return b; });
+  wireEq();
+  restBus=ctx.createGain(); restBus.connect(kitIn);
   // overheads: the whole kit from above, thin on low end
   ohIn=ctx.createGain(); ohHp=ctx.createBiquadFilter(); ohHp.type='highpass'; ohHp.frequency.value=320; ohOut=ctx.createGain();
-  ohIn.connect(ohHp).connect(ohOut).connect(eqLow);
+  ohIn.connect(ohHp).connect(ohOut).connect(kitIn);
   // ambience: room mics through the reverb, after the bus compressor
   ambIn=ctx.createGain(); conv=ctx.createConvolver(); ambOut=ctx.createGain();
   ambIn.connect(conv).connect(ambOut).connect(master);
   // the limiter lets the first milliseconds of a hit through; a soft clipper after it catches those peaks smoothly instead of hard digital clipping
-  const clip=ctx.createWaveShaper(); clip.oversample='4x';
+  const clip=ctx.createWaveShaper(); clip.oversample='2x';
   clip.curve=(()=>{ const n=4096, c=new Float32Array(n), k=0.85; for(let i=0;i<n;i++){ const x=(i/(n-1)*2-1)*2, a=Math.abs(x); c[i]=Math.sign(x)*(a<=k ? a : k+(1-k)*Math.tanh((a-k)/(1-k))); } return c; })();
   const pre=ctx.createGain(); pre.gain.value=0.5;   // the curve covers ±2 (input is halved, curve doubles it back)
   clipOut=clip; balNode=ctx.createStereoPanner(); balNode.pan.value=bal; master.connect(balNode).connect(limiter).connect(pre).connect(clip).connect(ctx.destination);
   buildBuses(); applyFx(); drumFxInit(); applyStrips();
 }
+// Filters cost CPU on every audio block even when flat, so the kit tone and the graphic EQ are wired only through
+// the bands that actually change the sound (a 0 dB band is an exact pass-through, so leaving it out changes nothing).
+function wireKit(){ if(!kitIn) return; [kitIn,eqLow,eqMid,eqHigh].forEach(n=>{ try{ n.disconnect(); }catch(_){} });
+  let prev=kitIn; [eqLow,eqMid,eqHigh].forEach(b=>{ if(Math.abs(b.gain.value)>0.01){ prev.connect(b); prev=b; } }); prev.connect(sat); }
+let eqWired=null, eqT=null;
+// A band that is switched on is wired at once; one going back to 0 dB stays until its gain has glided there,
+// and a later call (remove=true) takes it out.
+function wireEq(remove){
+  if(!eqIn) return;
+  const need=eqBands.map((b,i)=>Math.abs(eqGain[i]||0)>0.01), was=eqWired||need.map(()=>false);
+  const on=remove ? need : need.map((v,i)=>v||was[i]);
+  if(!remove && on.some((v,i)=>v!==need[i])){ clearTimeout(eqT); eqT=setTimeout(()=>wireEq(true),300); }
+  if(eqWired && on.every((v,i)=>v===eqWired[i])) return;
+  eqWired=on;
+  [eqIn,...eqBands].forEach(n=>{ try{ n.disconnect(); }catch(_){} });
+  let prev=eqIn; eqBands.forEach((b,i)=>{ if(on[i]){ prev.connect(b); prev=b; } }); prev.connect(master);
+}
 function buildBuses(){
   Object.values(buses).forEach(b=>b.disconnect());
-  buses={}; chans.forEach(c=>{ if(Array.isArray(c.notes)||c.notes==='rest'){ const b=ctx.createGain(); b.connect(eqLow); buses[c.id]=b; } });
+  buses={}; chans.forEach(c=>{ if(Array.isArray(c.notes)||c.notes==='rest'){ const b=ctx.createGain(); b.connect(kitIn); buses[c.id]=b; } });
   applyMix();
 }
 function applyFx(){
   if(!ctx) return; const f=kit.fx;
-  eqLow.gain.value=f.low; eqMid.gain.value=f.mid; eqHigh.gain.value=f.high;
+  eqLow.gain.value=f.low; eqMid.gain.value=f.mid; eqHigh.gain.value=f.high; wireKit();
   comp.threshold.value=f.thr; comp.ratio.value=f.ratio; comp.attack.value=f.att||0.006;
   makeupBase=KIT_BOOST*Math.pow(10,(f.gain||0)/20); makeup.gain.value=makeupBase*drumLevel();   // brings compressed presets back up to the others' loudness
   sat.curve=satCurve(f.sat||0.8);
@@ -1320,7 +1338,7 @@ const EQ_F=[60,125,250,500,1000,2000,4000,8000,14000];
 const EQ_PRESETS=[['Ровно',[0,0,0,0,0,0,0,0,0]],['Больше низа',[5,4,1,-1,0,0,0,0,0]],['Атака',[2,0,-2,-2,0,2,4,3,1]],['Мягче',[1,1,0,0,-1,-2,-3,-4,-5]],['Ярче',[0,0,-1,0,0,1,3,4,5]],['Без бубнежа',[0,0,-3,-4,-1,0,1,0,0]]];
 let eqGain=(()=>{ try{ const a=JSON.parse(store.get('eq1')); return Array.isArray(a)&&a.length===EQ_F.length?a:EQ_F.map(()=>0); }catch(e){ return EQ_F.map(()=>0); } })();
 const eqLabel=f=>f>=1000?(f/1000)+'к':String(f);
-function setEq(i,v){ eqGain[i]=Math.max(-12,Math.min(12,v)); if(eqBands[i]) eqBands[i].gain.setTargetAtTime(eqGain[i],ctx.currentTime,0.02);
+function setEq(i,v){ eqGain[i]=Math.max(-12,Math.min(12,v)); wireEq(); if(eqBands[i]) eqBands[i].gain.setTargetAtTime(eqGain[i],ctx.currentTime,0.02);
   const l=document.getElementById('eqlv-'+i); if(l) l.textContent=(eqGain[i]>0?'+':'')+eqGain[i]; store.set('eq1',JSON.stringify(eqGain)); eqSummary(); }
 function eqSummary(){ const p=EQ_PRESETS.find(([,a])=>a.every((v,i)=>v===eqGain[i])); $('eqSum').textContent=p?p[0]:'Свои настройки'; document.querySelectorAll('#eqPresets button').forEach(b=>b.setAttribute('aria-pressed',!!p&&b.textContent===p[0])); }
 function renderEq(){
@@ -1986,9 +2004,10 @@ $('edExport').addEventListener('click',()=>{
 
 function render(){
   const d=duration(), p=Math.min(pos(),d);
-  if(!seeking){ $('seek').value = d? Math.round(p/d*1000):0; $('time').textContent=fmt(p)+' / '+fmt(d); }
-  $('lcdPos').textContent=lcdPos(p);
-  const tr=track(), bpm=tr&&tr.bpm?Math.round(tr.bpm*$('tempo').value/100):0; $('lcdTempo').textContent=bpm?'♩ '+bpm:'♩ —';
+  // written only when the shown value changes: a write every frame makes the browser lay the page out again
+  if(!seeking){ const sv=String(d? Math.round(p/d*1000):0); if($('seek').value!==sv) $('seek').value=sv; setText('time', fmt(p)+' / '+fmt(d)); }
+  setText('lcdPos', lcdPos(p));
+  const tr=track(), bpm=tr&&tr.bpm?Math.round(tr.bpm*$('tempo').value/100):0; setText('lcdTempo', bpm?'♩ '+bpm:'♩ —');
 }
 // LCD in the control bar: bar.beat of a position (4/4, the track's own tempo)
 function lcdPos(p){ const t=track(); if(!t||!t.bpm) return '1.1'; const b=240/t.bpm; return (Math.floor(p/b+1e-6)+1)+'.'+(Math.floor((p%b)/(b/4)+1e-6)+1); }
@@ -2135,7 +2154,7 @@ function loadInst(id){
   return instBufs[id];
 }
 const loadParts = () => Promise.all((track().parts||[]).map(p=>loadInst(p.inst)));
-function instOut(){ if(!instBus){ instBus=ctx.createGain(); instBus.connect(eqBands[0]||master); } return instBus; }
+function instOut(){ if(!instBus){ instBus=ctx.createGain(); instBus.connect(eqIn||master); } return instBus; }
 // mute / solo / volume: a part sounds when it is not muted and, if anything is soloed, it is soloed too
 function anySolo(){ const t=track(); return !!t.dsolo || (t.parts||[]).some(p=>p.solo); }
 function partLevel(p){ return (p.mute || (anySolo() && !p.solo)) ? 0 : p.vol; }
@@ -2238,6 +2257,7 @@ function headHTML(row, cat, nm, lvl, m, so, r){
   </div><div class="st-lane" data-lane="${row}"><canvas></canvas></div></div>`;
 }
 function renderStudio(){
+  laneVer++;
   if($('studio').hidden) return;
   const t=track(), parts=t.parts||[], D=duration(), bars=Math.max(1,Math.round(D/barSec()));
   $('stInfo').textContent=t.bpm+' BPM · '+bars+' т.';
@@ -2251,21 +2271,39 @@ function renderStudio(){
   aLoadTrack(t);
   setTimeout(drawLanes); stSnap();
 }
+// Lane drawing cache: laneVer changes whenever the studio is re-rendered or the window resizes
+let laneVer=0; window.addEventListener('resize',()=>laneVer++);
+function laneSig(t,row,cv){ const s=st.sel, p=row<0?null:t.parts[row];
+  return [st.x0,vD(),duration(),cv.width,cv.height,laneVer,row<0?t.events.length+':'+chan:(p?p.notes.length:0),rowCuts(t,row).length,
+    s?[s.row,s.a,s.b,(s.keep||[]).length].join(','):'', row<0?drumLevel():(p?partLevel(p):0)].join('|'); }
+function laneCached(cv,sig,dpr){ if(cv._sig!==sig || !cv._img || cv._img.width!==cv.width || cv._img.height!==cv.height) return null;
+  const c=cv.getContext('2d'); c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,cv.width,cv.height); c.drawImage(cv._img,0,0); c.setTransform(dpr,0,0,dpr,0,0); return [c,cv.width/dpr,cv.height/dpr]; }
+function laneKeep(cv,sig){ const im=cv._img||(cv._img=document.createElement('canvas')); if(im.width!==cv.width||im.height!==cv.height){ im.width=cv.width; im.height=cv.height; }
+  const g=im.getContext('2d'); g.clearRect(0,0,im.width,im.height); g.drawImage(cv,0,0); cv._sig=sig; }
+function setText(id,v){ const el=$(id); if(el && el.textContent!==v) el.textContent=v; }
 function drawLanes(){
   if($('studio').hidden) return;
   markFocus(); showChords(); stClamp(); stFollow(); const t=track(), D=duration()||1, css=getComputedStyle(document.documentElement), col=k=>css.getPropertyValue(k).trim(), dpr=window.devicePixelRatio||1, bar=barSec(), V=vD(), x0=st.x0, X=(t,w)=>(t-x0)/V*w, W=(len,w)=>len/V*w;
   const fit=cv=>{ const w=cv.parentNode.clientWidth, h=cv.parentNode.clientHeight; if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); } const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,w,h); return [c,w,h]; };
+  // during playback only the playhead moves: canvases whose view, notes and selection are unchanged are copied from their last drawing
+  const fast=playing && !st.drag && !st.pinch, ph=col('--ph'), px0=w=>X(Math.min(pos(),D),w);
+  const head=(c,w,h)=>{ c.fillStyle=ph; c.fillRect(px0(w)-1,0,2,h); };
+  const rulerHead=(c,w,h)=>{ const px=px0(w); c.fillStyle=ph; c.beginPath(); c.moveTo(px-6,0); c.lineTo(px+6,0); c.lineTo(px+6,5); c.lineTo(px,11); c.lineTo(px-6,5); c.fill(); c.fillRect(px-1,0,2,h); };
   // timeline
-  { const [c,w,h]=fit($('stTime')); c.fillStyle=col('--ruler'); c.fillRect(0,0,w,h); c.font='600 10px '+col('--body');
+  const tcv=$('stTime'), tsig=fast && [x0,V,D,tcv.width,tcv.height,laneVer,loop?loopRange().join(','):'',st.zoom].join('|'), thit=tsig && laneCached(tcv,tsig,dpr);
+  if(thit){ const [c,w,h]=thit; rulerHead(c,w,h); }
+  else { const [c,w,h]=fit(tcv); c.fillStyle=col('--ruler'); c.fillRect(0,0,w,h); c.font='600 10px '+col('--body');
     const step=Math.max(1,Math.ceil(28/(w*bar/V))), beat=bar/4;
     if(W(beat,w)>7) for(let k=0;k*beat<D;k++){ if(k%4===0) continue; const x=Math.round(X(k*beat,w))+.5; if(x<0||x>w) continue; c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(x,h-4,1,4); }
     for(let b=0;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<-30||x>w+1) continue; c.fillStyle='rgba(255,255,255,.32)'; c.fillRect(x,b%step?h-7:h-11,1,b%step?7:11); if(b%step===0){ c.fillStyle=col('--fg'); c.globalAlpha=.75; c.fillText(String(b+1),x+3,11); c.globalAlpha=1; } }
     if(st.zoom>1){ c.fillStyle=col('--fg'); c.globalAlpha=0.3; c.fillRect(x0/D*w,h-2,V/D*w,2); c.globalAlpha=1; }
     if(loop){ const [la,lb]=loopRange(); c.fillStyle=col('--brass'); c.globalAlpha=.9; c.fillRect(X(la,w),0,W(lb-la,w),4); c.globalAlpha=.12; c.fillRect(X(la,w),0,W(lb-la,w),h); c.globalAlpha=1; }
-    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.beginPath(); c.moveTo(px-6,0); c.lineTo(px+6,0); c.lineTo(px+6,5); c.lineTo(px,11); c.lineTo(px-6,5); c.fill(); c.fillRect(px-1,0,2,h);
-    $('stTimeOut').textContent=fmt(Math.min(pos(),D))+' / '+fmt(D); $('stLcdPos').textContent=lcdPos(Math.min(pos(),D)); }
+    if(tsig) laneKeep(tcv,tsig); rulerHead(c,w,h); }
+  setText('stTimeOut', fmt(Math.min(pos(),D))+' / '+fmt(D)); setText('stLcdPos', lcdPos(Math.min(pos(),D)));
   document.querySelectorAll('#stRows .st-lane').forEach(el=>{
-    const row=+el.dataset.lane, [c,w,h]=fit(el.querySelector('canvas')), cc=rowColor(row);
+    const row=+el.dataset.lane, cv=el.querySelector('canvas'), sig=fast && laneSig(t,row,cv), hit=sig && laneCached(cv,sig,dpr);
+    if(hit){ const [c,w,h]=hit; head(c,w,h); return; }
+    const [c,w,h]=fit(cv), cc=rowColor(row);
     const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
     c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
     const s=st.sel, drag=st.drag&&st.drag.moving?st.drag:null;
@@ -2304,10 +2342,13 @@ function drawLanes(){
         c.fillStyle=cc; c.globalAlpha=.32; rr(x,1,rw,h-2,6); c.fill(); if(ti>3){ c.globalAlpha=.9; rr(x,1,rw,ti,[6,6,0,0]); c.fill(); } c.globalAlpha=1;
         draw(sn,drag.dt,1); c.strokeStyle=col('--ph'); c.lineWidth=2; rr(x+1,2,rw-2,h-4,5); c.stroke(); c.lineWidth=1; }
       else { c.fillStyle='rgba(255,70,60,.14)'; rr(x,1,rw,h-2,6); c.fill(); } }
-    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
+    if(sig) laneKeep(cv,sig); head(c,w,h);
   });
   document.querySelectorAll('#stRows .st-alane').forEach(el=>{
-    const i=+el.dataset.alane, a=aClips()[i]; if(!a) return; const [c,w,h]=fit(el.querySelector('canvas'));
+    const i=+el.dataset.alane, a=aClips()[i]; if(!a) return; const cv=el.querySelector('canvas');
+    const sig=fast && [x0,V,D,cv.width,cv.height,laneVer,a.clips.map(k=>k.t+':'+k.off+':'+kLen(k)).join(';'),a.peaks.length,st.asel?st.asel.i+':'+st.asel.k:'',aLevel(a)].join('|'), hit=sig && laneCached(cv,sig,dpr);
+    if(hit){ const [c,w,h]=hit; head(c,w,h); return; }
+    const [c,w,h]=fit(cv);
     const rr=(x,y,rw,rh,r)=>{ c.beginPath(); if(c.roundRect) c.roundRect(x,y,rw,rh,r); else c.rect(x,y,rw,rh); };
     c.strokeStyle='rgba(255,255,255,.06)'; for(let b=1;b*bar<D;b++){ const x=Math.round(X(b*bar,w))+.5; if(x<0||x>w) continue; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
     const ti=h>46?15:3, fade=aLevel(a)===0?0.45:1, n=a.peaks.length;
@@ -2322,7 +2363,7 @@ function drawLanes(){
       if(st.asel && st.asel.i===i && st.asel.k===j){ c.strokeStyle=col('--ph'); c.lineWidth=2; rr(x+1,2,rw-2,h-4,5); c.stroke(); c.lineWidth=1;
         c.fillStyle=col('--ph'); [x+3,x+rw-6].forEach(hx=>{ rr(hx,h/2-9,3,18,1.5); c.fill(); }); }
     });
-    const px=X(Math.min(pos(),D),w); c.fillStyle=col('--ph'); c.fillRect(px-1,0,2,h);
+    if(sig) laneKeep(cv,sig); head(c,w,h);
   });
 }
 function openStudio(){ setTimeout(buildChords); initAudio(); $('studio').hidden=false; edFullscreen(true); st.sel=null; st.focus=null; st.focusA=null; stClamp(); stRowH(); renderStudio(); loadParts(); }
@@ -2709,7 +2750,7 @@ let aBus=null, aSrcs=[];
 st.asel=null;   // selected audio clip {i, k}
 const aClips = () => (track() && track().audio) || [];
 const escH = s => String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-function audioOut(){ if(!aBus){ aBus=ctx.createGain(); aBus.connect(eqBands[0]||master); } return aBus; }
+function audioOut(){ if(!aBus){ aBus=ctx.createGain(); aBus.connect(eqIn||master); } return aBus; }
 function aLevel(a){ return (a.mute || anySolo()) ? 0 : a.vol; }
 function kLen(k){ return Math.max(0, Math.min(k.len, duration()-k.t)); }
 function audioStop(){ aSrcs.forEach(s=>{ try{ s.stop(); }catch(_){} }); aSrcs=[]; }
@@ -3097,34 +3138,60 @@ const FX_NAMES=[['c','Компрессор'],['h','Хорус'],['d','Дилей
 let fxDelay=null, fxDelayFb=null, fxRev=null, drumStrip=null;
 function fxBuses(){
   if(fxDelay && fxDelay.context===ctx) return;
-  const out=eqBands[0]||master;
+  const out=eqIn||master;
   fxDelay=ctx.createDelay(2); fxDelayFb=ctx.createGain(); fxDelayFb.gain.value=0.35;
   const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=3200;
   fxDelay.connect(lp).connect(fxDelayFb).connect(fxDelay); lp.connect(out);
   fxRev=ctx.createConvolver(); fxRev.buffer=impulse(2.4); const rg=ctx.createGain(); rg.gain.value=0.9; fxRev.connect(rg).connect(out);
 }
+// A track strip holds only what is switched on. EQ bands at 0 dB, a compressor at 0, an unused chorus, centre pan
+// and empty sends are left out of the audio path: each of them otherwise runs on every audio block for every track,
+// which is what made phones crackle. Parts turning on are wired at once; parts turning off stay until their level
+// has glided to neutral (300 ms) and are then taken out.
 function makeStrip(dest){
   fxBuses();
-  const s={input:ctx.createGain(), comp:ctx.createDynamicsCompressor(), mk:ctx.createGain(), dry:ctx.createGain(), wet:ctx.createGain(), cd:ctx.createDelay(0.05),
-    lfo:ctx.createOscillator(), depth:ctx.createGain(), pan:ctx.createStereoPanner(), dS:ctx.createGain(), rS:ctx.createGain()};
-  s.comp.attack.value=0.005; s.comp.release.value=0.15; s.comp.knee.value=8;
-  s.eq=EQ_F.map((f,i)=>{ const b=ctx.createBiquadFilter(); b.type=i===0?'lowshelf':i===EQ_F.length-1?'highshelf':'peaking'; b.frequency.value=f; b.Q.value=1.1; b.gain.value=0; return b; });
-  let prev=s.input; s.eq.forEach(b=>{ prev.connect(b); prev=b; }); prev.connect(s.comp); s.comp.connect(s.mk);
-  s.mk.connect(s.dry).connect(s.pan); s.mk.connect(s.cd).connect(s.wet).connect(s.pan);
-  s.cd.delayTime.value=0.018; s.lfo.frequency.value=0.8; s.depth.gain.value=0.004; s.lfo.connect(s.depth).connect(s.cd.delayTime); s.lfo.start();
-  s.pan.connect(dest); s.pan.connect(s.dS).connect(fxDelay); s.pan.connect(s.rS).connect(fxRev);
+  const s={dest, input:ctx.createGain(), out:ctx.createGain(), eq:EQ_F.map(()=>null), comp:null, mk:null, ch:null, pan:null, dS:null, rS:null, on:null, fx:null, t:null};
+  s.out.connect(dest);
   return s;
 }
+function stripNeeds(fx){ const eq=EQ_F.map((_,i)=>Math.abs((fx.eq&&fx.eq[i])||0)>0.01);
+  return {eq, c:fx.c>0.001, h:fx.h>0.001, p:Math.abs(fx.pan||0)>0.001, d:fx.d>0.001, r:fx.r>0.001}; }
+function wireStrip(s, remove){
+  const need=stripNeeds(s.fx), was=s.on, or=(k)=>remove||!was ? need[k] : need[k]||was[k];
+  const on={eq:need.eq.map((v,i)=>remove||!was ? v : v||was.eq[i]), c:or('c'), h:or('h'), p:or('p'), d:or('d'), r:or('r')};
+  const same=was && ['c','h','p','d','r'].every(k=>on[k]===was[k]) && on.eq.every((v,i)=>v===was.eq[i]);
+  if(!remove && JSON.stringify(on)!==JSON.stringify(need)){ clearTimeout(s.t); s.t=setTimeout(()=>{ if(s.input.context===ctx) wireStrip(s,true); },300); }
+  if(same) return;
+  s.on=on;
+  const off=n=>{ if(n) try{ n.disconnect(); }catch(_){} };
+  off(s.input); s.eq.forEach(off); off(s.comp); off(s.mk); off(s.pan); off(s.dS); off(s.rS);
+  if(s.ch){ off(s.ch.dry); off(s.ch.cd); off(s.ch.wet); if(!on.h){ try{ s.ch.lfo.stop(); }catch(_){} off(s.ch.lfo); off(s.ch.depth); s.ch=null; } }
+  let prev=s.input;
+  on.eq.forEach((v,i)=>{ if(!v) return;
+    if(!s.eq[i]){ const b=ctx.createBiquadFilter(); b.type=i===0?'lowshelf':i===EQ_F.length-1?'highshelf':'peaking'; b.frequency.value=EQ_F[i]; b.Q.value=1.1; b.gain.value=0; s.eq[i]=b; }
+    prev.connect(s.eq[i]); prev=s.eq[i]; });
+  if(on.c){ if(!s.comp){ s.comp=ctx.createDynamicsCompressor(); s.comp.attack.value=0.005; s.comp.release.value=0.15; s.comp.knee.value=8; s.comp.threshold.value=0; s.comp.ratio.value=1; s.mk=ctx.createGain(); }
+    prev.connect(s.comp); s.comp.connect(s.mk); prev=s.mk; }
+  const next = on.p ? (s.pan||(s.pan=ctx.createStereoPanner())) : s.out;
+  if(on.p) s.pan.connect(s.out);
+  if(on.h){ if(!s.ch){ const ch={dry:ctx.createGain(), wet:ctx.createGain(), cd:ctx.createDelay(0.05), lfo:ctx.createOscillator(), depth:ctx.createGain()};
+      ch.wet.gain.value=0; ch.cd.delayTime.value=0.018; ch.lfo.frequency.value=0.8; ch.depth.gain.value=0.004; ch.lfo.connect(ch.depth).connect(ch.cd.delayTime); ch.lfo.start(); s.ch=ch; }
+    prev.connect(s.ch.dry).connect(next); prev.connect(s.ch.cd).connect(s.ch.wet).connect(next); }
+  else prev.connect(next);
+  if(on.d){ if(!s.dS){ s.dS=ctx.createGain(); s.dS.gain.value=0; } s.out.connect(s.dS).connect(fxDelay); }
+  if(on.r){ if(!s.rS){ s.rS=ctx.createGain(); s.rS.gain.value=0; } s.out.connect(s.rS).connect(fxRev); }
+}
 function applyStrip(s, fx){
-  if(!s) return; fx={...FX_DEF, ...(fx||{})}; const now=ctx.currentTime, T=(p,v)=>p.setTargetAtTime(v,now,0.03);
-  T(s.comp.threshold.value!==undefined?s.comp.threshold:s.comp.threshold, -fx.c*32); T(s.comp.ratio, 1+fx.c*7); T(s.mk.gain, 1+fx.c*0.9);
-  T(s.wet.gain, fx.h*0.7); T(s.dry.gain, 1-fx.h*0.25);
-  T(s.pan.pan, Math.max(-1,Math.min(1,fx.pan)));
-  T(s.dS.gain, fx.d*0.6); T(s.rS.gain, fx.r*0.8);
-  if(s.eq) s.eq.forEach((b,i)=>T(b.gain, (fx.eq&&fx.eq[i])||0));
+  if(!s) return; fx={...FX_DEF, ...(fx||{})}; s.fx=fx; wireStrip(s, false);
+  const now=ctx.currentTime, T=(p,v)=>p.setTargetAtTime(v,now,0.03);
+  if(s.comp){ T(s.comp.threshold, -fx.c*32); T(s.comp.ratio, 1+fx.c*7); T(s.mk.gain, 1+fx.c*0.9); }
+  if(s.ch){ T(s.ch.wet.gain, fx.h*0.7); T(s.ch.dry.gain, 1-fx.h*0.25); }
+  if(s.pan) T(s.pan.pan, Math.max(-1,Math.min(1,fx.pan||0)));
+  if(s.dS) T(s.dS.gain, fx.d*0.6); if(s.rS) T(s.rS.gain, fx.r*0.8);
+  s.eq.forEach((b,i)=>{ if(b) T(b.gain, (fx.eq&&fx.eq[i])||0); });
 }
 function stripFor(o, dest){ if(!o._fx || o._fx.input.context!==ctx) o._fx=makeStrip(dest); return o._fx; }
-function drumFxInit(){ if(!ctx || !makeup || drumStrip) return; drumStrip=makeStrip(eqBands[0]||master); try{ makeup.disconnect(); }catch(_){} makeup.connect(drumStrip.input); }
+function drumFxInit(){ if(!ctx || !makeup || drumStrip) return; drumStrip=makeStrip(eqIn||master); try{ makeup.disconnect(); }catch(_){} makeup.connect(drumStrip.input); }
 function applyStrips(){
   if(!ctx) return; drumFxInit(); const t=track();
   if(fxDelay) fxDelay.delayTime.setTargetAtTime(Math.min(1.5, 0.75*60/(t.bpm||120)), ctx.currentTime, 0.05);
