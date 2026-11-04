@@ -1,11 +1,11 @@
-# ZAstudioMidi
+# ZaStudio
 
-Android-приложение, которое играет партию ударных из MIDI-файлов записанными сэмплами и даёт добавить бас, синтезаторы, клавишные и струнные в «Студии» (сэмплы FluidR3 GM, лицензия MIT).
+Android-приложение, которое играет партию ударных из MIDI-файлов записанными сэмплами и даёт добавить бас, синтезаторы, клавишные, струнные, гитары и духовые в «Студии» (сэмплы FluidR3 GM, лицензия MIT; гитары и басы из Musyng Kite, лицензия [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), взяты из готовых нот [midi-js-soundfonts](https://github.com/gleitz/midi-js-soundfonts)). Умеет делать MIDI-проект из аудиофайла и из табов Guitar Pro (.gp3, .gp4, .gp5) и сохранять проект в MIDI-файл.
 Установки: Стандарт, Рок, Панк-рок, Модерн, Поп, Электро 808. Есть миксер с фейдерами, Overhead и Ambience, редактор дорожек и сохранение.
 
 ## Скачать APK
 
-Готовый APK лежит в последнем релизе: **Releases → Latest → ZAstudioMidi.apk**. Его собирает GitHub Actions при каждом push в `main`.
+Готовый APK лежит в последнем релизе: **Releases → Latest → ZaStudio.apk**. Его собирает GitHub Actions при каждом push в `main`.
 
 ## Как устроено
 
