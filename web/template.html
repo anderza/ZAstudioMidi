@@ -563,12 +563,6 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webk
 .hw{background:linear-gradient(#4b4b53,#36363c 55%,#2c2c31);border:1px solid #0b0b0d;color:var(--fg);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -2px 0 rgba(0,0,0,.35),0 2px 0 #09090b,0 4px 9px rgba(0,0,0,.5);transition:transform .06s,box-shadow .06s}
 .hw:active,.hw.down{transform:translateY(2px);box-shadow:inset 0 2px 5px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,255,255,.06),0 0 0 #09090b,0 1px 2px rgba(0,0,0,.5)}
-.cw-btn{width:40px;height:40px;flex:none;border-radius:10px;display:grid;place-items:center;color:var(--brass);padding:0}
-.cw-btn svg{width:22px;height:22px;fill:currentColor;filter:drop-shadow(0 0 4px rgba(247,165,28,.45))}
-.st-top .cw-btn{margin-left:-2px}
-#stWheel2,#stTuner2{display:none}
-@media (max-width:440px){ #stWheel,#stTuner{display:none} #stWheel2,#stTuner2{display:grid;width:26px;height:26px;border-radius:7px} #stWheel2 svg,#stTuner2 svg{width:15px;height:15px} .st-corner{display:flex;align-items:center;gap:5px} }
-@media (orientation:landscape) and (max-height:560px){ .st-top .cw-btn{width:32px;height:32px} }
 #wheelSheet,#tunerSheet{--cw-seg:#26241f;--cw-seg-ink:#d8d3c8;--cw-seg-hover:#322f29;--cw-ton:#ec6a3c;--cw-sub:#4bb39c;--cw-dom:#6d8ce0;--cw-pale:#3a2a22;--cw-pale-ink:#f2b79c}
 #wheelSheet .mixer-in,#tunerSheet .mixer-in{gap:8px}
 .cw-top{display:flex;align-items:center;gap:8px}
@@ -670,10 +664,19 @@ svg.cw-wheel{width:100%;max-width:360px;height:auto;display:block;user-select:no
 .st-padp .kb-head .cb.tp{width:32px;height:30px}.st-padp .kb-head .cb.tp svg{width:18px;height:18px}
 .pad-hint{font-size:10.5px;color:var(--muted)}
 @media (orientation:landscape) and (max-height:560px){ .st-padp .padsec{height:clamp(70px,28vh,130px);margin-top:3px} }
-.st-bot{grid-template-columns:repeat(5,minmax(0,1fr))}
-.st-bot .st-kbb{justify-content:center}
-@media (max-width:440px){ .st-bot .st-kbb span{display:inline;font-size:11px} .st-bot .st-kbb svg{display:none} }
-.st-bot .st-kbb[aria-pressed="true"]{color:var(--brass);box-shadow:inset 0 0 0 1px rgba(247,165,28,.6)}
+.st-bot{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+/* bottom bar: seven equal raised keys, icon over label */
+.st-bot .st-kbb{flex-direction:column;justify-content:center;align-items:center;gap:3px;height:46px;padding:4px 2px;border-radius:10px;font-size:10.5px;font-weight:600;line-height:1.1;color:#e8e8ec;
+  background:linear-gradient(#4b4b53,#36363c 55%,#2c2c31);border:1px solid #0b0b0d;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -2px 0 rgba(0,0,0,.35),0 2px 0 #09090b,0 4px 9px rgba(0,0,0,.45);transition:transform .06s,box-shadow .06s}
+.st-bot .st-kbb svg{display:block;width:18px;height:18px;fill:currentColor;flex:none}
+.st-bot .st-kbb span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-bot .st-kbb .ls{display:none}
+.st-bot .st-kbb:active{transform:translateY(2px);box-shadow:inset 0 2px 5px rgba(0,0,0,.6),0 0 0 #09090b,0 1px 2px rgba(0,0,0,.5)}
+.st-bot .st-kbb[aria-pressed="true"]{color:var(--brass);transform:translateY(2px);box-shadow:inset 0 2px 5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(247,165,28,.55),0 0 0 #09090b}
+.st-bot .st-kbb[aria-pressed="true"] svg{filter:drop-shadow(0 0 4px rgba(247,165,28,.5))}
+@media (max-width:440px){ .st-bot{gap:4px} .st-bot .st-kbb{height:44px;font-size:9.5px;letter-spacing:-.02em;padding:4px 0} .st-bot .st-kbb span{text-overflow:clip} .st-bot .st-kbb svg{width:17px;height:17px} .st-bot .st-kbb .lf{display:none} .st-bot .st-kbb .ls{display:block} }
+@media (max-width:370px){ .st-bot{gap:3px} .st-bot .st-kbb{font-size:9px;letter-spacing:-.03em} }
+@media (orientation:landscape) and (max-height:560px){ .st-bot .st-kbb{height:36px;flex-direction:row;gap:5px} .st-bot .st-kbb svg{width:16px;height:16px} }
 .mgrid .mbtn.wide{grid-column:span 2;flex-direction:row;height:46px;gap:8px}
 .mbtn.busy{color:#fff;background:var(--rec)}
 body.mic-on #stPlay{background:var(--rec)}
@@ -919,13 +922,13 @@ body.mic-on #stPlay{background:var(--rec)}
         <button class="cb" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button><button class="cb" id="stLoopTop" aria-label="Зациклить" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
       </div>
       <div class="lcd" id="stLcd" role="button" tabindex="0" aria-label="Темп песни" aria-haspopup="dialog"><b id="stLcdPos">1.1</b><span class="lcd-s"><output id="stTimeOut">0:00 / 0:00</output><output id="stInfo"></output></span></div>
-      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div><div class="chords" id="stChords" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div><button class="cw-btn hw" id="stWheel" aria-label="Круг аккордов" title="Круг аккордов" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></button><button class="cw-btn hw" id="stTuner" aria-label="Тюнер" title="Тюнер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M8 2h2v7a2 2 0 0 0 4 0V2h2v7a4 4 0 0 1-3 3.87V22h-2v-9.13A4 4 0 0 1 8 9z"/></svg></button>
+      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div><div class="chords" id="stChords" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div>
       <span class="st-sp"></span>
       <button class="cb" id="projSave" aria-label="Сохранить проект в файл" title="Сохранить проект"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zm2 2v5h9V5zm5 8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></button><button class="cb" id="projImp" aria-label="Импорт проекта из файла" title="Импорт проекта"><svg viewBox="0 0 24 24"><path d="M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 18h16v3H4z"/></svg></button><button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button><input type="file" id="projFile" accept=".zastudio,.json,application/json" hidden>
     </div>
     <div class="ed-hint" id="stHint" hidden>Кнопка с ключом слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок (белая рамка), второе нажатие открывает меню куска: редактор нот, разрезать, копировать, вставить, удалить, добавить WAV/MP3 или MIDI. Выбранный кусок тащите за середину: он едет вместе с нотами по времени или на другой инструмент. Тащите за левый или правый край, чтобы обрезать: ноты за рамкой удаляются. Аудиокуски работают так же, обрезка у них обратимая. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
     <div class="bpm-pop" id="bpmPop" role="dialog" aria-label="Темп песни" hidden><button class="ed-b" id="bpmM5" aria-label="На 5 BPM медленнее">−5</button><button class="ed-b" id="bpmM1" aria-label="На 1 BPM медленнее">−</button><div class="bpm-v"><b id="bpmVal">120</b><small>BPM</small></div><button class="ed-b" id="bpmP1" aria-label="На 1 BPM быстрее">+</button><button class="ed-b" id="bpmP5" aria-label="На 5 BPM быстрее">+5</button></div>
-    <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div><button class="cw-btn hw" id="stWheel2" aria-label="Круг аккордов" title="Круг аккордов" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></button><button class="cw-btn hw" id="stTuner2" aria-label="Тюнер" title="Тюнер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M8 2h2v7a2 2 0 0 0 4 0V2h2v7a4 4 0 0 1-3 3.87V22h-2v-9.13A4 4 0 0 1 8 9z"/></svg></button></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
+    <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stWav" accept="audio/*,.wav,.wave,.mp3,.ogg,.m4a,.flac" multiple hidden><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
       <div class="kb-grip" data-grip="kb" aria-label="Потяните, чтобы изменить высоту клавиатуры" role="separator"></div>
@@ -938,10 +941,10 @@ body.mic-on #stPlay{background:var(--rec)}
       <section class="padsec"><div class="pads" id="pads"></div></section>
     </div>
     <div class="st-bot">
-      <button class="ed-b st-kbb" id="stKbBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2zm2 2v8h2v-3h1V8zm4 0v5h1v3h2v-3h1V8zm5 0v5h1v3h2v-3h1V8zm5 0v5h1v3h1V8z"/></svg><span>Клавиатура</span></button>
-      <button class="ed-b st-kbb" id="stPadsBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>Пэды</span></button>
-      <button class="ed-b st-kbb" id="stSongsBtn"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>Мои песни</span></button>
-      <button class="ed-b st-kbb" id="stMixBtn"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg><span>Микшер</span></button><button class="ed-b st-kbb" id="stMetroBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span>Метроном</span></button>
+      <button class="ed-b st-kbb" id="stKbBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2zm2 2v8h2v-3h1V8zm4 0v5h1v3h2v-3h1V8zm5 0v5h1v3h2v-3h1V8zm5 0v5h1v3h1V8z"/></svg><span class="lf">Клавиатура</span><span class="ls">Клавиши</span></button>
+      <button class="ed-b st-kbb" id="stPadsBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span class="lf">Пэды</span><span class="ls">Пэды</span></button>
+      <button class="ed-b st-kbb" id="stSongsBtn"><svg viewBox="0 0 24 24"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9l2 2h9.5A1.5 1.5 0 0 1 22 7.5v11a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 18.5z"/></svg><span class="lf">Мои песни</span><span class="ls">Песни</span></button>
+      <button class="ed-b st-kbb" id="stMixBtn"><svg viewBox="0 0 24 24"><path d="M5 3h2v6h2v2H7v10H5V11H3V9h2zm6 0h2v12h2v2h-2v4h-2v-4H9v-2h2zm6 0h2v4h2v2h-2v12h-2V9h-2V7h2z"/></svg><span class="lf">Микшер</span><span class="ls">Микшер</span></button><button class="ed-b st-kbb" id="stMetroBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.2 3h3.6l4.7 17H5.5zm1.3 2-1.2 4.5 4.6 4.9L13.2 5zM9.7 11.6 8 18h8.2z"/></svg><span class="lf">Метроном</span><span class="ls">Метроном</span></button><button class="ed-b st-kbb" id="stWheelBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg><span class="lf">Круг аккордов</span><span class="ls">Аккорды</span></button><button class="ed-b st-kbb" id="stTunerBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M8 2h2v7a2 2 0 0 0 4 0V2h2v7a4 4 0 0 1-3 3.87V22h-2v-9.13A4 4 0 0 1 8 9z"/></svg><span class="lf">Тюнер</span><span class="ls">Тюнер</span></button>
       <button class="ed-b" id="st_cut" hidden>Разрезать</button><button class="ed-b" id="st_copy" hidden>Копировать</button><button class="ed-b" id="st_paste" hidden>Вставить</button><button class="ed-b danger" id="st_del" hidden>Очистить</button>
     </div>
   </div>
@@ -3651,7 +3654,7 @@ function fitSheet(id, dial, r, min, max, opts){
   const fitTuner=()=>fitSheet('tunerSheet',$('tuGauge'),175/340,170,340,[document.querySelector('.tu-hint')]);
   addEventListener('resize',()=>fitTuner());
   function closeTuner(){ micOff(); sheet('tunerSheet',false); }
-  ['stTuner','stTuner2'].forEach(id=>$(id).addEventListener('click',openTuner));
+  $('stTunerBtn').addEventListener('click',openTuner);
   $('tuClose').addEventListener('click',closeTuner);
   $('mixBack').addEventListener('click',()=>{ if(stream && $('tunerSheet').hidden) micOff(); });
   $('tuSets').addEventListener('click',e=>{ const b=e.target.closest('[data-tuset]'); if(!b) return; set=SETS.find(x=>x.id===b.dataset.tuset); store.set('tuSet',set.id); pick=null; hist=[]; renderSets(); show(0); fitTuner(); });
@@ -3756,7 +3759,7 @@ function fitSheet(id, dial, r, min, max, opts){
     if(m){ const r=CH_NAMES.indexOf(m[1])>=0?CH_NAMES.indexOf(m[1]):NOTE_NM.indexOf(m[1]), minor=/^m(?!aj)/.test(m[2]);
       if(r>=0 && !/^dim/.test(m[2])){ const i=[...Array(12).keys()].find(i=>pc(minor?'min':'maj',i)===r); if(i!=null) sel={ring:minor?'min':'maj', i}; } }
     sheet('wheelSheet',true); render(); fitWheel(); initAudio(); loadInst(pno.inst); $('cwClose').focus(); }
-  ['stWheel','stWheel2'].forEach(id=>$(id).addEventListener('click',openWheel));
+  $('stWheelBtn').addEventListener('click',openWheel);
   $('cwClose').addEventListener('click',()=>{ progTimers.forEach(clearTimeout); sheet('wheelSheet',false); });
   render();
 })();
