@@ -609,6 +609,38 @@ svg.cw-wheel{width:100%;max-width:360px;height:auto;display:block;user-select:no
 .cw-prow .pc{font-weight:600}
 .cw-prow .pc span{display:inline-block;padding:0 3px;border-radius:5px}
 .cw-prow .pc span.playing{background:var(--cw-ton);color:#fff}
+/* guitar tuner: microphone pitch, needle within ±50 cents */
+#stTuner2{display:none}
+@media (max-width:440px){ #stTuner{display:none} #stTuner2{display:grid;width:24px;height:24px;border-radius:6px} #stTuner2 svg{width:15px;height:15px} }
+.tu-sets{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
+.tu-sets button{border:1px solid var(--line);background:var(--panel-2);color:var(--muted);border-radius:8px;padding:6px 10px;font:inherit;font-size:13px}
+.tu-sets button[aria-pressed="true"]{border-color:var(--brass);color:var(--brass);font-weight:600}
+.tu-disp{display:flex;flex-direction:column;align-items:center;background:linear-gradient(#0e1116,var(--lcd));border:1px solid #000;border-radius:14px;box-shadow:inset 0 2px 8px rgba(0,0,0,.85);padding:10px 10px 12px}
+.tu-gauge{width:100%;max-width:340px;height:auto;display:block}
+.tu-gauge .tick{stroke:#5d6675;stroke-width:2}
+.tu-gauge .tick.big{stroke:#9fb0c6;stroke-width:3}
+.tu-gauge .zone{fill:none;stroke:#2fd27a;stroke-width:10;opacity:.35}
+.tu-gauge .lab{fill:#9fb0c6;font-size:13px;text-anchor:middle}
+.tu-needle{transition:transform .12s linear;transform-origin:0 0}
+.tu-needle line{stroke:var(--warn);stroke-width:4;stroke-linecap:round}
+.tu-disp.ok .tu-needle line{stroke:#2fd27a}
+.tu-disp.idle .tu-needle line{stroke:#5d6675}
+.tu-note{font-size:56px;font-weight:800;line-height:1;color:var(--lcd-fg);margin-top:-6px;font-variant-numeric:tabular-nums}
+.tu-note sub{font-size:20px;font-weight:600;color:var(--lcd-dim);vertical-align:baseline;margin-left:2px}
+.tu-disp.ok .tu-note{color:#2fd27a;text-shadow:0 0 14px rgba(47,210,122,.5)}
+.tu-hz{color:var(--lcd-dim);font-size:13px;font-variant-numeric:tabular-nums;min-height:1.4em}
+.tu-msg{font-size:15px;font-weight:600;color:var(--lcd-fg);min-height:1.4em;margin-top:2px}
+.tu-strs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:12px}
+.tu-strs.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tu-strs button{border:1px solid var(--line);background:var(--panel-2);color:var(--fg);border-radius:10px;padding:8px 0;font:inherit;font-weight:700;font-size:17px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.tu-strs button small{font-size:10px;font-weight:500;color:var(--muted)}
+.tu-strs button.near{border-color:var(--brass)}
+.tu-strs button.ok{border-color:#2fd27a;color:#2fd27a}
+.tu-strs button[aria-pressed="true"]{background:var(--brass);color:var(--brass-ink);border-color:var(--brass)}
+.tu-strs button[aria-pressed="true"] small{color:var(--brass-ink)}
+.tu-row{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--muted);font-size:13px}
+.tu-row output{min-width:6.5em;text-align:center;color:var(--fg);font-weight:600}
+.tu-hint{color:var(--muted);font-size:12px;margin:10px 0 0}
 /* pads panel in the Studio */
 .st-padp .padsec{height:clamp(110px,24vh,190px);min-height:0;display:flex;align-items:center;justify-content:center;margin-top:6px}
 .st-padp .kb-head .cb.tp{width:32px;height:30px}.st-padp .kb-head .cb.tp svg{width:18px;height:18px}
@@ -863,13 +895,13 @@ body.mic-on #stPlay{background:var(--rec)}
         <button class="cb" id="stStop" aria-label="Стоп"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg></button><button class="cb" id="stLoopTop" aria-label="Зациклить" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
       </div>
       <div class="lcd" id="stLcd" role="button" tabindex="0" aria-label="Темп песни" aria-haspopup="dialog"><b id="stLcdPos">1.1</b><span class="lcd-s"><output id="stTimeOut">0:00 / 0:00</output><output id="stInfo"></output></span></div>
-      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div><div class="chords" id="stChords" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div><button class="cw-btn" id="stWheel" aria-label="Круг аккордов" title="Круг аккордов" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></button>
+      <div class="cb-g bars"><button class="cb sm" id="stBarMinus" aria-label="Убрать такт">−</button><button class="cb sm" id="stBarPlus" aria-label="Добавить такт">+</button></div><div class="chords" id="stChords" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div><button class="cw-btn" id="stWheel" aria-label="Круг аккордов" title="Круг аккордов" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></button><button class="cw-btn" id="stTuner" aria-label="Тюнер" title="Тюнер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M8 2h2v7a2 2 0 0 0 4 0V2h2v7a4 4 0 0 1-3 3.87V22h-2v-9.13A4 4 0 0 1 8 9z"/></svg></button>
       <span class="st-sp"></span>
       <button class="cb" id="projSave" aria-label="Сохранить проект в файл" title="Сохранить проект"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zm2 2v5h9V5zm5 8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></button><button class="cb" id="projImp" aria-label="Импорт проекта из файла" title="Импорт проекта"><svg viewBox="0 0 24 24"><path d="M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 18h16v3H4z"/></svg></button><button class="info" id="stInfoBtn" aria-label="Подсказки" aria-expanded="false" aria-controls="stHint">i</button><input type="file" id="projFile" accept=".zastudio,.json,application/json" hidden>
     </div>
     <div class="ed-hint" id="stHint" hidden>Кнопка с ключом слева сверху открывает меню: песни, миксер, EQ, повтор, отсчёт, темп и громкость. Слева инструменты, справа их MIDI-дорожки. «+ Синтезатор», «+ Бас» и другие добавляют инструмент. Нажатие на название меняет звук, долгое нажатие открывает действия (удаление). Крутилка: громкость, двойное нажатие возвращает её. M глушит, S оставляет только солирующие, R включает запись с клавиатуры. Полоса времени сверху: нажмите или ведите, чтобы перейти в любое место; ⏮ возвращает в начало. Нажатие на дорожку выбирает кусок (белая рамка), второе нажатие открывает меню куска: редактор нот, разрезать, копировать, вставить, удалить, добавить WAV/MP3 или MIDI. Выбранный кусок тащите за середину: он едет вместе с нотами по времени или на другой инструмент. Тащите за левый или правый край, чтобы обрезать: ноты за рамкой удаляются. Аудиокуски работают так же, обрезка у них обратимая. Разрезать режет выбранную дорожку по курсору, Копировать и Вставить работают с выбранным куском (вставка по курсору). Стрелка ↶ сверху отменяет последнее действие. «+ Аудио (WAV)» добавляет аудиодорожку с курсора: она играет вместе с песней, её можно двигать пальцем по времени, M глушит, кнопка с процентами меняет громкость, × удаляет (нажать дважды). Аудио не сохраняется между запусками. «+ MIDI-файл» добавляет свою дорожку: барабаны идут в барабаны, остальные партии становятся инструментами (с курсора). Долгое нажатие на инструмент: загрузить MIDI-файл прямо в эту дорожку. Двумя пальцами по дорожкам: развести вверх-вниз делает дорожки выше, свести ниже; развести вправо-влево растягивает дорожки по времени, свести сжимает. Растянутые дорожки листаются одним пальцем вбок.</div>
     <div class="bpm-pop" id="bpmPop" role="dialog" aria-label="Темп песни" hidden><button class="ed-b" id="bpmM5" aria-label="На 5 BPM медленнее">−5</button><button class="ed-b" id="bpmM1" aria-label="На 1 BPM медленнее">−</button><div class="bpm-v"><b id="bpmVal">120</b><small>BPM</small></div><button class="ed-b" id="bpmP1" aria-label="На 1 BPM быстрее">+</button><button class="ed-b" id="bpmP5" aria-label="На 5 BPM быстрее">+5</button></div>
-    <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div><button class="cw-btn" id="stWheel2" aria-label="Круг аккордов" title="Круг аккордов" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></button></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
+    <div class="st-tl"><span class="st-corner"><span class="st-ctl">Такты</span><div class="chords" id="stChords2" aria-live="off" title="Аккорды: прошлый, текущий, следующий"><span class="chp">—</span><span class="chc">—</span><span class="chn">—</span></div><button class="cw-btn" id="stWheel2" aria-label="Круг аккордов" title="Круг аккордов" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></button><button class="cw-btn" id="stTuner2" aria-label="Тюнер" title="Тюнер" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M8 2h2v7a2 2 0 0 0 4 0V2h2v7a4 4 0 0 1-3 3.87V22h-2v-9.13A4 4 0 0 1 8 9z"/></svg></button></span><div class="st-time"><canvas id="stTime"></canvas></div></div>
     <div class="st-rows" id="stRows"></div><input type="file" id="stWav" accept="audio/*,.wav,.wave,.mp3,.ogg,.m4a,.flac" multiple hidden><input type="file" id="stFile" accept=".mid,.midi,.kar,audio/midi,audio/x-midi" hidden>
     <div class="st-kb" id="stKb" hidden>
       <div class="kb-grip" data-grip="kb" aria-label="Потяните, чтобы изменить высоту клавиатуры" role="separator"></div>
@@ -934,6 +966,21 @@ body.mic-on #stPlay{background:var(--rec)}
     <div class="mixer-in">
       <div class="mix-head"><div class="mh"><h2 id="fxTitle">FX</h2><small>Дилей и реверберация общие, ползунок задаёт, сколько дорожки в них уходит</small></div><div class="acts"><button id="fxReset">Сбросить</button><button id="fxClose">Готово</button></div></div>
       <div id="fxRows"></div>
+    </div>
+  </div>
+  <div class="mixer" id="tunerSheet" role="dialog" aria-label="Тюнер" hidden>
+    <div class="mixer-in">
+      <div class="mix-head"><h2>Тюнер</h2><div class="acts"><button id="tuClose">Закрыть</button></div></div>
+      <div class="tu-sets" id="tuSets" role="group" aria-label="Строй"></div>
+      <div class="tu-disp idle" id="tuDisp">
+        <svg class="tu-gauge" id="tuGauge" viewBox="-170 -160 340 175" aria-hidden="true"></svg>
+        <div class="tu-note" id="tuNote" aria-live="polite">—</div>
+        <div class="tu-hz" id="tuHz"></div>
+        <div class="tu-msg" id="tuMsg">Включаю микрофон…</div>
+      </div>
+      <div class="tu-strs" id="tuStrs"></div>
+      <div class="tu-row"><span>Ля первой октавы</span><span class="st-sp"></span><button class="ed-b" id="tuAm" aria-label="Ниже на 1 Гц">−</button><output id="tuA4">440 Гц</output><button class="ed-b" id="tuAp" aria-label="Выше на 1 Гц">+</button></div>
+      <p class="tu-hint">Тюнер слушает микрофон телефона. Играйте одну открытую струну, по струне за раз. Нажатие на струну внизу проиграет её звук и будет сравнивать только с ней, повторное нажатие вернёт автоматический выбор.</p>
     </div>
   </div>
   <div class="mixer" id="wheelSheet" role="dialog" aria-label="Круг аккордов" hidden>
@@ -3491,6 +3538,94 @@ function showChords(force){ const p=pos(); let i=-1; for(let lo=0,hi=chordList.l
   if(i===chIdx && !force) return; chIdx=i;
   const nm=j=>chordList[j] ? chordList[j].name : '—', cur = i<0 ? (chordList.length?'·':'—') : nm(i), next = i<0 ? nm(0) : nm(i+1);
   ['stChords','stChords2'].forEach(id=>{ const el=$(id); if(!el) return; el.children[0].textContent=i>0?nm(i-1):'—'; el.children[1].textContent=cur; el.children[2].textContent=next; }); }
+
+/* ---------- guitar tuner: the phone microphone, pitch by the YIN method, needle within ±50 cents of the string ---------- */
+(() => {
+  const SETS=[
+    {id:'std',  name:'Стандарт', inst:'gtr_clean', s:[40,45,50,55,59,64]},
+    {id:'dropd',name:'Drop D',   inst:'gtr_clean', s:[38,45,50,55,59,64]},
+    {id:'half', name:'Полтона ниже', inst:'gtr_clean', s:[39,44,49,54,58,63]},
+    {id:'bass', name:'Бас', inst:'bass_finger', s:[28,33,38,43]},
+  ];
+  const NN=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  let set=SETS.find(x=>x.id===store.get('tuSet'))||SETS[0], a4=+store.get('tuA4')||440, pick=null;
+  let stream=null, src=null, an=null, buf=null, timer=null, hist=[], quiet=0, opening=false;
+  const freqOf=n=>a4*Math.pow(2,(n-69)/12), midiOf=f=>69+12*Math.log2(f/a4);
+  // the scale: ticks every 10 cents, a green zone of ±5
+  (()=>{ const g=$('tuGauge'), NS='http://www.w3.org/2000/svg', R=140, ang=c=>c/50*60*Math.PI/180; let h='';
+    for(let c=-50;c<=50;c+=5){ const a=ang(c), big=c%25===0, r0=big?R-18:(c%10===0?R-12:R-7); h+=`<line class="tick${big?' big':''}" x1="${(r0*Math.sin(a)).toFixed(1)}" y1="${(-r0*Math.cos(a)).toFixed(1)}" x2="${(R*Math.sin(a)).toFixed(1)}" y2="${(-R*Math.cos(a)).toFixed(1)}"/>`; }
+    const z0=ang(-5), z1=ang(5), Rz=R+8; h+=`<path class="zone" d="M${(Rz*Math.sin(z0)).toFixed(1)} ${(-Rz*Math.cos(z0)).toFixed(1)}A${Rz} ${Rz} 0 0 1 ${(Rz*Math.sin(z1)).toFixed(1)} ${(-Rz*Math.cos(z1)).toFixed(1)}"/>`;
+    [[-50,'−50'],[-25,'−25'],[0,'0'],[25,'+25'],[50,'+50']].forEach(([c,t])=>{ const a=ang(c), r=R-32; h+=`<text class="lab" x="${(r*Math.sin(a)).toFixed(1)}" y="${(-r*Math.cos(a)+4).toFixed(1)}">${t}</text>`; });
+    h+=`<g class="tu-needle" id="tuNeedle"><line x1="0" y1="0" x2="0" y2="${-R+4}"/></g><circle r="7" fill="#9fb0c6"/>`;
+    g.innerHTML=h; })();
+  function renderSets(){
+    $('tuSets').innerHTML=SETS.map(x=>`<button data-tuset="${x.id}" aria-pressed="${x===set}">${x.name}</button>`).join('');
+    $('tuStrs').className='tu-strs'+(set.s.length===4?' four':'');
+    $('tuStrs').innerHTML=set.s.map((n,k)=>`<button data-tus="${k}" aria-pressed="${pick===k}"><span>${NN[n%12]}</span><small>${set.s.length-k} стр.</small></button>`).join('');
+    $('tuA4').textContent=a4+' Гц'; }
+  // YIN: the lag at which the signal best matches itself is the period; parabola through the minimum for sub-sample precision
+  function yin(x, sr){
+    const W=Math.floor(x.length/2), tMin=Math.floor(sr/1100), tMax=Math.min(W-1, Math.ceil(sr/(set.id==='bass'?36:62)));
+    const d=new Float32Array(tMax+2); let run=0;
+    for(let t=1;t<=tMax+1;t++){ let s=0; for(let j=0;j<W;j++){ const v=x[j]-x[j+t]; s+=v*v; } run+=s; d[t]=run>0 ? s*t/run : 1; }
+    // the shortest lag whose dip is nearly as deep as the deepest one: a noisy (distorted) note can match itself
+    // slightly better two periods later, and taking that would read an octave low
+    let gmin=1; for(let t=tMin;t<=tMax;t++) if(d[t]<gmin) gmin=d[t];
+    if(gmin>0.3) return 0;
+    const thr=Math.max(0.12, gmin+0.12); let tau=-1;
+    for(let t=tMin;t<=tMax;t++) if(d[t]<=thr){ while(t+1<=tMax && d[t+1]<d[t]) t++; tau=t; break; }
+    if(tau<=0) return 0;
+    const a=d[tau-1], b=d[tau], c=d[tau+1], den=a-2*b+c, sh=den>0 ? 0.5*(a-c)/den : 0;
+    return sr/(tau+Math.max(-1,Math.min(1,sh))); }
+  function show(f){
+    const disp=$('tuDisp');
+    if(!f){ disp.className='tu-disp idle'; $('tuNeedle').style.transform='rotate(0deg)'; $('tuMsg').textContent='Сыграйте струну'; $('tuHz').textContent='';
+      if(pick===null){ $('tuNote').innerHTML='—'; } document.querySelectorAll('#tuStrs button').forEach(b=>b.classList.remove('near','ok')); return; }
+    const m=midiOf(f);
+    // the string to tune: the chosen one, or the nearest string of this tuning
+    let k=pick; if(k===null){ let bd=1e9; set.s.forEach((n,i)=>{ const dd=Math.abs(m-n); if(dd<bd){ bd=dd; k=i; } }); }
+    let target=set.s[k], cents=(m-target)*100;
+    if(Math.abs(cents)>600 && pick===null){ target=Math.round(m); cents=(m-target)*100; k=-1; }   // far from every string: plain chromatic tuner
+    const c=Math.max(-50,Math.min(50,cents)), ok=Math.abs(cents)<=5;
+    disp.className='tu-disp'+(ok?' ok':'');
+    $('tuNeedle').style.transform=`rotate(${(c/50*60).toFixed(1)}deg)`;
+    $('tuNote').innerHTML=`${NN[target%12]}<sub>${Math.floor(target/12)-1}</sub>`;
+    $('tuHz').textContent=`${f.toFixed(1)} Гц · ${cents>0?'+':''}${Math.round(cents)} центов`;
+    $('tuMsg').textContent= ok ? 'Точно' : Math.abs(cents)>=300 ? (cents<0?'Сильно ниже: подтяните струну':'Сильно выше: ослабьте струну') : cents<0 ? 'Ниже: подтяните ↑' : 'Выше: ослабьте ↓';
+    document.querySelectorAll('#tuStrs button').forEach((b,i)=>{ b.classList.toggle('near',i===k && !ok); b.classList.toggle('ok',i===k && ok); }); }
+  function tick(){ if(!an) return;
+    an.getFloatTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++) s+=buf[i]*buf[i]; const rms=Math.sqrt(s/buf.length);
+    const f = rms>0.006 ? yin(buf, ctx.sampleRate) : 0;
+    if(f>0){ quiet=0; if(hist.length && Math.abs(midiOf(f)-midiOf(hist[hist.length-1]))>0.6) hist=[]; hist.push(f); if(hist.length>5) hist.shift();
+      const sorted=[...hist].sort((a,b)=>a-b); show(sorted[sorted.length>>1]); }
+    else if(++quiet>8){ hist=[]; show(0); } }
+  async function micOn(){
+    if(stream || opening) return; opening=true;
+    initAudio(); if(ctx.state!=='running') await ctx.resume();
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ $('tuMsg').textContent='Микрофон здесь недоступен'; opening=false; return; }
+    try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }
+    catch(e){ $('tuMsg').textContent='Нет доступа к микрофону. Разрешите его приложению в настройках телефона.'; opening=false; return; }
+    opening=false;
+    if($('tunerSheet').hidden){ micOff(); return; }   // closed while the permission prompt was up
+    src=ctx.createMediaStreamSource(stream); an=ctx.createAnalyser(); an.fftSize=4096; buf=new Float32Array(an.fftSize); src.connect(an);   // listened to, never sent to the speaker
+    hist=[]; quiet=0; show(0); timer=setInterval(tick,60); }
+  function micOff(){ clearInterval(timer); timer=null; try{ src&&src.disconnect(); }catch(_){} src=null; an=null; if(stream) stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  function openTuner(){ if(playing) pause(); pick=null; renderSets(); show(0); $('tuMsg').textContent='Включаю микрофон…'; sheet('tunerSheet',true); $('tuClose').focus(); micOn(); }
+  function closeTuner(){ micOff(); sheet('tunerSheet',false); }
+  ['stTuner','stTuner2'].forEach(id=>$(id).addEventListener('click',openTuner));
+  $('tuClose').addEventListener('click',closeTuner);
+  $('mixBack').addEventListener('click',()=>{ if(stream && $('tunerSheet').hidden) micOff(); });
+  $('tuSets').addEventListener('click',e=>{ const b=e.target.closest('[data-tuset]'); if(!b) return; set=SETS.find(x=>x.id===b.dataset.tuset); store.set('tuSet',set.id); pick=null; hist=[]; renderSets(); show(0); });
+  $('tuStrs').addEventListener('click',e=>{ const b=e.target.closest('[data-tus]'); if(!b) return; const k=+b.dataset.tus;
+    pick = pick===k ? null : k; hist=[]; renderSets(); show(0);
+    if(pick!==null){ $('tuNote').innerHTML=`${NN[set.s[k]%12]}<sub>${Math.floor(set.s[k]/12)-1}</sub>`;
+      // the reference note on the app's guitar (or bass)
+      const p={inst:set.inst, vol:0.8, solo:true, fx:null}, n=set.s[k];
+      loadInst(set.inst).then(()=>{ if(Array.isArray(instBufs[set.inst])) playInst(p,n,100,ctx.currentTime+0.02,1.8); }); } });
+  const setA=d=>{ a4=Math.max(430,Math.min(450,a4+d)); store.set('tuA4',a4); renderSets(); };
+  $('tuAm').addEventListener('click',()=>setA(-1)); $('tuAp').addEventListener('click',()=>setA(1));
+  renderSets();
+})();
 
 /* ---------- chord wheel: circle of fifths with the chords of the chosen key, played on the studio piano ---------- */
 (() => {
